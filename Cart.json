@@ -1,0 +1,101 @@
+[
+    {
+        "CART_ID": "C001",
+        "USER_ID": "1",
+        "ITEMS": [
+            {
+                "COURSE_ID": 1,
+                "TITLE": "Introduction to Programming",
+                "PRICE": 50
+            },
+            {
+                "COURSE_ID": 2,
+                "TITLE": "Advanced Web Development",
+                "PRICE": 100
+            }
+        ],
+        "TOTAL_PRICE": 150,
+        "STATUS": "active",
+        "PAYMENT": {
+            "METHOD": "Credit Card",
+            "DATE": "2025-03-01"
+        }
+    },
+    {
+        "CART_ID": "C002",
+        "USER_ID": "2",
+        "ITEMS": [
+            {
+                "COURSE_ID": 3,
+                "TITLE": "Digital Marketing Strategies",
+                "PRICE": 60
+            }
+        ],
+        "TOTAL_PRICE": 60,
+        "STATUS": "active",
+        "PAYMENT": null
+    },
+    {
+        "CART_ID": "C003",
+        "USER_ID": "3",
+        "ITEMS": [
+            {
+                "COURSE_ID": 4,
+                "TITLE": "Graphic Design Essentials",
+                "PRICE": 80
+            }
+        ],
+        "TOTAL_PRICE": 80,
+        "STATUS": "active",
+        "PAYMENT": {
+            "METHOD": "PayPal",
+            "DATE": "2025-03-05"
+        }
+    },
+    {
+        "CART_ID": "C004",
+        "USER_ID": "4",
+        "ITEMS": [
+            {
+                "COURSE_ID": 5,
+                "TITLE": "Data Science for Beginners",
+                "PRICE": 90
+            },
+            {
+                "COURSE_ID": 1,
+                "TITLE": "Introduction to Programming",
+                "PRICE": 50
+            }
+        ],
+        "TOTAL_PRICE": 140,
+        "STATUS": "active",
+        "PAYMENT": null
+    },
+    {
+        "CART_ID": "C005",
+        "USER_ID": "5",
+        "ITEMS": [
+            {
+                "COURSE_ID": 2,
+                "TITLE": "Advanced Web Development",
+                "PRICE": 100
+            },
+            {
+                "COURSE_ID": 3,
+                "TITLE": "Digital Marketing Strategies",
+                "PRICE": 60
+            },
+            {
+                "COURSE_ID": 5,
+                "TITLE": "Data Science for Beginners",
+                "PRICE": 90
+            }
+        ],
+        "TOTAL_PRICE": 250,
+        "STATUS": "active",
+        "PAYMENT": {
+            "METHOD": "Credit Card",
+            "DATE": "2025-03-10"
+        }
+    }
+]

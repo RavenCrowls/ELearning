@@ -1,0 +1,17 @@
+[
+    {
+        "ROLE_ID": "1",
+        "ROLE_NAME": "Instructor",
+        "STATUS": 1
+    },
+    {
+        "ROLE_ID": "2",
+        "ROLE_NAME": "Admin",
+        "STATUS": 1
+    },
+    {
+        "ROLE_ID": "3",
+        "ROLE_NAME": "Learner",
+        "STATUS": 1
+    }
+]

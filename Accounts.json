@@ -1,0 +1,42 @@
+[
+    {
+        "ACC_ID": "1",
+        "USER_ID": "1",
+        "USERNAME": "alicej",
+        "PASSWORD": "password123",
+        "ROLE_ID": "admin",
+        "STATUS": 1
+    },
+    {
+        "ACC_ID": "2",
+        "USER_ID": "2",
+        "USERNAME": "bobsmith",
+        "PASSWORD": "securepass456",
+        "ROLE_ID": "learner",
+        "STATUS": 1
+    },
+    {
+        "ACC_ID": "3",
+        "USER_ID": "3",
+        "USERNAME": "carollee",
+        "PASSWORD": "mypassword789",
+        "ROLE_ID": "instructor",
+        "STATUS": 1
+    },
+    {
+        "ACC_ID": "4",
+        "USER_ID": "4",
+        "USERNAME": "davidn",
+        "PASSWORD": "passphrase321",
+        "ROLE_ID": "admin",
+        "STATUS": 1
+    },
+    {
+        "ACC_ID": "5",
+        "USER_ID": "5",
+        "USERNAME": "evam",
+        "PASSWORD": "password000",
+        "ROLE_ID": "learner",
+        "STATUS": 1
+    }
+]

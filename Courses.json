@@ -1,0 +1,127 @@
+[
+    {
+        "COURSE_ID": 1,
+        "TITLE": "Introduction to Programming",
+        "DESCRIPTION": "Learn the basics of programming using Python.",
+        "CATEGORY_ID": "1",
+        "INSTRUCTOR_ID": "3",
+        "CREATED_DATE": "2023-01-01",
+        "PRICE": 50,
+        "STATUS": 1,
+        "APPROVAL_STATUS": "Approved",
+        "LECTURES": [
+            {
+                "LECTURE_ID": 1,
+                "TITLE": "Introduction to Python",
+                "DURATION": "30 minutes",
+                "CONTENT": "Basics of Python programming language."
+            },
+            {
+                "LECTURE_ID": 2,
+                "TITLE": "Variables and Data Types",
+                "DURATION": "45 minutes",
+                "CONTENT": "Understanding variables and data types in Python."
+            }
+        ]
+    },
+    {
+        "COURSE_ID": 2,
+        "TITLE": "Advanced Web Development",
+        "DESCRIPTION": "Master front-end and back-end web development skills.",
+        "CATEGORY_ID": "2",
+        "INSTRUCTOR_ID": "1",
+        "CREATED_DATE": "2023-02-15",
+        "PRICE": 100,
+        "STATUS": 1,
+        "APPROVAL_STATUS": "Pending",
+        "LECTURES": [
+            {
+                "LECTURE_ID": 3,
+                "TITLE": "HTML and CSS Basics",
+                "DURATION": "40 minutes",
+                "CONTENT": "Introduction to HTML and CSS."
+            },
+            {
+                "LECTURE_ID": 4,
+                "TITLE": "JavaScript Fundamentals",
+                "DURATION": "50 minutes",
+                "CONTENT": "Understanding the basics of JavaScript."
+            }
+        ]
+    },
+    {
+        "COURSE_ID": 3,
+        "TITLE": "Digital Marketing Strategies",
+        "DESCRIPTION": "Develop effective digital marketing campaigns.",
+        "CATEGORY_ID": "3",
+        "INSTRUCTOR_ID": "4",
+        "CREATED_DATE": "2023-03-10",
+        "PRICE": 60,
+        "STATUS": 1,
+        "APPROVAL_STATUS": "Approved",
+        "LECTURES": [
+            {
+                "LECTURE_ID": 5,
+                "TITLE": "SEO Basics",
+                "DURATION": "35 minutes",
+                "CONTENT": "Introduction to Search Engine Optimization."
+            },
+            {
+                "LECTURE_ID": 6,
+                "TITLE": "Social Media Marketing",
+                "DURATION": "45 minutes",
+                "CONTENT": "Strategies for effective social media marketing."
+            }
+        ]
+    },
+    {
+        "COURSE_ID": 4,
+        "TITLE": "Graphic Design Essentials",
+        "DESCRIPTION": "Learn the fundamentals of graphic design using Adobe tools.",
+        "CATEGORY_ID": "4",
+        "INSTRUCTOR_ID": "3",
+        "CREATED_DATE": "2023-04-05",
+        "PRICE": 80,
+        "STATUS": 1,
+        "APPROVAL_STATUS": "Pending",
+        "LECTURES": [
+            {
+                "LECTURE_ID": 7,
+                "TITLE": "Introduction to Graphic Design",
+                "DURATION": "30 minutes",
+                "CONTENT": "Basics of graphic design principles."
+            },
+            {
+                "LECTURE_ID": 8,
+                "TITLE": "Adobe Photoshop Basics",
+                "DURATION": "50 minutes",
+                "CONTENT": "Getting started with Adobe Photoshop."
+            }
+        ]
+    },
+    {
+        "COURSE_ID": 5,
+        "TITLE": "Data Science for Beginners",
+        "DESCRIPTION": "Introduction to data science concepts and tools.",
+        "CATEGORY_ID": "5",
+        "INSTRUCTOR_ID": "1",
+        "CREATED_DATE": "2023-05-20",
+        "PRICE": 90,
+        "STATUS": 1,
+        "APPROVAL_STATUS": "Approved",
+        "LECTURES": [
+            {
+                "LECTURE_ID": 9,
+                "TITLE": "Introduction to Data Science",
+                "DURATION": "40 minutes",
+                "CONTENT": "Overview of data science and its applications."
+            },
+            {
+                "LECTURE_ID": 10,
+                "TITLE": "Data Analysis with Python",
+                "DURATION": "60 minutes",
+                "CONTENT": "Using Python for data analysis."
+            }
+        ]
+    }
+]
