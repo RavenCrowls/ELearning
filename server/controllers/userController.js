@@ -11,7 +11,7 @@ const createUser = async (req, res) => {
     }
 };
 
-const getUser = async (req, res) => {
+const getAllUser = async (req, res) => {
     try {
         const userList = await User.find();
         res.status(200).json(userList);
@@ -54,7 +54,7 @@ const updateUser = async (req, res) => {
 
 module.exports = {
     createUser,
-    getUser,
+    getAllUser,
     getDetailUser,
     deleteUser,
     updateUser,
