@@ -1,0 +1,9 @@
+{
+    "name": "services",
+    "scripts": {
+        "dev": "concurrently \"npm run dev --prefix user-service\""
+    },
+    "devDependencies": {
+        "concurrently": "^9.1.2"
+    }
+}
