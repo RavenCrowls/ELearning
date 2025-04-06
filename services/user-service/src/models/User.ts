@@ -6,7 +6,7 @@ interface IEnrollment {
 }
 
 export interface IUser extends Document {
-    id: string;
+    user_id: string;
     name: string;
     email: string;
     avatar?: string;
@@ -17,7 +17,7 @@ export interface IUser extends Document {
 }
 
 const userSchema: Schema = new Schema({
-    id: {
+    user_id: {
         type: String,
         required: true,
         unique: true,

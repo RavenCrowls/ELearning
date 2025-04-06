@@ -24,7 +24,7 @@ class UserController {
 
     async getAllUsers(req: Request, res: Response) {
         try {
-            const userList = await User.find();
+            const userList = await User.find({ STATUS: 1 });
             res.status(200).json(userList);
         } catch (error) {
             res.status(500).json({ message: "Error getting users", error });
@@ -34,7 +34,7 @@ class UserController {
     async getUser(req: Request, res: Response) {
         try {
             const { userId } = req.params;
-            const user = await User.findOne({ USER_ID: userId });
+            const user = await User.findOne({ USER_ID: userId, STATUS: 1 });
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
@@ -47,18 +47,17 @@ class UserController {
     async updateUser(req: Request, res: Response) {
         try {
             const { userId } = req.params;
-            const { NAME, EMAIL, AVATAR, BIO, JOINED_DATE, STATUS, ENROLLMENTS } = req.body;
+            const { NAME, EMAIL, AVATAR, BIO, JOINED_DATE, ENROLLMENTS } = req.body;
             const data = {
                 NAME,
                 EMAIL,
                 AVATAR,
                 BIO,
                 JOINED_DATE,
-                STATUS,
                 ENROLLMENTS
             };
             const updatedUser = await User.findOneAndUpdate(
-                { USER_ID: userId },
+                { USER_ID: userId, STATUS: 1 },
                 data,
                 { new: true }
             );
@@ -74,13 +73,15 @@ class UserController {
     async deleteUser(req: Request, res: Response) {
         try {
             const { userId } = req.params;
-            const result = await User.deleteOne({ USER_ID: userId });
-            if (result.deletedCount === 0) {
+            const user = await User.findOne({ USER_ID: userId, STATUS: 1 });
+            if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
-            res.status(200).json(result);
+            user.status = false;
+            await user.save();
+            res.status(200).json({ message: "User status updated to 0", user });
         } catch (error) {
-            res.status(500).json({ message: "Error deleting user", error });
+            res.status(500).json({ message: "Error updating user status", error });
         }
     }
 }
