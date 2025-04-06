@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { userRouter } from './routes/userRoutes';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ path: "../../.env" });
 
 const app: Application = express();
 const PORT: number = Number(process.env.USER_SERVICE_PORT) || 3000;

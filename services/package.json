@@ -1,9 +1,17 @@
 {
     "name": "services",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "user-service"
+    ],
     "scripts": {
-        "dev": "concurrently \"npm run dev --prefix user-service\""
+        "dev": "concurrently \"npm run dev --workspace=user-service\"",
+        "build": "npm run build --workspace=user-service"
     },
     "devDependencies": {
+        "@types/jest": "^29.5.14",
+        "@types/node": "^22.14.0",
         "concurrently": "^9.1.2"
     }
 }
