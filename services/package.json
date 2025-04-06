@@ -3,11 +3,12 @@
     "version": "1.0.0",
     "private": true,
     "workspaces": [
-        "user-service"
+        "user-service",
+        "student-service"
     ],
     "scripts": {
-        "dev": "concurrently \"npm run dev --workspace=user-service\"",
-        "build": "npm run build --workspace=user-service"
+        "dev": "concurrently \"npm run dev --workspace=user-service\" \"npm run dev --workspace=student-service\"",
+        "build": "npm run build --workspace=user-service && npm run build --workspace=student-service"
     },
     "devDependencies": {
         "@types/jest": "^29.5.14",

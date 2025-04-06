@@ -1,57 +1,60 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 interface IEnrollment {
-    course_id: string;
-    progress: number;
+    COURSE_ID: string;
+    PROGRESS: number;
 }
 
 export interface IUser extends Document {
-    user_id: string;
-    name: string;
-    email: string;
-    avatar?: string;
-    bio?: string;
-    join_date: Date;
-    status: boolean;
-    enrollments: IEnrollment[];
+    USER_ID: string;
+    NAME: string;
+    EMAIL: string;
+    AVATAR?: string;
+    BIO?: string;
+    JOIN_DATE: Date;
+    STATUS: boolean;
+    ENROLLMENTS: IEnrollment[];
 }
 
 const userSchema: Schema = new Schema({
-    user_id: {
+    USER_ID: {
         type: String,
         required: true,
         unique: true,
     },
-    name: {
+    NAME: {
         type: String,
         required: true,
     },
-    email: {
+    EMAIL: {
         type: String,
         required: true,
+        unique: true,
     },
-    avatar: {
+    AVATAR: {
         type: String,
+        default: null,
     },
-    bio: {
+    BIO: {
         type: String,
+        default: null,
     },
-    join_date: {
+    JOIN_DATE: {
         type: Date,
         default: Date.now,
     },
-    status: {
+    STATUS: {
         type: Boolean,
         default: true,
     },
-    enrollments: {
+    ENROLLMENTS: {
         type: [{
-            course_id: String,
-            progress: Number,
+            COURSE_ID: { type: String, required: true },
+            PROGRESS: { type: Number, required: true, min: 0, max: 100 },
         }],
         default: [],
     },
-});
+}, { versionKey: false });
 
 const User = mongoose.model<IUser>('User', userSchema);
 

@@ -4,14 +4,14 @@ import User, { IUser } from '../models/User';
 class UserController {
     async createUser(req: Request, res: Response) {
         try {
-            const { USER_ID, NAME, EMAIL, AVATAR, BIO, JOINED_DATE, STATUS, ENROLLMENTS } = req.body;
+            const { USER_ID, NAME, EMAIL, AVATAR, BIO, JOIN_DATE, STATUS, ENROLLMENTS } = req.body;
             const newUser = new User({
                 USER_ID,
                 NAME,
                 EMAIL,
                 AVATAR,
                 BIO,
-                JOINED_DATE,
+                JOIN_DATE,
                 STATUS,
                 ENROLLMENTS
             });
@@ -47,13 +47,13 @@ class UserController {
     async updateUser(req: Request, res: Response) {
         try {
             const { userId } = req.params;
-            const { NAME, EMAIL, AVATAR, BIO, JOINED_DATE, ENROLLMENTS } = req.body;
+            const { NAME, EMAIL, AVATAR, BIO, JOIN_DATE, ENROLLMENTS } = req.body;
             const data = {
                 NAME,
                 EMAIL,
                 AVATAR,
                 BIO,
-                JOINED_DATE,
+                JOIN_DATE,
                 ENROLLMENTS
             };
             const updatedUser = await User.findOneAndUpdate(
@@ -77,7 +77,7 @@ class UserController {
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
-            user.status = false;
+            user.STATUS = false;
             await user.save();
             res.status(200).json({ message: "User status updated to 0", user });
         } catch (error) {
