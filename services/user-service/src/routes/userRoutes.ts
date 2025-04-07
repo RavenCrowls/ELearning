@@ -4,7 +4,6 @@ import UserController from '../controllers/userController';
 const router = Router();
 const userController = new UserController();
 
-// Bind the controller methods to maintain correct 'this' context
 const {
     createUser,
     getAllUsers,

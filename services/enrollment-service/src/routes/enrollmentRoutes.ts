@@ -4,7 +4,6 @@ import EnrollmentController from '../controllers/enrollmentController';
 const router = Router();
 const enrollmentController = new EnrollmentController();
 
-// Bind the controller methods to maintain correct 'this' context
 const {
     createEnrollment,
     getAllEnrollments,

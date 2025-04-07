@@ -1,0 +1,28 @@
+{
+    "COURSE_ID": "1",
+    "TITLE": "Graphic Design Essentials",
+    "DESCRIPTION": "Learn the fundamentals of graphic design using Adobe tools.",
+    "CATEGORY_ID": "1",
+    "CREATED_DATE": "",
+    "PRICE": "20000",
+    "STATUS": "1",
+    "APPROVAL_STATUS": "Pending",
+    "LECTURES": [
+        {
+            "LECTURE_ID": "1",
+            "TITLE": "Beginner's Guide to Graphic Design",
+            "DURATION": "15:00",
+            "APPROVAL_STATUS": "Pending",
+            "URL": "https://www.example.com/lecture1",
+            "STATUS": "1"
+        },
+        {
+            "LECTURE_ID": "2",
+            "TITLE": "Intermediate Graphic Design Techniques",
+            "DURATION": "20:00",
+            "APPROVAL_STATUS": "Pending",
+            "URL": "https://www.example.com/lecture2",
+            "STATUS": "1"
+        }
+    ]
+}

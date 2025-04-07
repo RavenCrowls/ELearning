@@ -4,7 +4,13 @@ import Enrollment, { IEnrollment } from '../models/Enrollment';
 class EnrollmentController {
     async createEnrollment(req: Request, res: Response) {
         try {
-            const { ENROLLMENT_ID, COURSE_ID, USER_ID, PROGRESS, STATUS } = req.body;
+            const {
+                ENROLLMENT_ID,
+                COURSE_ID,
+                USER_ID,
+                PROGRESS,
+                STATUS
+            } = req.body;
             const newEnrollment = new Enrollment({
                 ENROLLMENT_ID,
                 COURSE_ID,
@@ -44,7 +50,11 @@ class EnrollmentController {
     async updateEnrollment(req: Request, res: Response) {
         try {
             const { enrollmentId } = req.params;
-            const { COURSE_ID, USER_ID, PROGRESS } = req.body;
+            const {
+                COURSE_ID,
+                USER_ID,
+                PROGRESS
+            } = req.body;
             const data = {
                 COURSE_ID,
                 USER_ID,

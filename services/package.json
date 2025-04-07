@@ -5,11 +5,12 @@
     "workspaces": [
         "user-service",
         "role-service",
-        "enrollment-service"
+        "enrollment-service",
+        "course-service"
     ],
     "scripts": {
-        "dev": "concurrently \"npm run dev --workspace=user-service\" \"npm run dev --workspace=role-service\" \"npm run dev --workspace=enrollment-service\"",
-        "build": "npm run build --workspace=user-service && npm run build --workspace=role-service && npm run build --workspace=enrollment-service"
+        "dev": "concurrently \"npm run dev --workspace=user-service\" \"npm run dev --workspace=role-service\" \"npm run dev --workspace=enrollment-service\" \"npm run dev --workspace=course-service\"",
+        "build": "npm run build --workspace=user-service && npm run build --workspace=role-service && npm run build --workspace=enrollment-service && npm run build --workspace=course-service"
     },
     "devDependencies": {
         "@types/jest": "^29.5.14",

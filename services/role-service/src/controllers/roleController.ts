@@ -4,7 +4,11 @@ import Role, { IRole } from '../models/Role';
 class RoleController {
     async createRole(req: Request, res: Response) {
         try {
-            const { ROLE_ID, NAME, STATUS } = req.body;
+            const {
+                ROLE_ID,
+                NAME,
+                STATUS
+            } = req.body;
             const newRole = new Role({
                 ROLE_ID,
                 NAME,
@@ -42,7 +46,9 @@ class RoleController {
     async updateRole(req: Request, res: Response) {
         try {
             const { roleId } = req.params;
-            const { NAME } = req.body;
+            const {
+                NAME
+            } = req.body;
             const data = {
                 NAME
             };

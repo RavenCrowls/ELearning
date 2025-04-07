@@ -4,7 +4,6 @@ import RoleController from '../controllers/roleController';
 const router = Router();
 const roleController = new RoleController();
 
-// Bind the controller methods to maintain correct 'this' context
 const {
     createRole,
     getAllRoles,

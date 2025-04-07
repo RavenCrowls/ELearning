@@ -4,7 +4,16 @@ import User, { IUser } from '../models/User';
 class UserController {
     async createUser(req: Request, res: Response) {
         try {
-            const { USER_ID, ROLE_ID, NAME, EMAIL, AVATAR, BIO, JOIN_DATE, STATUS } = req.body;
+            const {
+                USER_ID,
+                ROLE_ID,
+                NAME,
+                EMAIL,
+                AVATAR,
+                BIO,
+                JOIN_DATE,
+                STATUS
+            } = req.body;
             const newUser = new User({
                 USER_ID,
                 ROLE_ID,
@@ -47,7 +56,12 @@ class UserController {
     async updateUser(req: Request, res: Response) {
         try {
             const { userId } = req.params;
-            const { NAME, EMAIL, AVATAR, BIO } = req.body;
+            const {
+                NAME,
+                EMAIL,
+                AVATAR,
+                BIO
+            } = req.body;
             const data = {
                 NAME,
                 EMAIL,
