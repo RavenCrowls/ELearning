@@ -7,12 +7,12 @@ services:
     ports:
       - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
     environment:
-      - MONGO_URI=${MONGO_URI}/userdb
-    
-  product-service:
+      - MONGO_URI=${MONGO_URI}/users
+
+  student-service:
     build:
-      context: ./services/product-service
+      context: ./services/student-service
     ports:
-      - "${PRODUCT_SERVICE_PORT}:${PRODUCT_SERVICE_PORT}"
+      - "${STUDENT_SERVICE_PORT}:${STUDENT_SERVICE_PORT}"
     environment:
-      - MONGO_URI=${MONGO_URI}/productdb
+      - MONGO_URI=${MONGO_URI}/students

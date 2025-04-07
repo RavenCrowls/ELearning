@@ -1,7 +1,7 @@
 {
-    "name": "student-service",
+    "name": "role-service",
     "version": "1.0.0",
-    "description": "Student service for the microservices application",
+    "description": "Role service for the microservices application",
     "main": "src/app.ts",
     "scripts": {
         "start": "node dist/app.js",

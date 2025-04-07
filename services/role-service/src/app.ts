@@ -1,12 +1,12 @@
 import express, { Application } from 'express';
 import mongoose from 'mongoose';
-import { studentRouter } from './routes/studentRoutes';
+import { roleRouter } from './routes/roleRoutes';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: "../../.env" });
 
 const app: Application = express();
-const PORT: number = Number(process.env.STUDENT_SERVICE_PORT) || 3002;
+const PORT: number = Number(process.env.ROLE_SERVICE_PORT) || 3002;
 
 // Middleware
 app.use(express.json());
@@ -15,15 +15,15 @@ app.use(express.json());
 const mongoUri: string = String(process.env.MONGO_URI);
 
 mongoose.connect(mongoUri)
-    .then(() => console.log('Student database connected'))
-    .catch((err: Error) => console.error('Student database connection error:', err));
+    .then(() => console.log('Role database connected'))
+    .catch((err: Error) => console.error('Role database connection error:', err));
 
 // Routes
-app.use('/api/students', studentRouter);
+app.use('/api/roles', roleRouter);
 
 if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => {
-        console.log(`Student service is running on http://localhost:${PORT}`);
+        console.log(`Role service is running on http://localhost:${PORT}`);
     });
 }
 
