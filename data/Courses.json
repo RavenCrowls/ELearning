@@ -9,6 +9,16 @@
         "PRICE": 50,
         "STATUS": 1,
         "APPROVAL_STATUS": "Approved",
+        "STUDENTS": [
+            {
+                "STUDENT_ID": 1,
+                "PROGRESS": 50
+            },
+            {
+                "STUDENT_ID": 2,
+                "PROGRESS": 100
+            }
+        ],
         "LECTURES": [
             {
                 "LECTURE_ID": 1,

@@ -1,10 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-interface IEnrollment {
-  COURSE_ID: string;
-  PROGRESS: number;
-}
-
 export interface IStudent extends Document {
   STUDENT_ID: string;
   NAME: string;
@@ -13,7 +8,6 @@ export interface IStudent extends Document {
   BIO: string;
   JOIN_DATE: Date;
   STATUS: boolean;
-  ENROLLMENTS: IEnrollment[];
 }
 
 const studentSchema: Schema = new Schema({
@@ -29,7 +23,6 @@ const studentSchema: Schema = new Schema({
   EMAIL: {
     type: String,
     required: true,
-    unique: true,
   },
   AVATAR: {
     type: String,
@@ -46,13 +39,6 @@ const studentSchema: Schema = new Schema({
   STATUS: {
     type: Boolean,
     default: true,
-  },
-  ENROLLMENTS: {
-    type: [{
-      COURSE_ID: { type: String, required: true },
-      PROGRESS: { type: Number, required: true, min: 0, max: 100 },
-    }],
-    default: [],
   },
 }, { versionKey: false });
 
