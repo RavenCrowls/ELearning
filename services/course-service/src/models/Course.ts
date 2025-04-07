@@ -13,7 +13,7 @@ export interface ICourse extends Document {
   COURSE_ID: string;
   TITLE: string;
   DESCRIPTION: string;
-  CATEGORY_ID: string;
+  CATEGORIES: string[];
   CREATED_DATE: Date;
   PRICE: number;
   STATUS: boolean;
@@ -68,9 +68,10 @@ const courseSchema: Schema = new Schema(
       type: String,
       required: true,
     },
-    CATEGORY_ID: {
-      type: String,
+    CATEGORIES: {
+      type: [String],
       required: true,
+      default: [],
     },
     CREATED_DATE: {
       type: Date,

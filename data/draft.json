@@ -26,3 +26,9 @@
         }
     ]
 }
+
+{
+    "CATEGORY_ID": "1",
+    "NAME": "Technology",
+    "STATUS": "1"
+}

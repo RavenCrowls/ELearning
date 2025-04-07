@@ -6,11 +6,12 @@
         "user-service",
         "role-service",
         "enrollment-service",
-        "course-service"
+        "course-service",
+        "category-service"
     ],
     "scripts": {
-        "dev": "concurrently \"npm run dev --workspace=user-service\" \"npm run dev --workspace=role-service\" \"npm run dev --workspace=enrollment-service\" \"npm run dev --workspace=course-service\"",
-        "build": "npm run build --workspace=user-service && npm run build --workspace=role-service && npm run build --workspace=enrollment-service && npm run build --workspace=course-service"
+        "dev": "concurrently \"npm run dev --workspace=user-service\" \"npm run dev --workspace=role-service\" \"npm run dev --workspace=enrollment-service\" \"npm run dev --workspace=course-service\" \"npm run dev --workspace=category-service\"",
+        "build": "npm run build --workspace=user-service && npm run build --workspace=role-service && npm run build --workspace=enrollment-service && npm run build --workspace=course-service && npm run build --workspace=category-service"
     },
     "devDependencies": {
         "@types/jest": "^29.5.14",
