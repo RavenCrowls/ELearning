@@ -1,73 +1,15 @@
-[
-    {
-        "USER_ID": "1",
-        "NAME": "Alice Johnson",
-        "EMAIL": "alice.johnson@example.com",
-        "AVATAR": "",
-        "BIO": "Software developer with a love for open source.",
-        "JOINED_DATE": "2022-01-15",
-        "STATUS": 1,
-        "ENROLLMENTS": [
-            {
-                "COURSE_ID": "101",
-                "PROGRESSION": 75
-            },
-            {
-                "COURSE_ID": "102",
-                "PROGRESSION": 25
-            }
-        ]
-    },
-    {
-        "USER_ID": "2",
-        "NAME": "Bob Smith",
-        "EMAIL": "bob.smith@example.com",
-        "AVATAR": "",
-        "BIO": "Digital artist and coffee enthusiast.",
-        "JOINED_DATE": "2022-02-10",
-        "STATUS": 1,
-        "ENROLLMENTS": {
-            "COURSE_ID": "102",
-            "PROGRESSION": 50
-        }
-    },
-    {
-        "USER_ID": "3",
-        "NAME": "Carol Lee",
-        "EMAIL": "carol.lee@example.com",
-        "AVATAR": "",
-        "BIO": "Marketing specialist with a knack for storytelling.",
-        "JOINED_DATE": "2022-03-22",
-        "STATUS": 1,
-        "ENROLLMENTS": {
-            "COURSE_ID": "103",
-            "PROGRESSION": 100
-        }
-    },
-    {
-        "USER_ID": "4",
-        "NAME": "David Nguyen",
-        "EMAIL": "david.nguyen@example.com",
-        "AVATAR": "",
-        "BIO": "Entrepreneur and tech evangelist.",
-        "JOINED_DATE": "2022-04-18",
-        "STATUS": 1,
-        "ENROLLMENTS": {
-            "COURSE_ID": "104",
-            "PROGRESSION": 30
-        }
-    },
-    {
-        "USER_ID": "5",
-        "NAME": "Eva Martinez",
-        "EMAIL": "eva.martinez@example.com",
-        "AVATAR": "",
-        "BIO": "Content creator and social media influencer.",
-        "JOINED_DATE": "2022-05-05",
-        "STATUS": 1,
-        "ENROLLMENTS": {
-            "COURSE_ID": "105",
-            "PROGRESSION": 60
-        }
-    }
-]
+{
+    "USER_ID": "12345",
+    "ROLE_ID": "2",
+    "NAME": "Jane Doe",
+    "ADDRESS": "123 Main St, Anytown, USA",
+    "PHONE": "123-456-7890",
+    "BIRTH_DATE": "1990-01-01",
+    "EMAIL": "jandoe@example.com",
+    "USERNAME": "jandoe",
+    "PASSWORD": "password123",
+    "AVATAR": "https://example.com/avatar.jpg",
+    "BIO": "Passionate instructor with 5 years of experience in data science.",
+    "JOIN_DATE": "2023-05-20",
+    "STATUS": 1
+}

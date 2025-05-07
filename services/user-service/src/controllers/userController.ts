@@ -8,7 +8,12 @@ class UserController {
                 USER_ID,
                 ROLE_ID,
                 NAME,
+                ADDRESS,
+                PHONE,
+                BIRTH_DATE,
                 EMAIL,
+                USERNAME,
+                PASSWORD,
                 AVATAR,
                 BIO,
                 JOIN_DATE,
@@ -18,7 +23,12 @@ class UserController {
                 USER_ID,
                 ROLE_ID,
                 NAME,
+                ADDRESS,
+                PHONE,
+                BIRTH_DATE,
                 EMAIL,
+                USERNAME,
+                PASSWORD,
                 AVATAR,
                 BIO,
                 JOIN_DATE,
@@ -58,15 +68,25 @@ class UserController {
             const { userId } = req.params;
             const {
                 NAME,
+                ADDRESS,
+                PHONE,
+                BIRTH_DATE,
                 EMAIL,
+                USERNAME,
+                PASSWORD,
                 AVATAR,
                 BIO
             } = req.body;
             const data = {
                 NAME,
+                ADDRESS,
+                PHONE,
+                BIRTH_DATE,
                 EMAIL,
+                USERNAME,
+                PASSWORD,
                 AVATAR,
-                BIO,
+                BIO
             };
             const updatedUser = await User.findOneAndUpdate(
                 { USER_ID: userId, STATUS: 1 },

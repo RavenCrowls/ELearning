@@ -4,7 +4,12 @@ export interface IUser extends Document {
   USER_ID: string;
   ROLE_ID: string;
   NAME: string;
+  ADDRESS: string;
+  PHONE: string;
+  BIRTH_DATE: Date;
   EMAIL: string;
+  USERNAME: string;
+  PASSWORD: string;
   AVATAR: string;
   BIO: string;
   JOIN_DATE: Date;
@@ -25,7 +30,28 @@ const userSchema: Schema = new Schema({
     type: String,
     required: true,
   },
+  ADDRESS: {
+    type: String,
+    required: true,
+  },
+  PHONE: {
+    type: String,
+    required: true,
+  },
+  BIRTH_DATE: {
+    type: Date,
+    required: true,
+  },
   EMAIL: {
+    type: String,
+    required: true,
+  },
+  USERNAME: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  PASSWORD: {
     type: String,
     required: true,
   },
