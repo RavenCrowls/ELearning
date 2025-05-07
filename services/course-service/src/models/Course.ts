@@ -1,62 +1,28 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface ILecture extends Document {
-  LECTURE_ID: string;
-  TITLE: string;
-  DURATION: string;
-  APPROVAL_STATUS: string;
-  URL: string;
-  STATUS: boolean;
-}
-
 export interface ICourse extends Document {
   COURSE_ID: string;
   TITLE: string;
-  DESCRIPTION: string;
-  CATEGORIES: string[];
+  INSTRUCTOR_ID: string;
   CREATED_DATE: Date;
+  CATEGORIES: string[];
+  SUB_CATEGORIES: string[];
+  RATING: [string, string];
+  DESCRIPTION: string;
+  OUTPUT: string[];
   PRICE: number;
-  STATUS: boolean;
+  LEVEL: string;
+  DURATION: string;
+  NUMBER_OF_VIDEOS: number;
+  ENROLLMENT_COUNT: number;
   APPROVAL_STATUS: string;
-  LECTURES: ILecture[];
+  STATUS: boolean;
 }
-
-const lectureSchema: Schema = new Schema(
-  {
-    LECTURE_ID: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    TITLE: {
-      type: String,
-      required: true,
-    },
-    DURATION: {
-      type: String,
-      default: "0:00",
-    },
-    URL: {
-      type: String,
-      required: true,
-    },
-    APPROVAL_STATUS: {
-      type: String,
-      required: true,
-      enum: ["Pending", "Approved", "Rejected"],
-    },
-    STATUS: {
-      type: Boolean,
-      default: true,
-    }
-  },
-  { versionKey: false }
-);
 
 const courseSchema: Schema = new Schema(
   {
     COURSE_ID: {
-      type: Number,
+      type: String,
       required: true,
       unique: true,
     },
@@ -64,35 +30,68 @@ const courseSchema: Schema = new Schema(
       type: String,
       required: true,
     },
-    DESCRIPTION: {
+    INSTRUCTOR_ID: {
       type: String,
       required: true,
+    },
+    CREATED_DATE: {
+      type: Date,
+      default: Date.now(),
     },
     CATEGORIES: {
       type: [String],
       required: true,
       default: [],
     },
-    CREATED_DATE: {
-      type: Date,
-      default: Date.now(),
+    SUB_CATEGORIES: {
+      type: [String],
+      required: true,
+      default: [],
+    },
+    RATING: {
+      type: [String],
+      default: ["0", "0"],
+    },
+    DESCRIPTION: {
+      type: String,
+      required: true,
+    },
+    OUTPUT: {
+      type: [String],
+      required: true,
+      default: [],
     },
     PRICE: {
       type: Number,
       required: true,
     },
-    STATUS: {
-      type: Boolean,
-      default: true,
+    LEVEL: {
+      type: String,
+      required: true,
+    },
+    DURATION: {
+      type: String,
+      required: true,
+    },
+    NUMBER_OF_VIDEOS: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    ENROLLMENT_COUNT: {
+      type: Number,
+      required: true,
+      default: 0,
     },
     APPROVAL_STATUS: {
       type: String,
       required: true,
       enum: ["Pending", "Approved", "Rejected"],
     },
-    LECTURES: {
-      type: [lectureSchema],
-      default: [],
+    STATUS: {
+      type: Boolean,
+      required: true,
+      default: true,
     },
   },
   { versionKey: false }

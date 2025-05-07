@@ -7,24 +7,38 @@ class CourseController {
             const {
                 COURSE_ID,
                 TITLE,
-                DESCRIPTION,
-                CATEGORIES,
+                INSTRUCTOR_ID,
                 CREATED_DATE,
+                CATEGORIES,
+                SUB_CATEGORIES,
+                RATING,
+                DESCRIPTION,
+                OUTPUT,
                 PRICE,
-                STATUS,
+                LEVEL,
+                DURATION,
+                NUMBER_OF_VIDEOS,
+                ENROLLMENT_COUNT,
                 APPROVAL_STATUS,
-                LECTURES
+                STATUS
             } = req.body;
             const newCourse = new Course({
                 COURSE_ID,
                 TITLE,
-                DESCRIPTION,
-                CATEGORIES,
+                INSTRUCTOR_ID,
                 CREATED_DATE,
+                CATEGORIES,
+                SUB_CATEGORIES,
+                RATING,
+                DESCRIPTION,
+                OUTPUT,
                 PRICE,
-                STATUS,
+                LEVEL,
+                DURATION,
+                NUMBER_OF_VIDEOS,
+                ENROLLMENT_COUNT,
                 APPROVAL_STATUS,
-                LECTURES
+                STATUS
             });
             await newCourse.save();
             res.status(201).json(newCourse);
@@ -60,21 +74,37 @@ class CourseController {
             const { courseId } = req.params;
             const {
                 TITLE,
-                DESCRIPTION,
-                CATEGORIES,
+                INSTRUCTOR_ID,
                 CREATED_DATE,
+                CATEGORIES,
+                SUB_CATEGORIES,
+                RATING,
+                DESCRIPTION,
+                OUTPUT,
                 PRICE,
+                LEVEL,
+                DURATION,
+                NUMBER_OF_VIDEOS,
+                ENROLLMENT_COUNT,
                 APPROVAL_STATUS,
-                LECTURES
+                STATUS
             } = req.body;
             const data = {
                 TITLE,
-                DESCRIPTION,
-                CATEGORIES,
+                INSTRUCTOR_ID,
                 CREATED_DATE,
+                CATEGORIES,
+                SUB_CATEGORIES,
+                RATING,
+                DESCRIPTION,
+                OUTPUT,
                 PRICE,
+                LEVEL,
+                DURATION,
+                NUMBER_OF_VIDEOS,
+                ENROLLMENT_COUNT,
                 APPROVAL_STATUS,
-                LECTURES
+                STATUS
             };
             const updatedCourse = await Course.findOneAndUpdate(
                 { COURSE_ID: courseId, STATUS: 1 },
