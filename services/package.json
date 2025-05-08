@@ -10,11 +10,12 @@
         "category-service",
         "publishment-service",
         "lecture-service",
-        "video-service"
+        "video-service",
+        "cart-service"
     ],
     "scripts": {
-        "dev": "concurrently \"npm run dev --workspace=user-service\" \"npm run dev --workspace=role-service\" \"npm run dev --workspace=enrollment-service\" \"npm run dev --workspace=course-service\" \"npm run dev --workspace=category-service\" \"npm run dev --workspace=publishment-service\" \"npm run dev --workspace=lecture-service\" \"npm run dev --workspace=video-service\"",
-        "build": "npm run build --workspace=user-service && npm run build --workspace=role-service && npm run build --workspace=enrollment-service && npm run build --workspace=course-service && npm run build --workspace=category-service && npm run build --workspace=publishment-service && npm run build --workspace=lecture-service && npm run build --workspace=video-service"
+        "dev": "concurrently \"npm run dev --workspace=user-service\" \"npm run dev --workspace=role-service\" \"npm run dev --workspace=enrollment-service\" \"npm run dev --workspace=course-service\" \"npm run dev --workspace=category-service\" \"npm run dev --workspace=publishment-service\" \"npm run dev --workspace=lecture-service\" \"npm run dev --workspace=video-service\" \"npm run dev --workspace=cart-service\"",
+        "build": "npm run build --workspace=user-service && npm run build --workspace=role-service && npm run build --workspace=enrollment-service && npm run build --workspace=course-service && npm run build --workspace=category-service && npm run build --workspace=publishment-service && npm run build --workspace=lecture-service && npm run build --workspace=video-service && npm run build --workspace=cart-service"
     },
     "devDependencies": {
         "@types/jest": "^29.5.14",
