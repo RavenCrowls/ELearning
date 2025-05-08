@@ -7,12 +7,14 @@ class CategoryController {
             const {
                 CATEGORY_ID,
                 NAME,
-                STATUS
+                STATUS,
+                SUB_CATEGORIES
             } = req.body;
             const newCategory = new Category({
                 CATEGORY_ID,
                 NAME,
-                STATUS
+                STATUS,
+                SUB_CATEGORIES
             });
             await newCategory.save();
             res.status(201).json(newCategory);
@@ -47,10 +49,12 @@ class CategoryController {
         try {
             const { categoryId } = req.params;
             const {
-                NAME
+                NAME,
+                SUB_CATEGORIES
             } = req.body;
             const data = {
-                NAME
+                NAME,
+                SUB_CATEGORIES
             };
             const updatedCategory = await Category.findOneAndUpdate(
                 { CATEGORY_ID: categoryId, STATUS: 1 },

@@ -1,27 +1,17 @@
-[
-    {
-        "CATEGORY_ID": "1",
-        "NAME": "Programming",
-        "STATUS": 1
-    },
-    {
-        "CATEGORY_ID": "2",
-        "NAME": "Web Development",
-        "STATUS": 1
-    },
-    {
-        "CATEGORY_ID": "3",
-        "NAME": "Marketing",
-        "STATUS": 1
-    },
-    {
-        "CATEGORY_ID": "4",
-        "NAME": "Graphic Design",
-        "STATUS": 1
-    },
-    {
-        "CATEGORY_ID": "5",
-        "NAME": "Data Science",
-        "STATUS": 1
-    }
-]
+{
+    "CATEGORY_ID": "1",
+    "NAME": "Programming",
+    "STATUS": 1,
+    "SUB_CATEGORIES": [
+        {
+            "SUB_CATEGORY_ID": "1",
+            "NAME": "Web Development",
+            "STATUS": 1
+        },
+        {
+            "SUB_CATEGORY_ID": "2",
+            "NAME": "Mobile Development",
+            "STATUS": 1
+        }
+    ]
+}
