@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-
+import NavLinkWithPopup from '@/components/pop-up/study-tag';
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -32,9 +32,7 @@ export default function Header() {
 
         {/* Navigation links */}
         <nav className="flex items-center space-x-4">
-          <Link href="/courses" className="text-gray-600 hover:text-blue-600">
-            Các khóa học
-          </Link>
+          <NavLinkWithPopup />
           <Link href="/login" className="bg-white text-blue-600 border border-blue-600 px-4 py-1.5 rounded-md hover:bg-blue-50">
             Đăng nhập
           </Link>

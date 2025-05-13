@@ -1,6 +1,7 @@
 import React from 'react';
 import CourseCard from '../CourseCard/CourseCard';
 
+
 const DEMO_COURSES = [
     {
         id: "1",
@@ -49,6 +50,20 @@ export default function CourseList() {
     return (
         <section className="py-8">
             <h2 className="text-2xl font-semibold mb-6">Khóa học của bạn</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {DEMO_COURSES.map((course) => (
+                    <CourseCard key={course.id} {...course} />
+                ))}
+            </div>
+            
+            <h2 className="text-2xl font-semibold mb-6">Khóa học bạn có thể sẽ hứng thú</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {DEMO_COURSES.map((course) => (
+                    <CourseCard key={course.id} {...course} />
+                ))}
+            </div>
+
+            <h2 className="text-2xl font-semibold mb-6">Khóa học nổi bật</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {DEMO_COURSES.map((course) => (
                     <CourseCard key={course.id} {...course} />

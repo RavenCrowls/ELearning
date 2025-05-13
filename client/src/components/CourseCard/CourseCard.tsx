@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+// import Image from 'next/image';
 
 interface CourseCardProps {
     id: string;
@@ -64,8 +64,8 @@ export default function CourseCard({
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <Image src={image} alt={title} className="w-full h-48 object-cover" />
+        <div className="bg-white rounded-lg shadow-md overflow-hidden mb-5">
+            <img src={image} alt={title} className="w-full h-48 object-cover" />
             <div className="p-4">
                 <h3 className="font-semibold text-lg mb-2">{title}</h3>
                 <p className="text-[#4069E5] font-bold mb-2">{price}</p>

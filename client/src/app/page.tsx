@@ -1,5 +1,7 @@
 import Navbar from '@/app/components/layout/Header';
 import CourseList from '@/components/CourseList/CourseList';
+
+
 import Image from 'next/image';
 
 export default function Home() {
