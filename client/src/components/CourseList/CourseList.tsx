@@ -6,6 +6,7 @@ const DEMO_COURSES = [
         id: "1",
         title: "Introduction to Programming",
         image: "/course1.jpg",
+        price: "279.000 ₫",
         rating: 5.0,
         reviewCount: 66,
         instructor: "Trinh Quang Hao",
@@ -15,6 +16,7 @@ const DEMO_COURSES = [
         id: "2",
         title: "Introduction to Programming",
         image: "/course1.jpg",
+        price: "279.000 ₫",
         rating: 5.0,
         reviewCount: 66,
         instructor: "Trinh Quang Hao",
@@ -24,6 +26,7 @@ const DEMO_COURSES = [
         id: "3",
         title: "Introduction to Programming",
         image: "/course1.jpg",
+        price: "279.000 ₫",
         rating: 5.0,
         reviewCount: 66,
         instructor: "Trinh Quang Hao",
@@ -33,15 +36,7 @@ const DEMO_COURSES = [
         id: "4",
         title: "Introduction to Programming",
         image: "/course1.jpg",
-        rating: 5.0,
-        reviewCount: 66,
-        instructor: "Trinh Quang Hao",
-        tags: ["Technique", "Programming", "C++"]
-    },
-    {
-        id: "5",
-        title: "Introduction to Programming",
-        image: "/course1.jpg",
+        price: "279.000 ₫",
         rating: 5.0,
         reviewCount: 66,
         instructor: "Trinh Quang Hao",
@@ -60,5 +55,6 @@ export default function CourseList() {
                 ))}
             </div>
         </section>
+        
     );
 }
