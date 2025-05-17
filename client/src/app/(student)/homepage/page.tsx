@@ -1,12 +1,10 @@
-import Navbar from '@/app/components/layout/Navbar';
-import CourseList from '@/components/CourseList/CourseList';
+import CourseListstu from '@/components/CourseList/CourseList-stu';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
       <main className="container mx-auto px-4">
-        <CourseList />
+        <CourseListstu />
       </main>
     </div>
   );

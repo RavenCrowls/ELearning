@@ -61,8 +61,8 @@ export default function NavLinkWithPopup() {
       {/* Link để mở popup thay vì chuyển trang */}
       <a href="/courses" 
          onClick={handleOpenPopup} 
-         className="text-gray-600 hover:text-blue-600">
-        Các khóa học
+         className="text-gray-600 hover:text-blue-600 whitespace-nowrap">
+        Học tập
       </a>
 
       {/* Popup hiển thị khi isOpen = true */}

@@ -4,17 +4,22 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-export default function Navbar() {
+import NavLinkWithPopup from '@/components/pop-up/study-tag';
+
+export default function HeaderStudent() {
   const [searchQuery, setSearchQuery] = useState('');
   return (
-    <nav className="flex items-center justify-between p-4 bg-white shadow-sm sticky top-0 z-10 transition-all duration-300">
-      <div className="container max-w-[70vw] space-between flex justify-start flex-row  items-center space-x-20 px-l-8 ">
+    <header className="bg-white shadow-sm py-4 sticky top-0 z-10 transition-all duration-300">
+      <div className="container max-w-none flex justify-start flex-row  items-center space-x-20 px-8 ">
+        {/* Logo */}
         <Link href="/" className="text-xl font-bold text-gray-800">
           ELearning
         </Link>
-        <div className="md:block hidden relative w-4/5">
+
+        {/* Search box */}
+        <div className="hidden md:block relative w-2/3">
           <input
-            type="search"
+            type="text"
             placeholder="Tìm kiếm khóa học..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -26,15 +31,14 @@ export default function Navbar() {
             </svg>
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-6  whitespace-nowrap">
-        <Link href="/courses" className="hover:text-gray-600">
-          Các khóa học
-        </Link>
-        <Link href="/study" className="hover:text-gray-600">
-          Học tập
-        </Link>
-        <div className="flex items-center gap-4">
+
+        {/* Navigation links */}
+        <nav className="flex items-center space-x-4">
+          <Link href="/login" className="px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap">
+            Các khóa học
+          </Link>
+          <NavLinkWithPopup />
+          <div className="flex items-center gap-4">
           <button className="p-2 rounded-full hover:bg-gray-100">
             <Image src="/heart.svg" alt="Favorites" width={24} height={24} />
           </button>
@@ -48,7 +52,8 @@ export default function Navbar() {
             <Image src="/avatar.jpg" alt="Profile" width={32} height={32} className="rounded-full" />
           </button>
         </div>
-      </div>
-    </nav>
+        </nav>
+        </div>
+    </header>
   );
 }
