@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import NavLinkWithPopup from '@/components/pop-up/study-tag';
+import NavLinkWithPopup from '@/app/components/pop-up/study-tag';
 
 export default function HeaderStudent() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,7 +34,7 @@ export default function HeaderStudent() {
 
         {/* Navigation links */}
         <nav className="flex items-center space-x-4">
-          <Link href="/login" className="px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap">
+          <Link href="/coursefilter" className="px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap">
             Các khóa học
           </Link>
           <NavLinkWithPopup />

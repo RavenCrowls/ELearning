@@ -1,5 +1,5 @@
 import Navbar from '@/app/components/layout/Header';
-import CourseList from '@/components/CourseList/CourseList';
+import CourseList from '@/app/components/CourseList/CourseList';
 
 
 import Image from 'next/image';
