@@ -5,6 +5,8 @@ import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import Overall from './overall';
 import Lesson from './lesson';
+import Instructor from './instructor';
+import Review from './review';
 
 // Define types
 interface CourseProps {
@@ -26,7 +28,7 @@ const CourseDetailsPage: FC = () => {
   // Sample course data
   const course: CourseProps = {
     title: 'Introduction to Programming',
-    instructor: 'Trình Quang Hào',
+    instructor: 'Trình Quang Hạo',
     date: '01/01/2025',
     rating: 4.0,
     totalRatings: 66,
@@ -127,9 +129,9 @@ const CourseDetailsPage: FC = () => {
               case 1:
                   return <Lesson />;
               case 2:
-                  return <Overall />;
+                  return <Instructor />;
               case 3:
-                  return <Overall />;
+                  return <Review />;
               default:
                   return null;
           }
