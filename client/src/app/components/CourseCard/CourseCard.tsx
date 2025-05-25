@@ -27,7 +27,7 @@ export default function CourseCard({
     const [hoveredTag, setHoveredTag] = useState<string | null>(null);
     
     // Hàm xử lý khi hover vào tag
-    const handleTagHover = (tag: string) => {
+    const handleTagHover = (tag:string) => {
         setHoveredTag(tag);
         console.log(`Hovering over tag: ${tag}`);
         // Bạn có thể thêm logic xử lý khác ở đây
@@ -40,29 +40,21 @@ export default function CourseCard({
         // Bạn có thể thêm logic xử lý khác ở đây
     };
 
-    const getTagColorClass = (tag: string) => {
-        const isHovered = hoveredTag === tag;
-        
-        switch(tag) {
-            case "Technique":
-                return isHovered 
-                    ? "bg-blue-600 text-white" 
-                    : "bg-blue-500 text-white";
-            case "Programming":
-                return isHovered 
-                    ? "bg-pink-50 border border-pink-300" 
-                    : "bg-white border border-pink-300";
-            case "C++":
-                return isHovered 
-                    ? "bg-blue-50 border border-blue-300" 
-                    : "bg-white border border-blue-300";
-            default:
-                return isHovered 
-                    ? "bg-gray-200" 
-                    : "bg-gray-100";
-        }
-    };
-
+    const getTagColorClass = (tagName: string,index:number) => {
+    const isHovered = hoveredTag === tagName;
+    
+    // Logic dựa trên tên tag
+    if (index === 0) {
+        return isHovered 
+            ? "bg-blue-700 text-white" 
+            : "bg-blue-600 text-white";
+    } 
+    else {
+        return isHovered
+            ? "bg-blue-50 border border-blue-400 text-blue-700" 
+            : "bg-white border border-blue-300 text-blue-600";
+    }
+};
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-5">
             <img src={image} alt={title} className="w-full h-48 object-cover" />
@@ -75,10 +67,10 @@ export default function CourseCard({
                     <span className="text-gray-600 ml-1">({reviewCount} reviews)</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {tags.map((tag) => (
+                    {tags.map((tag,index) => (
                         <span 
                             key={tag} 
-                            className={`px-4 py-1 ${getTagColorClass(tag)} rounded-full text-sm font-medium transition-colors duration-200 cursor-pointer`}
+                            className={`px-4 py-1 ${getTagColorClass(tag,index)} rounded-full text-sm font-medium transition-colors duration-200 cursor-pointer`}
                             onMouseEnter={() => handleTagHover(tag)}
                             onMouseLeave={handleTagLeave}
                         >

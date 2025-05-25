@@ -11,7 +11,7 @@ const DEMO_COURSES = [
         rating: 5.0,
         reviewCount: 66,
         instructor: "Trinh Quang Hao",
-        tags: ["Technique", "Programming", "C++"]
+        tags: ["Technique", "Programming", "C++","..."]
     },
     {
         id: "2",
@@ -21,7 +21,7 @@ const DEMO_COURSES = [
         rating: 5.0,
         reviewCount: 66,
         instructor: "Trinh Quang Hao",
-        tags: ["Technique", "Programming", "C++"]
+        tags: ["Technique", "Programming", "C++","..."]
     },
     {
         id: "3",
@@ -31,7 +31,7 @@ const DEMO_COURSES = [
         rating: 5.0,
         reviewCount: 66,
         instructor: "Trinh Quang Hao",
-        tags: ["Technique", "Programming", "C++"]
+        tags: ["Technique", "Programming", "C++","..."]
     },
     {
         id: "4",
@@ -41,7 +41,7 @@ const DEMO_COURSES = [
         rating: 5.0,
         reviewCount: 66,
         instructor: "Trinh Quang Hao",
-        tags: ["Technique", "Programming", "C++"]
+        tags: ["Technique", "Programming", "C++","..."]
     },
     // Add more demo courses as needed
 ];
