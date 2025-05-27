@@ -2,6 +2,7 @@
     "COURSE_ID": "5",
     "TITLE": "Data Science for Beginners",
     "INSTRUCTOR_ID": "1",
+    "IMAGE_URL": "https://example.com/images/course5.jpg",
     "CREATED_DATE": "2023-05-20",
     "CATEGORIES": [
         "5",

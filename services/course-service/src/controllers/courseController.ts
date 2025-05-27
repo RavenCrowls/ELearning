@@ -20,7 +20,8 @@ class CourseController {
                 NUMBER_OF_VIDEOS,
                 ENROLLMENT_COUNT,
                 APPROVAL_STATUS,
-                STATUS
+                STATUS,
+                IMAGE_URL
             } = req.body;
             const newCourse = new Course({
                 COURSE_ID,
@@ -38,7 +39,8 @@ class CourseController {
                 NUMBER_OF_VIDEOS,
                 ENROLLMENT_COUNT,
                 APPROVAL_STATUS,
-                STATUS
+                STATUS,
+                IMAGE_URL
             });
             await newCourse.save();
             res.status(201).json(newCourse);
@@ -87,7 +89,8 @@ class CourseController {
                 NUMBER_OF_VIDEOS,
                 ENROLLMENT_COUNT,
                 APPROVAL_STATUS,
-                STATUS
+                STATUS,
+                IMAGE_URL
             } = req.body;
             const data = {
                 TITLE,
@@ -104,7 +107,8 @@ class CourseController {
                 NUMBER_OF_VIDEOS,
                 ENROLLMENT_COUNT,
                 APPROVAL_STATUS,
-                STATUS
+                STATUS,
+                IMAGE_URL
             };
             const updatedCourse = await Course.findOneAndUpdate(
                 { COURSE_ID: courseId, STATUS: 1 },

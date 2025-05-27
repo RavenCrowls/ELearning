@@ -17,6 +17,7 @@ export interface ICourse extends Document {
   ENROLLMENT_COUNT: number;
   APPROVAL_STATUS: string;
   STATUS: boolean;
+  IMAGE_URL: string;
 }
 
 const courseSchema: Schema = new Schema(
@@ -92,6 +93,10 @@ const courseSchema: Schema = new Schema(
       type: Boolean,
       required: true,
       default: true,
+    },
+    IMAGE_URL: {
+      type: String,
+      required: false,
     },
   },
   { versionKey: false }
