@@ -8,12 +8,14 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-sm py-4 sticky top-0 z-10 transition-all duration-300">
-      <div className="container max-w-none flex justify-start flex-row  items-center space-x-20 px-8 ">
+      <div className="container max-w-none flex justify-start flex-row  items-center space-x-5 px-8 ">
         {/* Logo */}
         <Link href="/" className="text-xl font-bold text-gray-800">
           ELearning
         </Link>
-
+        <Link href="/coursefilter" className="px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap">
+            Thể loại
+        </Link>
         {/* Search box */}
         <div className="hidden md:block relative w-2/3">
           <input
