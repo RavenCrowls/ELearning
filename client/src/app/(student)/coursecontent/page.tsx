@@ -15,7 +15,15 @@ export default function PaymentPage()  {
             </li>
             <li className='mx-2 text-gray-500'>/</li>
             <li className='text-gray-500'>
-              <Link href="/coursefilter" className='text-blue-600 font-semibold'>Thanh toán</Link>
+              <Link href="/coursefilter" className='text-blue-600 font-semibold'>Khóa học</Link>
+            </li>
+            <li className='mx-2 text-gray-500'>/</li>
+            <li className='text-gray-500'>
+              <Link href="/coursefilter" className='text-blue-600 font-semibold'>Introduction to Programming</Link>
+            </li>
+            <li className='mx-2 text-gray-500'>/</li>
+            <li className='text-gray-500'>
+              <Link href="/coursefilter" className='text-blue-600 font-semibold'>Introduction</Link>
             </li>
           </ol>
       </nav>

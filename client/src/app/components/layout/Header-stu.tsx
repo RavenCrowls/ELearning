@@ -5,17 +5,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import NavLinkWithPopup from '@/app/components/pop-up/study-tag';
+import CourseCategories from '../pop-up/categories';
 
 export default function HeaderStudent() {
   const [searchQuery, setSearchQuery] = useState('');
   return (
     <header className="bg-white shadow-sm py-4 sticky top-0 z-10 transition-all duration-300">
-      <div className="container max-w-none flex justify-start flex-row  items-center space-x-20 px-8 ">
+      <div className="container max-w-none flex justify-start flex-row  items-center space-x-5 px-8 ">
         {/* Logo */}
         <Link href="/" className="text-xl font-bold text-gray-800">
           ELearning
         </Link>
-
+        <CourseCategories />
         {/* Search box */}
         <div className="hidden md:block relative w-2/3">
           <input
@@ -39,14 +40,15 @@ export default function HeaderStudent() {
           </Link>
           <NavLinkWithPopup />
           <div className="flex items-center gap-4">
-          <button className="p-2 rounded-full hover:bg-gray-100">
-            <Image src="/heart.svg" alt="Favorites" width={24} height={24} />
+          <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+            </svg>
           </button>
-          <button className="p-2 rounded-full hover:bg-gray-100">
-            <Image src="/cart.svg" alt="Cart" width={24} height={24} />
-          </button>
-          <button className="p-2 rounded-full hover:bg-gray-100">
-            <Image src="/bell.svg" alt="Notifications" width={24} height={24} />
+          <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-bell-icon lucide-bell"><path d="M10.268 21a2 2 0 0 0 3.464 0"/>
+                <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>
+            </svg>
           </button>
           <button className="w-8 h-8 rounded-full bg-gray-200">
             <Image src="/avatar.jpg" alt="Profile" width={32} height={32} className="rounded-full" />
