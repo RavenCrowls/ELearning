@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import mongoose from 'mongoose';
 import { videoRouter } from './routes/videoRoutes';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config({ path: "../../.env" });
 
@@ -9,6 +10,7 @@ const app: Application = express();
 const PORT: number = Number(process.env.VIDEO_SERVICE_PORT) || 3008;
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
@@ -27,4 +29,4 @@ if (process.env.NODE_ENV !== 'test') {
     });
 }
 
-export default app; 
+export default app;

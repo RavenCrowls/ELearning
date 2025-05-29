@@ -2,10 +2,12 @@ import express, { Application } from 'express';
 import mongoose from 'mongoose';
 import { lectureRouter } from './routes/lectureRoutes';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config({ path: "../../.env" });
 
 const app: Application = express();
+app.use(cors());
 const PORT: number = Number(process.env.LECTURE_SERVICE_PORT) || 3007;
 
 // Middleware
@@ -27,4 +29,4 @@ if (process.env.NODE_ENV !== 'test') {
     });
 }
 
-export default app; 
+export default app;

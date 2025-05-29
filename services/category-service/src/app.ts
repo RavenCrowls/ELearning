@@ -2,10 +2,12 @@ import express, { Application } from 'express';
 import mongoose from 'mongoose';
 import { categoryRouter } from './routes/categoryeRoutes';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config({ path: "../../.env" });
 
 const app: Application = express();
+app.use(cors());
 const PORT: number = Number(process.env.CATEGORY_SERVICE_PORT) || 3004;
 
 // Middleware
