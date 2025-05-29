@@ -2,10 +2,12 @@ import express, { Application } from 'express';
 import mongoose from 'mongoose';
 import { publishmentRouter } from './routes/publishmentRoutes';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config({ path: "../../.env" });
 
 const app: Application = express();
+app.use(cors());
 const PORT: number = Number(process.env.PUBLISHMENT_SERVICE_PORT) || 3005;
 
 // Middleware

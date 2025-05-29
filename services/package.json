@@ -18,6 +18,7 @@
         "build": "npm run build --workspace=user-service && npm run build --workspace=role-service && npm run build --workspace=enrollment-service && npm run build --workspace=course-service && npm run build --workspace=category-service && npm run build --workspace=publishment-service && npm run build --workspace=lecture-service && npm run build --workspace=video-service && npm run build --workspace=cart-service"
     },
     "devDependencies": {
+        "@types/cors": "^2.8.18",
         "@types/jest": "^29.5.14",
         "@types/node": "^22.14.0",
         "concurrently": "^9.1.2"

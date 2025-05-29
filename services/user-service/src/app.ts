@@ -2,10 +2,12 @@ import express, { Application } from 'express';
 import mongoose from 'mongoose';
 import { userRouter } from './routes/userRoutes';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config({ path: "../../.env" });
 
 const app: Application = express();
+app.use(cors());
 const PORT: number = Number(process.env.USER_SERVICE_PORT) || 3001;
 
 // Middleware
