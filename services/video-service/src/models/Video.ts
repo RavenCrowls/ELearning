@@ -6,6 +6,7 @@ export interface IVideo extends Document {
     TITLE: string;
     DURATION: string;
     URL: string;
+    FREE_TRIAL: boolean;
     STATUS: boolean;
 }
 
@@ -31,6 +32,10 @@ const videoSchema: Schema = new Schema({
         type: String,
         required: true,
     },
+    FREE_TRIAL: {
+        type: Boolean,
+        default: false,
+    },
     STATUS: {
         type: Boolean,
         default: true,
@@ -39,4 +44,4 @@ const videoSchema: Schema = new Schema({
 
 const Video = mongoose.model<IVideo>('Video', videoSchema);
 
-export default Video; 
+export default Video;

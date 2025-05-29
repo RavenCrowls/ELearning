@@ -10,6 +10,7 @@ class VideoController {
                 TITLE,
                 DURATION,
                 URL,
+                FREE_TRIAL,
                 STATUS
             } = req.body;
             const newVideo = new Video({
@@ -18,6 +19,7 @@ class VideoController {
                 TITLE,
                 DURATION,
                 URL,
+                FREE_TRIAL,
                 STATUS
             });
             await newVideo.save();
@@ -55,12 +57,14 @@ class VideoController {
             const {
                 TITLE,
                 DURATION,
-                URL
+                URL,
+                FREE_TRIAL
             } = req.body;
             const data = {
                 TITLE,
                 DURATION,
-                URL
+                URL,
+                FREE_TRIAL
             };
             const updatedVideo = await Video.findOneAndUpdate(
                 { VIDEO_ID: videoId, STATUS: 1 },
@@ -92,4 +96,4 @@ class VideoController {
     }
 }
 
-export default VideoController; 
+export default VideoController;
