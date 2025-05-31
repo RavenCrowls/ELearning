@@ -8,6 +8,7 @@ export interface IVideo extends Document {
     URL: string;
     FREE_TRIAL: boolean;
     STATUS: boolean;
+    order: number;
 }
 
 const videoSchema: Schema = new Schema({
@@ -39,6 +40,10 @@ const videoSchema: Schema = new Schema({
     STATUS: {
         type: Boolean,
         default: true,
+    },
+    order: {
+        type: Number,
+        required: true,
     },
 }, { versionKey: false });
 

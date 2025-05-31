@@ -11,6 +11,7 @@ class VideoController {
                 DURATION,
                 URL,
                 FREE_TRIAL,
+                ORDER,
                 STATUS
             } = req.body;
             const newVideo = new Video({
@@ -20,6 +21,7 @@ class VideoController {
                 DURATION,
                 URL,
                 FREE_TRIAL,
+                ORDER,
                 STATUS
             });
             await newVideo.save();
@@ -58,12 +60,14 @@ class VideoController {
                 TITLE,
                 DURATION,
                 URL,
+                ORDER,
                 FREE_TRIAL
             } = req.body;
             const data = {
                 TITLE,
                 DURATION,
                 URL,
+                ORDER,
                 FREE_TRIAL
             };
             const updatedVideo = await Video.findOneAndUpdate(

@@ -1,6 +1,7 @@
 {
     "LECTURE_ID": 10,
     "VIDEO_ID": 10,
+    "ORDER": 1,
     "TITLE": "Data Analysis with Python",
     "DURATION": "30 minutes",
     "URL": "URL",

@@ -209,11 +209,11 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
     students: courseData.ENROLLMENT_COUNT,
     tags: categoryData
       ? [
-          categoryData.NAME,
-          ...((categoryData.SUB_CATEGORIES || [])
-            .filter((sub: any) => (courseData.SUB_CATEGORIES || []).includes(sub.SUB_CATEGORY_ID))
-            .map((sub: any) => sub.NAME))
-        ]
+        categoryData.NAME,
+        ...((categoryData.SUB_CATEGORIES || [])
+          .filter((sub: any) => (courseData.SUB_CATEGORIES || []).includes(sub.SUB_CATEGORY_ID))
+          .map((sub: any) => sub.NAME))
+      ]
       : [],
     imageUrl: courseData.IMAGE_URL
   } : course;
