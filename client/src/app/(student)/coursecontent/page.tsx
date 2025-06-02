@@ -1,5 +1,5 @@
 import React from 'react';
-import Payment from '@/app/components/payment/Payment';
+import Watch from '@/app/components/watchvideo/watch';
 import Link from 'next/link';
 
 
@@ -27,7 +27,7 @@ export default function PaymentPage()  {
             </li>
           </ol>
       </nav>
-      <Payment />
+      <Watch />
       
     </div>
   );

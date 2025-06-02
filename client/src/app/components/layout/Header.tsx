@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import CourseCategories from '../pop-up/categories';
+
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -13,9 +15,7 @@ export default function Header() {
         <Link href="/" className="text-xl font-bold text-gray-800">
           ELearning
         </Link>
-        <Link href="/coursefilter" className="px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap">
-            Thể loại
-        </Link>
+        <CourseCategories />
         {/* Search box */}
         <div className="hidden md:block relative w-2/3">
           <input
