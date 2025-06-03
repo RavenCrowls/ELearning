@@ -17,7 +17,7 @@ export default function Instructor() {
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-6">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-6 md:w-[60vw] lg:w-[45vw] xl:w-[42.5vw] mx-auto">
             <div className="flex items-center mb-4">
                 
                 <Image src={instructor.image} 

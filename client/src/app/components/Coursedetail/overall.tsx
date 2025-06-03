@@ -16,7 +16,7 @@ export default function Overall() {
 
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-6">
+    <div className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-6 md:w-[60vw] lg:w-[45vw] xl:w-[42.5vw] mx-auto">
       <h2 className="font-bold text-lg mb-3">Mô tả</h2>
       <p className="text-gray-700 mb-4">
         {courseData?.DESCRIPTION || 'Không có mô tả.'}

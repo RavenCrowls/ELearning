@@ -52,7 +52,7 @@ export default function Review() {
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-6">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-6 md:w-[60vw] lg:w-[45vw] xl:w-[42.5vw] mx-auto">
       <h2 className="text-xl font-semibold mb-6">Đánh giá</h2>
       
       <div className="flex flex-col lg:flex-row gap-8">
