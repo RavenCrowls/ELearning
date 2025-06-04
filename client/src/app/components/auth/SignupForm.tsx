@@ -39,7 +39,7 @@ export default function SignupForm() {
       {/* Form đăng nhập bên phải */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <h2 className="text-2xl font-bold mb-6 text-center">Đăng nhập vào tài khoản</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">Đăng ký tài khoản</h2>
         {/* xử lý đăng ký */}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
