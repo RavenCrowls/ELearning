@@ -76,7 +76,7 @@ export default function SignupForm() {
             </div>
             
 
-            <div className="flex justify-start mb-6">
+            {/* <div className="flex justify-start mb-6">
               <button type="button" className="text-sm text-gray-600 hover:text-blue-600">
               Chọn vai trò bạn muốn đăng ký:
               </button>
@@ -101,33 +101,15 @@ export default function SignupForm() {
               <div className="w-5 h-5 bg-white rounded-full"></div>
               Giảng viên
               </div>
-            </button>
+            </button> */}
           </form>
           
           <div className="mt-6">
             <button
               type="button"
-              className="w-full flex items-center justify-center border border-gray-300 py-2 rounded-md hover:bg-gray-50 transition duration-200"
+              className="w-full flex items-center justify-center border-1 border-[#4069E5] font-bold text-[#4069E5] py-2 rounded-md hover:bg-gray-50 transition duration-200 cursor-pointer"
             >
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                <path
-                  fill="#EA4335"
-                  d="M12 5c1.6 0 3 .6 4.1 1.5l3-3C17 1.8 14.6 1 12 1 7.5 1 3.6 3.6 1.4 7.5l3.5 2.7C6 7.4 8.8 5 12 5z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 19c-3.2 0-6-2.4-7.1-5.8l-3.5 2.7C3.6 20.4 7.5 23 12 23c2.6 0 5-1 6.8-2.7l-3.3-2.6C14.3 18.5 13.2 19 12 19z"
-                />
-                <path
-                  fill="#4285F4"
-                  d="M22.8 12.6c0-.8-.1-1.5-.2-2.2H12v4.2h6.1c-.3 1.6-1.2 2.9-2.6 3.8l3.3 2.6C21 18.4 22.8 15.9 22.8 12.6z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5 10.2c-.5 1-.8 2-0.8 3.2s.3 2.2.8 3.2l3.5-2.7c-.2-.6-.3-1.2-.3-1.9 0-.7.1-1.3.3-1.9L5 10.2z"
-                />
-              </svg>
-              Đăng nhập bằng Gmail
+              Đăng ký ngay
             </button>
           </div>
         </div>
