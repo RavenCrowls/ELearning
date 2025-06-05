@@ -6,7 +6,7 @@ import Image from 'next/image'
 
 export default function Paymentdetail() {
   return (
-    <div className='bg-white w-[50vw] h-[55vh] border-gray-700 p-4 rounded-lg shadow-sm mb-6 mt-6'>
+    <div className='bg-white w-full max-w-xl lg:max-w-2xl border-gray-700 p-4 rounded-lg shadow-sm mb-6 mt-6'>
         <div className='text-lg font-semibold mb-4'>
           Thông tin thanh toán 
         </div>

@@ -14,7 +14,7 @@ const Soldcourses = () => {
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
   return (
-    <div className='bg-white w-[50vw] h-[55vh] border-gray-700 p-4 rounded-lg shadow-sm mb-6 mt-6'>
+    <div className='bg-white w-full max-w-xl lg:max-w-2xl border-gray-700 p-4 rounded-lg shadow-sm mb-6 mt-6'>
       <h1 className="text-xl font-semibold text-gray-800 mb-6">Sản phẩm</h1>
       
       {/* Table Header */}
