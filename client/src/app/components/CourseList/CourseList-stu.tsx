@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import CourseCard from '../CourseCard/CourseCard';
 import CourseCardProgress from '../CourseCard/CourseCard-progess';
+import { useRouter } from 'next/navigation';
 
 const DEMO_COURSES = [
     {
@@ -51,11 +52,8 @@ const DEMO_COURSES = [
     // Add more demo courses as needed
 ];
 
-const ENROLLED_COURSE = DEMO_COURSES; // Courses the user is enrolled in
-const POPULAR_COURSE = DEMO_COURSES; // Popular courses (replace with real data)
-const NEWEST_COURSE = DEMO_COURSES; // Newest courses (replace with real data)
-
 export default function CourseListstu() {
+    const router = useRouter();
     const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
     const [enrolledCourseDetails, setEnrolledCourseDetails] = useState<any[]>([]); // Store detailed course info
     const [popularCourses, setPopularCourses] = useState([]);
@@ -155,31 +153,73 @@ export default function CourseListstu() {
 
     return (
         <section className="py-8">
-            <h2 className="text-2xl font-semibold mb-6">Khóa học của bạn</h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold">Khóa học của bạn</h2>
+                <button
+                    onClick={() => router.push('/coursefilter')}
+                    className="text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                >
+                    Xem tất cả →
+                </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {(enrolledCourseDetails as any[]).map((course, idx) => {
                     const enrollment = enrolledCourses.find((e: any) => e.COURSE_ID === course.COURSE_ID);
                     const progress = enrollment ? enrollment.PROGRESS : 0;
                     return course && typeof course === 'object' ? (
-                        <CourseCardProgress key={course.COURSE_ID || course.id || idx} {...mapCourseData(course, progress)} />
+                        <div
+                            key={course.COURSE_ID || course.id || idx}
+                            onClick={() => router.push(`/coursedetail?id=${course.COURSE_ID || course.id}`)}
+                            className="cursor-pointer"
+                        >
+                            <CourseCardProgress {...mapCourseData(course, progress)} />
+                        </div>
                     ) : null;
                 })}
             </div>
 
-            <h2 className="text-2xl font-semibold mb-6">Khóa học bạn có thể sẽ hứng thú</h2>
+            <div className="flex justify-between items-center mb-6 mt-12">
+                <h2 className="text-2xl font-semibold">Khóa học phổ biến</h2>
+                <button
+                    onClick={() => router.push('/coursefilter')}
+                    className="text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                >
+                    Xem tất cả →
+                </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {(popularCourses as any[]).map((course, idx) =>
                     course && typeof course === 'object' ? (
-                        <CourseCard key={course.COURSE_ID || course.id || idx} {...mapCourseData(course)} />
+                        <div
+                            key={course.COURSE_ID || course.id || idx}
+                            onClick={() => router.push(`/coursedetail?id=${course.COURSE_ID || course.id}`)}
+                            className="cursor-pointer"
+                        >
+                            <CourseCard {...mapCourseData(course)} />
+                        </div>
                     ) : null
                 )}
             </div>
 
-            <h2 className="text-2xl font-semibold mb-6">Khóa học nổi bật</h2>
+            <div className="flex justify-between items-center mb-6 mt-12">
+                <h2 className="text-2xl font-semibold">Khóa học mới nhất</h2>
+                <button
+                    onClick={() => router.push('/coursefilter')}
+                    className="text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                >
+                    Xem tất cả →
+                </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {(newestCourses as any[]).map((course, idx) =>
                     course && typeof course === 'object' ? (
-                        <CourseCard key={course.COURSE_ID || course.id || idx} {...mapCourseData(course)} />
+                        <div
+                            key={course.COURSE_ID || course.id || idx}
+                            onClick={() => router.push(`/coursedetail?id=${course.COURSE_ID || course.id}`)}
+                            className="cursor-pointer"
+                        >
+                            <CourseCard {...mapCourseData(course)} />
+                        </div>
                     ) : null
                 )}
             </div>
