@@ -138,6 +138,28 @@ class CourseController {
             res.status(500).json({ message: "Error deleting course", error });
         }
     }
+
+    async getPopularCourse(req: Request, res: Response) {
+        try {
+            const popularCourses = await Course.find({ STATUS: 1 })
+                .sort({ ENROLLMENT_COUNT: -1 })
+                .limit(4);
+            res.status(200).json(popularCourses);
+        } catch (error) {
+            res.status(500).json({ message: "Error getting popular courses", error });
+        }
+    }
+
+    async getNewestCourse(req: Request, res: Response) {
+        try {
+            const newestCourses = await Course.find({ STATUS: 1 })
+                .sort({ CREATED_DATE: -1 })
+                .limit(4);
+            res.status(200).json(newestCourses);
+        } catch (error) {
+            res.status(500).json({ message: "Error getting newest courses", error });
+        }
+    }
 }
 
 export default CourseController;

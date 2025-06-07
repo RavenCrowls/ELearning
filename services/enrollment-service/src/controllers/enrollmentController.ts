@@ -88,6 +88,19 @@ class EnrollmentController {
             res.status(500).json({ message: "Error deleting enrollment", error });
         }
     }
+
+    async getEnrollmentsByUserID(req: Request, res: Response) {
+        try {
+            const { userId } = req.params;
+            const enrollments = await Enrollment.find({ USER_ID: userId, STATUS: 1 });
+            if (!enrollments || enrollments.length === 0) {
+                return res.status(404).json({ message: "No enrollments found for this user" });
+            }
+            res.status(200).json(enrollments);
+        } catch (error) {
+            res.status(500).json({ message: "Error getting enrollments by user ID", error });
+        }
+    }
 }
 
 export default EnrollmentController;
