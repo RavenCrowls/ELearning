@@ -120,6 +120,26 @@ export default function CourseListstu() {
             const user = (users as any[]).find((u) => u.USER_ID === course.INSTRUCTOR_ID || u.id === course.INSTRUCTOR_ID);
             instructorName = user && (user.NAME || user.name) ? (user.NAME || user.name) : '';
         }
+        // Map categories and subcategories to tag names
+        let tagNames: string[] = [];
+        if (Array.isArray(categories)) {
+            // Only use categories that appear in course.CATEGORIES
+            if (Array.isArray(course.CATEGORIES)) {
+                course.CATEGORIES.forEach((catId: string) => {
+                    const cat = (categories as any[]).find((c) => c.CATEGORY_ID === catId);
+                    if (cat && cat.NAME) {
+                        tagNames.push(cat.NAME);
+                        // Only use subcategories that are inside this category and appear in course.SUB_CATEGORIES
+                        if (Array.isArray(cat.SUB_CATEGORIES) && Array.isArray(course.SUB_CATEGORIES)) {
+                            course.SUB_CATEGORIES.forEach((subId: string) => {
+                                const sub = cat.SUB_CATEGORIES.find((s: any) => s.SUB_CATEGORY_ID === subId);
+                                if (sub && sub.NAME) tagNames.push(sub.NAME);
+                            });
+                        }
+                    }
+                });
+            }
+        }
         return {
             id: course.COURSE_ID || course.id || '',
             title: course.TITLE || course.title || '',
@@ -129,7 +149,7 @@ export default function CourseListstu() {
             rating: course.RATING ? parseFloat(course.RATING[0]) : course.rating || 0,
             reviewCount: course.RATING ? parseInt(course.RATING[1]) : course.reviewCount || 0,
             instructor: instructorName || course.instructor || '',
-            tags: course.tags || [] // You may want to map CATEGORIES/SUB_CATEGORIES to names using categories
+            tags: tagNames.length > 0 ? tagNames : (course.tags || [])
         };
     }
 
