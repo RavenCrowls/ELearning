@@ -41,18 +41,23 @@ export default function HeaderStudent() {
           </Link>
           <NavLinkWithPopup />
           <div className="flex items-center gap-4">
+            
+          <Link href="/cart" className="px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap">
           <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
                 <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
             </svg>
           </button>
+          </Link>
           <button className="w-8 h-8 rounded-full bg-gray-200">
             <Image src="/avatar.jpg" alt="Profile" width={32} height={32} className="rounded-full" />
           </button>
+          <Link href="/" className="text-gray-600 hover:text-blue-600">
           <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
             
             <LogOut className="w-5 h-5 text-gray-600" />
           </button>
+          </Link>
           
         </div>
         </nav>
