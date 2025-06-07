@@ -33,7 +33,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (videoRef.current) {
@@ -42,6 +46,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       setCurrentTime(0);
     }
   }, [videoUrl]);
+
+  React.useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = volume;
+      videoRef.current.muted = isMuted;
+      videoRef.current.playbackRate = playbackRate;
+    }
+  }, [volume, isMuted, playbackRate]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -82,59 +94,50 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   };
 
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVolume(Number(e.target.value));
+    setIsMuted(Number(e.target.value) === 0);
+  };
+
+  const handleMute = () => {
+    setIsMuted((prev) => !prev);
+  };
+
+  const handlePlaybackRateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPlaybackRate(Number(e.target.value));
+  };
+
+  const handleFullscreen = () => {
+    if (containerRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        containerRef.current.requestFullscreen();
+      }
+    }
+  };
+
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   const renderVideo = () => {
     if (videoUrl) {
       return (
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full" ref={containerRef}>
           <video
             ref={videoRef}
-            className="w-full h-full object-cover bg-black rounded-lg"
+            className="w-full h-full object-cover bg-black rounded-lg select-none pointer-events-auto"
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
-            controls={false}
             preload="metadata"
+            controls={true} // Restore native controls
+            controlsList="nodownload" // Hide download button
+            onContextMenu={e => e.preventDefault()} // Prevent right-click menu
           >
             <source src={videoUrl} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/50 to-transparent p-4 rounded-b-lg">
-            <div
-              className="w-full bg-gray-600 h-1 rounded-full mb-3 cursor-pointer"
-              onClick={handleProgressClick}
-            >
-              <div
-                className="bg-blue-500 h-1 rounded-full transition-all duration-200"
-                style={{ width: `${progressPercentage}%` }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-white">
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={handlePlay}
-                  className="hover:text-blue-400 transition-colors p-1"
-                >
-                  {isPlaying ? (
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M6 4a1 1 0 011 1v10a1 1 0 11-2 0V5a1 1 0 011-1zM13 4a1 1 0 011 1v10a1 1 0 11-2 0V5a1 1 0 011-1z" clipRule="evenodd" />
-                    </svg>
-                  ) : (
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </button>
-                <span className="text-sm">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       );
     }
