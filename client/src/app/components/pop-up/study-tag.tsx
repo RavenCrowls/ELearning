@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
-
+import Link from 'next/link';
 export default function NavLinkWithPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -155,12 +155,15 @@ export default function NavLinkWithPopup() {
             
             {/* Action button */}
             <div className="p-4 bg-gray-50">
+              <Link href="/enrollment">
               <button 
                 onClick={navigateToLearning}
                 className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
               >
                 Chuyển đến quá trình học của tôi
               </button>
+              </Link>
+              
             </div>
           </div>
         </div>
