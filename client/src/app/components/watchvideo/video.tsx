@@ -4,7 +4,6 @@ import React, { useState, useRef } from 'react';
 interface VideoPlayerProps {
   title?: string;
   videoUrl?: string;
-  youtubeId?: string;
   width?: string;
   height?: string;
   className?: string;
@@ -13,7 +12,6 @@ interface VideoPlayerProps {
 interface VideoOption {
   id: string;
   title: string;
-  youtubeId?: string;
   videoUrl?: string;
   duration?: string;
   completed?: boolean;
@@ -28,7 +26,6 @@ interface LessonProps {
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
   title = "Introduction",
   videoUrl,
-  youtubeId,
   width = "100%",
   height = "400px",
   className = ""
@@ -37,6 +34,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  React.useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+      setIsPlaying(false);
+      setCurrentTime(0);
+    }
+  }, [videoUrl]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -79,53 +84,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  const getYouTubeEmbedUrl = (videoId: string) => {
-    return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&modestbranding=1&showinfo=0`;
-  };
-
-  const extractYouTubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
-
   const renderVideo = () => {
-    if (youtubeId) {
-      return (
-        <div className="w-full h-full relative">
-          <iframe
-            width="100%"
-            height="100%"
-            src={getYouTubeEmbedUrl(youtubeId)}
-            title={title}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="absolute inset-0 w-full h-full object-cover rounded-lg"
-          />
-        </div>
-      );
-    }
-
     if (videoUrl) {
-      const ytId = extractYouTubeId(videoUrl);
-      if (ytId) {
-        return (
-          <div className="w-full h-full relative">
-            <iframe
-              width="100%"
-              height="100%"
-              src={getYouTubeEmbedUrl(ytId)}
-              title={title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="absolute inset-0 w-full h-full object-cover rounded-lg"
-            />
-          </div>
-        );
-      }
-
       return (
         <div className="relative w-full h-full">
           <video
@@ -139,22 +99,20 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
             preload="metadata"
           >
             <source src={videoUrl} type="video/mp4" />
-            <source src={videoUrl} type="video/webm" />
-            <source src={videoUrl} type="video/ogg" />
             Your browser does not support the video tag.
           </video>
 
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/50 to-transparent p-4 rounded-b-lg">
-            <div 
+            <div
               className="w-full bg-gray-600 h-1 rounded-full mb-3 cursor-pointer"
               onClick={handleProgressClick}
             >
-              <div 
+              <div
                 className="bg-blue-500 h-1 rounded-full transition-all duration-200"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
-            
+
             <div className="flex items-center justify-between text-white">
               <div className="flex items-center space-x-3">
                 <button
@@ -197,7 +155,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   };
 
   return (
-    <div 
+    <div
       className={`bg-black rounded-lg overflow-hidden shadow-lg ${className}`}
       style={{ width, height }}
     >
@@ -207,7 +165,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 };
 
 const LessonList: React.FC<LessonProps> = ({ lessons, currentLesson, onLessonSelect }) => {
-  const [expandedSections, setExpandedSections] = useState<{[key: string]: boolean}>({'Introduction': true});
+  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({ 'Introduction': true });
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
@@ -221,14 +179,14 @@ const LessonList: React.FC<LessonProps> = ({ lessons, currentLesson, onLessonSel
     if (!acc[section]) acc[section] = [];
     acc[section].push(lesson);
     return acc;
-  }, {} as {[key: string]: VideoOption[]});
+  }, {} as { [key: string]: VideoOption[] });
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full">
       <div className="p-4 border-b bg-gray-50 rounded-t-lg">
         <h3 className="font-semibold text-gray-800">Nội dung khóa học</h3>
       </div>
-      
+
       <div className="h-full overflow-y-auto" style={{ maxHeight: '70vh' }}>
         {Object.entries(groupedLessons).map(([section, sectionLessons]) => (
           <div key={section} className="border-b border-gray-100 last:border-b-0">
@@ -237,25 +195,24 @@ const LessonList: React.FC<LessonProps> = ({ lessons, currentLesson, onLessonSel
               className="w-full p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
             >
               <span className="font-medium text-gray-800">{section}</span>
-              <svg 
+              <svg
                 className={`w-4 h-4 transition-transform ${expandedSections[section] ? 'rotate-180' : ''}`}
-                fill="none" 
-                stroke="currentColor" 
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            
+
             {expandedSections[section] && (
               <div className="pb-2">
                 {sectionLessons.map((lesson) => (
                   <button
                     key={lesson.id}
                     onClick={() => onLessonSelect(lesson.id)}
-                    className={`w-full text-left p-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 ${
-                      currentLesson === lesson.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''
-                    }`}
+                    className={`w-full text-left p-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 ${currentLesson === lesson.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''
+                      }`}
                   >
                     <div className="flex-shrink-0">
                       {lesson.completed ? (
@@ -277,9 +234,8 @@ const LessonList: React.FC<LessonProps> = ({ lessons, currentLesson, onLessonSel
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${
-                        currentLesson === lesson.id ? 'text-blue-700' : 'text-gray-900'
-                      }`}>
+                      <p className={`text-sm font-medium truncate ${currentLesson === lesson.id ? 'text-blue-700' : 'text-gray-900'
+                        }`}>
                         {lesson.title}
                       </p>
                     </div>
@@ -303,43 +259,43 @@ const VideoPlayerWithLessons: React.FC = () => {
   const lessons: VideoOption[] = [
     {
       id: '1',
-      title: 'Introduction',
-      youtubeId: 'dQw4w9WgXcQ',
+      title: 'Cloudinary Sample',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
       duration: '03:30',
       completed: false
     },
     {
       id: '2',
-      title: 'Introduction',
-      youtubeId: 'SqcY0GlETPk',
+      title: 'Cloudinary Sample',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
       duration: '03:30',
       completed: true
     },
     {
       id: '3',
-      title: 'Introduction',
-      youtubeId: 'PHaECbrKgs0',
+      title: 'Cloudinary Sample',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
       duration: '03:30',
       completed: false
     },
     {
       id: '4',
-      title: 'Introduction',
-      youtubeId: 'f687hBjwFcM',
+      title: 'Cloudinary Sample',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
       duration: '03:30',
       completed: false
     },
     {
       id: '5',
-      title: 'Introduction',
-      youtubeId: 'f687hBjwFcM',
+      title: 'Cloudinary Sample',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
       duration: '03:30',
       completed: false
     },
     {
       id: '6',
-      title: 'Introduction',
-      youtubeId: 'f687hBjwFcM',
+      title: 'Cloudinary Sample',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289313/Legends_of_Runeterra_2024-11-25_17-47-17_mtfszf.mp4',
       duration: '03:30',
       completed: false
     }
@@ -358,7 +314,6 @@ const VideoPlayerWithLessons: React.FC = () => {
         <div className="flex-1 bg-black flex items-center justify-center" style={{ minHeight: '700px', height: '70vh' }}>
           <VideoPlayer
             title={currentLesson.title}
-            youtubeId={currentLesson.youtubeId}
             videoUrl={currentLesson.videoUrl}
             width="100%"
             height="100%"
@@ -368,7 +323,7 @@ const VideoPlayerWithLessons: React.FC = () => {
 
         {/* Lesson List Section - Right side (30%) */}
         <div className="w-80 bg-white">
-          <LessonList 
+          <LessonList
             lessons={lessons}
             currentLesson={currentLessonId}
             onLessonSelect={handleLessonSelect}
