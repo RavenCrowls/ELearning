@@ -33,7 +33,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (videoRef.current) {
@@ -42,6 +46,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       setCurrentTime(0);
     }
   }, [videoUrl]);
+
+  React.useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = volume;
+      videoRef.current.muted = isMuted;
+      videoRef.current.playbackRate = playbackRate;
+    }
+  }, [volume, isMuted, playbackRate]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -82,59 +94,50 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   };
 
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVolume(Number(e.target.value));
+    setIsMuted(Number(e.target.value) === 0);
+  };
+
+  const handleMute = () => {
+    setIsMuted((prev) => !prev);
+  };
+
+  const handlePlaybackRateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPlaybackRate(Number(e.target.value));
+  };
+
+  const handleFullscreen = () => {
+    if (containerRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        containerRef.current.requestFullscreen();
+      }
+    }
+  };
+
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   const renderVideo = () => {
     if (videoUrl) {
       return (
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full" ref={containerRef}>
           <video
             ref={videoRef}
-            className="w-full h-full object-cover bg-black rounded-lg"
+            className="w-full h-full object-cover bg-black rounded-lg select-none pointer-events-auto"
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
-            controls={false}
             preload="metadata"
+            controls={true} // Restore native controls
+            controlsList="nodownload" // Hide download button
+            onContextMenu={e => e.preventDefault()} // Prevent right-click menu
           >
             <source src={videoUrl} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/50 to-transparent p-4 rounded-b-lg">
-            <div
-              className="w-full bg-gray-600 h-1 rounded-full mb-3 cursor-pointer"
-              onClick={handleProgressClick}
-            >
-              <div
-                className="bg-blue-500 h-1 rounded-full transition-all duration-200"
-                style={{ width: `${progressPercentage}%` }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-white">
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={handlePlay}
-                  className="hover:text-blue-400 transition-colors p-1"
-                >
-                  {isPlaying ? (
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M6 4a1 1 0 011 1v10a1 1 0 11-2 0V5a1 1 0 011-1zM13 4a1 1 0 011 1v10a1 1 0 11-2 0V5a1 1 0 011-1z" clipRule="evenodd" />
-                    </svg>
-                  ) : (
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </button>
-                <span className="text-sm">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       );
     }
@@ -259,43 +262,43 @@ const VideoPlayerWithLessons: React.FC = () => {
   const lessons: VideoOption[] = [
     {
       id: '1',
-      title: 'Cloudinary Sample',
+      title: 'Hollow Knight',
       videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
       duration: '03:30',
       completed: false
     },
     {
       id: '2',
-      title: 'Cloudinary Sample',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
+      title: 'Legends of Runeterra',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289313/Legends_of_Runeterra_2024-11-25_17-47-17_mtfszf.mp4',
       duration: '03:30',
       completed: true
     },
     {
       id: '3',
-      title: 'Cloudinary Sample',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
+      title: 'Red Dead Redemption 2',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749288054/Red_Dead_Redemption_2_2024-01-14_19-24-10_e6mclk.mp4',
       duration: '03:30',
       completed: false
     },
     {
       id: '4',
-      title: 'Cloudinary Sample',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
+      title: 'Holo Cure',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749287169/HoloCure_2023-08-26_16-14-49_ciuhk1.mp4',
       duration: '03:30',
       completed: false
     },
     {
       id: '5',
-      title: 'Cloudinary Sample',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
+      title: 'War Thunder',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749287108/War_Thunder_-_In_battle_2021-12-13_15-21-28_cuzdrr.mp4',
       duration: '03:30',
       completed: false
     },
     {
       id: '6',
-      title: 'Cloudinary Sample',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289313/Legends_of_Runeterra_2024-11-25_17-47-17_mtfszf.mp4',
+      title: 'Unknown Video',
+      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749286596/na4uomtlmtvjajwtildo.mp4',
       duration: '03:30',
       completed: false
     }
