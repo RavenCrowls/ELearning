@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import NavLinkWithPopup from '@/app/components/pop-up/study-tag';
 import CourseCategories from '../pop-up/categories';
+import { LogOut } from 'lucide-react';
 
 export default function HeaderStudent() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,7 +36,7 @@ export default function HeaderStudent() {
 
         {/* Navigation links */}
         <nav className="flex items-center space-x-4">
-          <Link href="/coursefilter" className="px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap">
+          <Link href="/client/src/app/enrollment" className="px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap">
             Các khóa học
           </Link>
           <NavLinkWithPopup />
@@ -45,14 +46,14 @@ export default function HeaderStudent() {
                 <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
             </svg>
           </button>
-          <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-bell-icon lucide-bell"><path d="M10.268 21a2 2 0 0 0 3.464 0"/>
-                <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>
-            </svg>
-          </button>
           <button className="w-8 h-8 rounded-full bg-gray-200">
             <Image src="/avatar.jpg" alt="Profile" width={32} height={32} className="rounded-full" />
           </button>
+          <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
+            
+            <LogOut className="w-5 h-5 text-gray-600" />
+          </button>
+          
         </div>
         </nav>
         </div>

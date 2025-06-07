@@ -1,5 +1,5 @@
 import React from 'react';
-import CoursePage from '@/app/components/student/CoursePage';
+import CoursePagewithProgress from '@/app/components/student/CoursePagewithProgress';
 import Link from 'next/link';
 
 
@@ -19,7 +19,7 @@ export default function CoursesPage()  {
             </li>
           </ol>
       </nav>
-      <CoursePage />
+      <CoursePagewithProgress />
       
     </div>
   );
