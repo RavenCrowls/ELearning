@@ -113,12 +113,12 @@ export default function CourseListstu() {
     }, [enrolledCourses]);
 
     // Helper to map API course data to CourseCard/CourseCardProgress props
-    function mapCourseData(course: any) {
+    function mapCourseData(course: any, progress?: number) {
         return {
             id: course.COURSE_ID || course.id || '',
             title: course.TITLE || course.title || '',
             image: course.IMAGE_URL || course.image || '',
-            progress: course.progress ?? 0, // Only for CourseCardProgress
+            progress: progress ?? course.progress ?? 15, // Use progress from enrollment if provided
             price: course.PRICE !== undefined ? `${course.PRICE.toLocaleString()} ₫` : course.price || '',
             rating: course.RATING ? parseFloat(course.RATING[0]) : course.rating || 0,
             reviewCount: course.RATING ? parseInt(course.RATING[1]) : course.reviewCount || 0,
@@ -131,11 +131,13 @@ export default function CourseListstu() {
         <section className="py-8">
             <h2 className="text-2xl font-semibold mb-6">Khóa học của bạn</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {(enrolledCourseDetails as any[]).map((course, idx) =>
-                    course && typeof course === 'object' ? (
-                        <CourseCardProgress key={course.COURSE_ID || course.id || idx} {...mapCourseData(course)} />
-                    ) : null
-                )}
+                {(enrolledCourseDetails as any[]).map((course, idx) => {
+                    const enrollment = enrolledCourses.find((e: any) => e.COURSE_ID === course.COURSE_ID);
+                    const progress = enrollment ? enrollment.PROGRESS : 0;
+                    return course && typeof course === 'object' ? (
+                        <CourseCardProgress key={course.COURSE_ID || course.id || idx} {...mapCourseData(course, progress)} />
+                    ) : null;
+                })}
             </div>
 
             <h2 className="text-2xl font-semibold mb-6">Khóa học bạn có thể sẽ hứng thú</h2>
