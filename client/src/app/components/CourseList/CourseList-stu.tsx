@@ -114,15 +114,21 @@ export default function CourseListstu() {
 
     // Helper to map API course data to CourseCard/CourseCardProgress props
     function mapCourseData(course: any, progress?: number) {
+        // Find instructor name from users array
+        let instructorName = '';
+        if (course.INSTRUCTOR_ID && Array.isArray(users)) {
+            const user = (users as any[]).find((u) => u.USER_ID === course.INSTRUCTOR_ID || u.id === course.INSTRUCTOR_ID);
+            instructorName = user && (user.NAME || user.name) ? (user.NAME || user.name) : '';
+        }
         return {
             id: course.COURSE_ID || course.id || '',
             title: course.TITLE || course.title || '',
             image: course.IMAGE_URL || course.image || '',
-            progress: progress ?? course.progress ?? 15, // Use progress from enrollment if provided
+            progress: progress ?? course.progress ?? 0, // Use progress from enrollment if provided
             price: course.PRICE !== undefined ? `${course.PRICE.toLocaleString()} ₫` : course.price || '',
             rating: course.RATING ? parseFloat(course.RATING[0]) : course.rating || 0,
             reviewCount: course.RATING ? parseInt(course.RATING[1]) : course.reviewCount || 0,
-            instructor: course.instructor || '', // You may want to map INSTRUCTOR_ID to name using users
+            instructor: instructorName || course.instructor || '',
             tags: course.tags || [] // You may want to map CATEGORIES/SUB_CATEGORIES to names using categories
         };
     }
