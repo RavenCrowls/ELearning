@@ -36,7 +36,7 @@ export default function Lesson() {
               audioItems: videos.map((video: any) => ({
                 title: video.TITLE,
                 duration: video.DURATION,
-                locked: !video.FREE_TRIAL, // Fix: locked should be true if not free trial
+                locked: video.FREE_TRIAL, // Fix: locked should be true if not free trial
                 VIDEO_ID: video.VIDEO_ID // Add VIDEO_ID for navigation
               }))
             };
