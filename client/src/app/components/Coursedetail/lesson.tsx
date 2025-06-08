@@ -36,7 +36,8 @@ export default function Lesson() {
               audioItems: videos.map((video: any) => ({
                 title: video.TITLE,
                 duration: video.DURATION,
-                locked: !video.FREE_TRIAL
+                locked: !video.FREE_TRIAL, // Fix: locked should be true if not free trial
+                VIDEO_ID: video.VIDEO_ID // Add VIDEO_ID for navigation
               }))
             };
           });
@@ -99,7 +100,16 @@ export default function Lesson() {
                       className="p-4 flex items-center justify-between border-b border-blue-100 last:border-b-0"
                     >
                       <div className="flex items-center">
-                        <button className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-600 mr-4 shadow-sm">
+                        <button
+                          className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-600 mr-4 shadow-sm cursor-pointer"
+                          onClick={() => {
+                            const params = new URLSearchParams(window.location.search);
+                            const courseId = params.get('id');
+                            if (courseId && item.VIDEO_ID) {
+                              window.location.href = `/coursecontent?id=${courseId}&video=${item.VIDEO_ID}`;
+                            }
+                          }}
+                        >
                           {/* Play icon */}
                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-play-icon lucide-play"><polygon points="6 3 20 12 6 21 6 3" /></svg>
                         </button>

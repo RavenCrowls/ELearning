@@ -5,7 +5,7 @@ import Video from './video'
 const Watch = () => {
   return (
 
-            <Video />        
+    <Video />
 
   )
 }

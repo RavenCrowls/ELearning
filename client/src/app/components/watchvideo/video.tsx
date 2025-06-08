@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 interface VideoPlayerProps {
   title?: string;
@@ -257,57 +257,73 @@ const LessonList: React.FC<LessonProps> = ({ lessons, currentLesson, onLessonSel
 };
 
 const VideoPlayerWithLessons: React.FC = () => {
-  const [currentLessonId, setCurrentLessonId] = useState('1');
+  const [currentLessonId, setCurrentLessonId] = useState('');
+  const [lessons, setLessons] = useState<VideoOption[]>([]);
+  const [lectureSections, setLectureSections] = useState<any[]>([]);
+  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
 
-  const lessons: VideoOption[] = [
-    {
-      id: '1',
-      title: 'Hollow Knight',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289754/Hollow_Knight_2023-01-27_12-15-43_wxzihj.mp4',
-      duration: '03:30',
-      completed: false
-    },
-    {
-      id: '2',
-      title: 'Legends of Runeterra',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749289313/Legends_of_Runeterra_2024-11-25_17-47-17_mtfszf.mp4',
-      duration: '03:30',
-      completed: true
-    },
-    {
-      id: '3',
-      title: 'Red Dead Redemption 2',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749288054/Red_Dead_Redemption_2_2024-01-14_19-24-10_e6mclk.mp4',
-      duration: '03:30',
-      completed: false
-    },
-    {
-      id: '4',
-      title: 'Holo Cure',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749287169/HoloCure_2023-08-26_16-14-49_ciuhk1.mp4',
-      duration: '03:30',
-      completed: false
-    },
-    {
-      id: '5',
-      title: 'War Thunder',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749287108/War_Thunder_-_In_battle_2021-12-13_15-21-28_cuzdrr.mp4',
-      duration: '03:30',
-      completed: false
-    },
-    {
-      id: '6',
-      title: 'Unknown Video',
-      videoUrl: 'https://res.cloudinary.com/djf63iwha/video/upload/v1749286596/na4uomtlmtvjajwtildo.mp4',
-      duration: '03:30',
-      completed: false
-    }
-  ];
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const courseId = params.get('id');
+    const videoIdFromUrl = params.get('video'); // Get video param
+    if (!courseId) return;
+    // Fetch lectures for the course
+    fetch(`http://localhost:5006/api/lectures/by-course/${courseId}`)
+      .then(res => res.json())
+      .then(async (lectures) => {
+        // For each lecture, fetch its videos
+        const allLessons: VideoOption[] = [];
+        const sections: any[] = await Promise.all(
+          lectures.map(async (lecture: any) => {
+            const videos = await fetch(`http://localhost:5007/api/videos/by-lecture/${lecture.LECTURE_ID}`)
+              .then(res => res.json());
+            const videoOptions = videos.map((video: any) => ({
+              id: video.VIDEO_ID,
+              title: video.TITLE,
+              videoUrl: video.URL,
+              duration: video.DURATION,
+              completed: false // You can update this logic as needed
+            }));
+            allLessons.push(...videoOptions);
+            return {
+              section: lecture.TITLE,
+              lessons: videoOptions
+            };
+          })
+        );
+        setLectureSections(sections);
+        setLessons(allLessons);
+        // Determine which video to show
+        let initialLessonId = allLessons[0]?.id;
+        if (allLessons.length > 0) {
+          if (videoIdFromUrl && allLessons.some(l => l.id === videoIdFromUrl)) {
+            initialLessonId = videoIdFromUrl;
+          }
+          setCurrentLessonId(initialLessonId);
+        }
+        // Expand the section containing the current lesson
+        if (sections.length > 0 && initialLessonId) {
+          const sectionWithLesson = sections.find(sec => sec.lessons.some((l: any) => l.id === initialLessonId));
+          if (sectionWithLesson) {
+            setExpandedSections({ [sectionWithLesson.section]: true });
+          } else {
+            setExpandedSections({ [sections[0].section]: true });
+          }
+        }
+      });
+  }, []);
 
   const currentLesson = lessons.find(lesson => lesson.id === currentLessonId) || lessons[0];
 
   const handleLessonSelect = (lessonId: string) => {
     setCurrentLessonId(lessonId);
+  };
+
+  const handleSectionToggle = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
   };
 
   return (
@@ -316,8 +332,8 @@ const VideoPlayerWithLessons: React.FC = () => {
         {/* Video Player Section - Left side (70%) */}
         <div className="flex-1 bg-black flex items-center justify-center" style={{ minHeight: '700px', height: '70vh' }}>
           <VideoPlayer
-            title={currentLesson.title}
-            videoUrl={currentLesson.videoUrl}
+            title={currentLesson?.title}
+            videoUrl={currentLesson?.videoUrl}
             width="100%"
             height="100%"
             className="w-full h-full"
@@ -326,17 +342,75 @@ const VideoPlayerWithLessons: React.FC = () => {
 
         {/* Lesson List Section - Right side (30%) */}
         <div className="w-80 bg-white">
-          <LessonList
-            lessons={lessons}
-            currentLesson={currentLessonId}
-            onLessonSelect={handleLessonSelect}
-          />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full">
+            <div className="p-4 border-b bg-gray-50 rounded-t-lg">
+              <h3 className="font-semibold text-gray-800">Nội dung khóa học</h3>
+            </div>
+            <div className="h-full overflow-y-auto" style={{ maxHeight: '70vh' }}>
+              {lectureSections.map((section, idx) => (
+                <div key={section.section} className="border-b border-gray-100 last:border-b-0">
+                  <button
+                    onClick={() => handleSectionToggle(section.section)}
+                    className="w-full p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                  >
+                    <span className="font-medium text-gray-800 flex items-center">
+                      {section.section}
+                      <svg
+                        className={`w-4 h-4 ml-2 transition-transform ${expandedSections[section.section] ? 'rotate-90' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </button>
+                  {expandedSections[section.section] && (
+                    <div className="pb-2">
+                      {section.lessons.map((lesson: VideoOption) => (
+                        <button
+                          key={lesson.id}
+                          onClick={() => handleLessonSelect(lesson.id)}
+                          className={`w-full text-left p-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 ${currentLessonId === lesson.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''}`}
+                        >
+                          <div className="flex-shrink-0">
+                            {lesson.completed ? (
+                              <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            ) : currentLessonId === lesson.id ? (
+                              <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            ) : (
+                              <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center">
+                                <input type="checkbox" className="w-3 h-3 text-blue-600 rounded border-gray-300" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium truncate ${currentLessonId === lesson.id ? 'text-blue-700' : 'text-gray-900'}`}>{lesson.title}</p>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <span className="text-xs text-gray-500">{lesson.duration}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-
       {/* Video Title Section */}
       <div className="bg-white px-6 py-4 border-t border-gray-200">
-        <h1 className="text-2xl font-bold text-gray-900">{currentLesson.title}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{currentLesson?.title}</h1>
       </div>
     </div>
   );
