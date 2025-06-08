@@ -32,24 +32,23 @@ const userSchema: Schema = new Schema({
   },
   ADDRESS: {
     type: String,
-    required: true,
+    default: null,
   },
   PHONE: {
     type: String,
-    required: true,
+    default: null,
   },
   BIRTH_DATE: {
     type: Date,
-    required: true,
+    default: null,
   },
   EMAIL: {
     type: String,
     required: true,
+    unique: true,
   },
   USERNAME: {
     type: String,
-    required: true,
-    unique: true,
   },
   PASSWORD: {
     type: String,
