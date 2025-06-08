@@ -361,7 +361,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
                   </svg>
                   <span>Thời lượng:</span>
                 </div>
-                <span className="text-right">{mappedCourse.duration}</span>
+                <span className="text-right">{mappedCourse.duration} giờ</span>
               </div>
 
               <div className="flex justify-between items-center">
