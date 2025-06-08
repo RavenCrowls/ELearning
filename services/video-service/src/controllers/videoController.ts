@@ -98,6 +98,16 @@ class VideoController {
             res.status(500).json({ message: "Error deleting video", error });
         }
     }
+
+    async getVideosByLectureID(req: Request, res: Response) {
+        try {
+            const { lectureId } = req.params;
+            const videos = await Video.find({ LECTURE_ID: lectureId, STATUS: true });
+            res.status(200).json(videos);
+        } catch (error) {
+            res.status(500).json({ message: "Error getting videos by lecture ID", error });
+        }
+    }
 }
 
 export default VideoController;

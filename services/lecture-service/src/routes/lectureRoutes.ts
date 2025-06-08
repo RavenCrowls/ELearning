@@ -9,11 +9,13 @@ const {
     getAllLectures,
     getLecture,
     updateLecture,
-    deleteLecture
+    deleteLecture,
+    getLecturesByCourseID
 } = lectureController;
 
 router.post("/", createLecture.bind(lectureController));
 router.get("/", getAllLectures.bind(lectureController));
+router.get("/by-course/:courseId", getLecturesByCourseID.bind(lectureController));
 router.get("/:lectureId", getLecture.bind(lectureController));
 router.put("/:lectureId", updateLecture.bind(lectureController));
 router.delete("/:lectureId", deleteLecture.bind(lectureController));

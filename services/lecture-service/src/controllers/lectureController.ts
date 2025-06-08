@@ -86,6 +86,16 @@ class LectureController {
             res.status(500).json({ message: "Error deleting lecture", error });
         }
     }
+
+    async getLecturesByCourseID(req: Request, res: Response) {
+        try {
+            const { courseId } = req.params;
+            const lectures = await Lecture.find({ COURSE_ID: courseId, STATUS: true });
+            res.status(200).json(lectures);
+        } catch (error) {
+            res.status(500).json({ message: "Error getting lectures by course ID", error });
+        }
+    }
 }
 
 export default LectureController;
