@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-// import Header from './components/layout/Header';
+import HeaderSwitcher from '@/app/components/layout/HeaderSwitcher';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={inter.className}>
+        <HeaderSwitcher />
         {children}
       </body>
     </html>

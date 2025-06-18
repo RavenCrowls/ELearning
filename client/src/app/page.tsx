@@ -1,13 +1,9 @@
-import Navbar from '@/app/components/layout/Header';
 import CourseList from '@/app/components/CourseList/CourseList';
-
-
 import Image from 'next/image';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
       <div className='w-full h-full relative flex items-center justify-start '>
         <Image
           src="/images/home.png"

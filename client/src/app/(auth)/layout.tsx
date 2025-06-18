@@ -1,5 +1,3 @@
-import Header from '@/app/components/layout/Header';
-
 export default function AuthLayout({
   children,
 }: {
@@ -7,7 +5,6 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen">
-      <Header />
       {children}
     </div>
   );
