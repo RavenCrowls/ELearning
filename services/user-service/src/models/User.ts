@@ -19,7 +19,6 @@ export interface IUser extends Document {
 const userSchema: Schema = new Schema({
   USER_ID: {
     type: String,
-    required: true,
     unique: true,
   },
   ROLE_ID: {
@@ -52,7 +51,6 @@ const userSchema: Schema = new Schema({
   },
   PASSWORD: {
     type: String,
-    required: true,
   },
   AVATAR: {
     type: String,

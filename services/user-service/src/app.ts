@@ -4,6 +4,7 @@ import { userRouter } from './routes/userRoutes';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { requireAuth } from './middleware/clerkMiddleware';
+import clerkWebhookRouter from './routes/clerkWebhook';
 
 dotenv.config({ path: "../../.env" });
 
@@ -23,6 +24,7 @@ mongoose.connect(mongoUri)
 
 // Protect all user routes with Clerk authentication
 app.use('/api/users', requireAuth, userRouter);
+app.use('/api', clerkWebhookRouter);
 
 if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => {
