@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import User, { IUser } from '../models/User';
 
 class UserController {
@@ -116,54 +114,6 @@ class UserController {
             res.status(200).json(deletedUser);
         } catch (error) {
             res.status(500).json({ message: "Error deleting user", error });
-        }
-    }
-
-    async signup(req: Request, res: Response) {
-        try {
-            const { EMAIL, PASSWORD, NAME } = req.body;
-            const existingUser = await User.findOne({ EMAIL });
-            if (existingUser) {
-                return res.status(400).json({ message: 'Email already registered' });
-            }
-            const hashedPassword = await bcrypt.hash(PASSWORD, 10);
-            const USER_ID = Date.now().toString();
-            const ROLE_ID = '3';
-            const newUser = new User({
-                USER_ID,
-                ROLE_ID,
-                NAME,
-                EMAIL,
-                PASSWORD: hashedPassword,
-                JOIN_DATE: new Date(),
-                STATUS: true
-            });
-            await newUser.save();
-            res.status(201).json({ message: 'User registered successfully' });
-        } catch (error) {
-            res.status(500).json({ message: 'Error signing up', error });
-        }
-    }
-
-    async login(req: Request, res: Response) {
-        try {
-            const { EMAIL, PASSWORD } = req.body;
-            const user = await User.findOne({ EMAIL });
-            if (!user) {
-                return res.status(400).json({ message: 'Invalid credentials' });
-            }
-            const isMatch = await bcrypt.compare(PASSWORD, user.PASSWORD);
-            if (!isMatch) {
-                return res.status(400).json({ message: 'Invalid credentials' });
-            }
-            const token = jwt.sign(
-                { USER_ID: user.USER_ID, EMAIL: user.EMAIL, ROLE_ID: user.ROLE_ID },
-                process.env.JWT_SECRET || 'secret',
-                { expiresIn: '1d' }
-            );
-            res.status(200).json({ token });
-        } catch (error) {
-            res.status(500).json({ message: 'Error logging in', error });
         }
     }
 }

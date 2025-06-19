@@ -7,7 +7,6 @@ import { useState } from "react";
 import NavLinkWithPopup from "@/app/components/pop-up/study-tag";
 import CourseCategories from "../pop-up/categories";
 import { LogOut } from "lucide-react";
-import { removeAuthToken } from "@/app/utils/auth";
 import { useRouter } from "next/navigation";
 
 export default function HeaderStudent() {
@@ -15,7 +14,6 @@ export default function HeaderStudent() {
   const router = useRouter();
 
   const handleLogout = () => {
-    removeAuthToken();
     router.push('/login');
     window.location.reload();
   };
