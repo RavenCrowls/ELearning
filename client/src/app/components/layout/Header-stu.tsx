@@ -8,14 +8,15 @@ import NavLinkWithPopup from "@/app/components/pop-up/study-tag";
 import CourseCategories from "../pop-up/categories";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 
 export default function HeaderStudent() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const clerk = useClerk();
 
   const handleLogout = () => {
-    router.push('/login');
-    window.location.reload();
+    clerk.signOut();
   };
 
   return (

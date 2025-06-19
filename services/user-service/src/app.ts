@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { userRouter } from './routes/userRoutes';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { requireAuth } from './middleware/clerkMiddleware';
 
 dotenv.config({ path: "../../.env" });
 
@@ -20,8 +21,8 @@ mongoose.connect(mongoUri)
     .then(() => console.log('User database connected'))
     .catch((err: Error) => console.error('User database connection error:', err));
 
-// Routes
-app.use('/api/users', userRouter);
+// Protect all user routes with Clerk authentication
+app.use('/api/users', requireAuth, userRouter);
 
 if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => {
