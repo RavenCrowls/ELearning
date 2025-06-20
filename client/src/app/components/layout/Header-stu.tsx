@@ -1,19 +1,45 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import NavLinkWithPopup from "@/app/components/pop-up/study-tag";
 import CourseCategories from "../pop-up/categories";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useClerk } from "@clerk/nextjs";
+import { useClerk, useUser, useAuth } from "@clerk/nextjs";
 
 export default function HeaderStudent() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("/avatar.jpg");
   const router = useRouter();
   const clerk = useClerk();
+  const { user } = useUser();
+  const { getToken } = useAuth();
+
+  // Fetch user info from your API and set avatar
+  useEffect(() => {
+    async function fetchUser() {
+      if (user && user.id) {
+        const token = await getToken();
+        fetch(`http://localhost:5000/api/users/${user.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.AVATAR) {
+              setAvatarUrl(data.AVATAR);
+            }
+          })
+          .catch(() => {
+            setAvatarUrl("/avatar.jpg");
+          });
+      }
+    }
+    fetchUser();
+  }, [user, getToken]);
 
   const handleLogout = () => {
     clerk.signOut();
@@ -76,9 +102,9 @@ export default function HeaderStudent() {
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   className="lucide lucide-shopping-cart-icon lucide-shopping-cart"
                 >
                   <circle cx="8" cy="21" r="1" />
@@ -87,13 +113,19 @@ export default function HeaderStudent() {
                 </svg>
               </button>
             </Link>
-            <button className="w-8 h-8 rounded-full bg-gray-200">
+            <button
+              className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center cursor-pointer"
+              onClick={() => {
+                router.push("/profile");
+              }}
+              title="Go to profile"
+            >
               <Image
-                src="/avatar.jpg"
+                src={avatarUrl}
                 alt="Profile"
-                width={32}
-                height={32}
-                className="rounded-full"
+                width={40}
+                height={40}
+                className="rounded-full aspect-square object-cover"
               />
             </button>
             <Link href="#" className="text-gray-600 hover:text-blue-600">
