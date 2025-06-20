@@ -23,7 +23,7 @@ mongoose.connect(mongoUri)
     .catch((err: Error) => console.error('User database connection error:', err));
 
 // Protect all user routes with Clerk authentication
-app.use('/api/users', requireAuth, userRouter);
+app.use('/api/users', userRouter);
 app.use('/api', clerkWebhookRouter);
 
 if (process.env.NODE_ENV !== 'test') {
