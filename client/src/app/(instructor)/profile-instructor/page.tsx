@@ -1,5 +1,5 @@
 import React from 'react';
-import ProfileComponent from '@/app/components/profile/instructor-profile';
+import ProfileComponent from '@/app/components/instructor/instructor-profile';
 
 
 export default function CoursesPage()  {
