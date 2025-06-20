@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Upload } from 'lucide-react';
 import { useUser, useAuth } from '@clerk/nextjs';
+import Image from "next/image";
 
 export default function ProfileComponent() {
   const { user } = useUser();
@@ -76,7 +77,7 @@ export default function ProfileComponent() {
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
       <div className="border-t-4 border-blue-500 bg-gray-50 p-6 rounded-lg">
         <h2 className="text-blue-600 font-semibold text-lg mb-6">Profile</h2>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Form Fields */}
           <div className="lg:col-span-2 space-y-4">
@@ -188,13 +189,19 @@ export default function ProfileComponent() {
               </div>
             </div>
 
-            {/* Update Information Button */}
-            <div className="pt-4">
+            {/* Update Information and Change Password Buttons */}
+            <div className="pt-4 flex gap-4">
               <button
                 onClick={handleUpdateInfo}
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md font-medium transition-colors duration-200"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors duration-200"
               >
                 Update Information
+              </button>
+              <button
+                onClick={() => {/* TODO: Implement change password logic */ }}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md font-medium transition-colors duration-200"
+              >
+                Change Password
               </button>
             </div>
           </div>
@@ -204,8 +211,18 @@ export default function ProfileComponent() {
             <div className="bg-white p-6 rounded-lg border border-gray-200">
               {/* Avatar Display */}
               <div className="flex justify-center mb-4">
-                <div className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center border-4 border-gray-300">
-                  <User size={48} className="text-gray-600" />
+                <div className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center border-4 border-gray-300 overflow-hidden">
+                  {avatarFile ? (
+                    <Image
+                      src={avatarFile}
+                      alt="Profile Avatar"
+                      width={128}
+                      height={128}
+                      className="rounded-full object-cover w-32 h-32"
+                    />
+                  ) : (
+                    <User size={48} className="text-gray-600" />
+                  )}
                 </div>
               </div>
 
