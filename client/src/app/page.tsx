@@ -1,5 +1,5 @@
-import CourseList from '@/app/components/CourseList/CourseList';
 import Image from 'next/image';
+import HomeCourses from '@/app/components/CourseList/HomeCourses';
 
 export default function Home() {
   return (
@@ -20,10 +20,9 @@ export default function Home() {
           <div className='leading-[1.5]'>Your Path to be the best in your field</div>
           <div>Join us now</div>
         </div>
-
       </div>
       <main className="container mx-auto px-4">
-        <CourseList />
+        <HomeCourses />
       </main>
     </div>
   );

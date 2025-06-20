@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import CourseCard from '../CourseCard/CourseCard';
 import CourseCardProgress from '../CourseCard/CourseCard-progess';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 
 const DEMO_COURSES = [
     {
@@ -54,6 +55,7 @@ const DEMO_COURSES = [
 
 export default function CourseListstu() {
     const router = useRouter();
+    const { user } = useUser();
     const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
     const [enrolledCourseDetails, setEnrolledCourseDetails] = useState<any[]>([]); // Store detailed course info
     const [popularCourses, setPopularCourses] = useState([]);
@@ -62,10 +64,11 @@ export default function CourseListstu() {
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
-        // Fetch enrolled courses for user 2
-        fetch('http://localhost:5002/api/enrollments/user/2')
+        if (!user) return;
+        // Fetch enrolled courses for current user
+        fetch(`http://localhost:5002/api/enrollments/user/${user.id}`)
             .then(res => res.json())
-            .then(data => setEnrolledCourses(data))
+            .then(data => setEnrolledCourses(Array.isArray(data) ? data : []))
             .catch(() => setEnrolledCourses([]));
         // Fetch users
         fetch('http://localhost:5000/api/users/')
@@ -87,11 +90,11 @@ export default function CourseListstu() {
             .then(res => res.json())
             .then(data => setNewestCourses(data))
             .catch(() => setNewestCourses([]));
-    }, []);
+    }, [user]);
 
     // Fetch course details for each enrollment
     useEffect(() => {
-        if (!enrolledCourses || enrolledCourses.length === 0) {
+        if (!enrolledCourses || !Array.isArray(enrolledCourses) || enrolledCourses.length === 0) {
             setEnrolledCourseDetails([]);
             return;
         }
@@ -104,7 +107,7 @@ export default function CourseListstu() {
             )
         ).then((details) => {
             if (isMounted) {
-                setEnrolledCourseDetails(details.filter(Boolean));
+                setEnrolledCourseDetails(Array.isArray(details) ? details.filter(Boolean) : []);
             }
         });
         return () => { isMounted = false; };
@@ -153,30 +156,34 @@ export default function CourseListstu() {
 
     return (
         <section className="py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold">Khóa học của bạn</h2>
-                <button
-                    onClick={() => router.push('/coursefilter')}
-                    className="text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
-                >
-                    Xem tất cả →
-                </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {(enrolledCourseDetails as any[]).map((course, idx) => {
-                    const enrollment = enrolledCourses.find((e: any) => e.COURSE_ID === course.COURSE_ID);
-                    const progress = enrollment ? enrollment.PROGRESS : 0;
-                    return course && typeof course === 'object' ? (
-                        <div
-                            key={course.COURSE_ID || course.id || idx}
-                            onClick={() => router.push(`/coursedetail?id=${course.COURSE_ID || course.id}`)}
-                            className="cursor-pointer"
+            {Array.isArray(enrolledCourseDetails) && enrolledCourseDetails.length > 0 && (
+                <>
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-semibold">Khóa học của bạn</h2>
+                        <button
+                            onClick={() => router.push('/coursefilter')}
+                            className="text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
                         >
-                            <CourseCardProgress {...mapCourseData(course, progress)} />
-                        </div>
-                    ) : null;
-                })}
-            </div>
+                            Xem tất cả →
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {(enrolledCourseDetails as any[]).map((course, idx) => {
+                            const enrollment = enrolledCourses.find((e: any) => e.COURSE_ID === course.COURSE_ID);
+                            const progress = enrollment ? enrollment.PROGRESS : 0;
+                            return course && typeof course === 'object' ? (
+                                <div
+                                    key={course.COURSE_ID || course.id || idx}
+                                    onClick={() => router.push(`/coursedetail?id=${course.COURSE_ID || course.id}`)}
+                                    className="cursor-pointer"
+                                >
+                                    <CourseCardProgress {...mapCourseData(course, progress)} />
+                                </div>
+                            ) : null;
+                        })}
+                    </div>
+                </>
+            )}
 
             <div className="flex justify-between items-center mb-6 mt-12">
                 <h2 className="text-2xl font-semibold">Khóa học phổ biến</h2>
