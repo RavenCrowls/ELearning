@@ -1,21 +1,51 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Upload } from 'lucide-react';
+import { useUser, useAuth } from '@clerk/nextjs';
 
 export default function ProfileComponent() {
+  const { user } = useUser();
+  const { getToken } = useAuth();
   const [formData, setFormData] = useState({
-    name: 'Trịnh Quang Hạc',
-    address: '26/8 Trường Định, Bến Thành, Quận 1, TP. Hồ Chí Minh',
-    phone: '0123456789',
-    birthday: '21/04/1999',
-    email: 'em1@gmail.com',
-    username: 'Hackeni23',
-    bio: '//write something',
+    name: '',
+    address: '',
+    phone: '',
+    birthday: '',
+    email: '',
+    username: '',
+    bio: '',
     password: '',
     newPassword: ''
   });
+  const [avatarFile, setAvatarFile] = useState('');
 
-  const [avatarFile, setAvatarFile] = useState('avatar.png');
+  useEffect(() => {
+    async function fetchUserData() {
+      if (user && user.id) {
+        const token = await getToken();
+        const res = await fetch(`http://localhost:5000/api/users/${user.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFormData(prev => ({
+            ...prev,
+            name: data.NAME || '',
+            address: data.ADDRESS || '',
+            phone: data.PHONE || '',
+            birthday: data.BIRTH_DATE ? data.BIRTH_DATE.split('T')[0] : '',
+            email: data.EMAIL || '',
+            username: data.USERNAME || '',
+            bio: data.BIO || '',
+          }));
+          setAvatarFile(data.AVATAR || '');
+        }
+      }
+    }
+    fetchUserData();
+  }, [user, getToken]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
