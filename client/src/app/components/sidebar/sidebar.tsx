@@ -3,17 +3,36 @@ import React from 'react';
 import { User, BookOpen, GraduationCap, Plus } from 'lucide-react';
 
 const Sidebar = () => {
-  const [activeIndex, setActiveIndex] = React.useState(0);
+  const [activeIndex, setActiveIndex] = React.useState(-1); // Bắt đầu với -1 (không có item nào active)
 
   const menuItems = [
-    { icon: User, label: 'Profile', active: true },
-    { icon: BookOpen, label: 'Category', active: false },
-    { icon: GraduationCap, label: 'Course', active: false },
-    { icon: Plus, label: 'Create course', active: false }
+    { icon: User, label: 'Profile', link:'profile-instructor' },
+    { icon: BookOpen, label: 'Category', link:'category'  },
+    { icon: GraduationCap, label: 'Course', link:'course-instructor'  },
+    { icon: Plus, label: 'Create course', link:'create-course'  }
   ];
+
+  // Xác định active item dựa trên URL hiện tại
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.pathname;
+      
+      // Tìm index của item có link khớp với current path
+      const activeItemIndex = menuItems.findIndex(item => 
+        currentPath === `/${item.link}` || 
+        currentPath.startsWith(`/${item.link}/`) // Cho trường hợp có sub-paths
+      );
+      
+      setActiveIndex(activeItemIndex);
+      console.log('Current path:', currentPath);
+      console.log('Active index:', activeItemIndex);
+    }
+  }, []);
+
   const handleItemClick = (index: number) => {
     setActiveIndex(index);
   };
+
   return (
     <div className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col">
       {/* Header */}
@@ -31,9 +50,9 @@ const Sidebar = () => {
             return (
               <li key={index}>
                 <a
-                  href="#"
+                  href={`/${item.link}`}
                   onClick={() => handleItemClick(index)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 cursor-pointer ${
                     isActive
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 hover:bg-gray-100'

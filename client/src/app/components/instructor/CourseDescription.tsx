@@ -38,7 +38,7 @@ export default function CourseDesIns({
                 <div key={id} className='mb-6 bg-white rounded-lg overflow-hidden border border-gray-200'>
                     <div className='flex flex-col md:flex-row'>
                         <div className='w-full md:w-1/3'>
-                        <Link href={`/course/${id}`}>
+                        <Link href={`./edit-course`}>
                             <div className='h-48 md:h-full relative'>
                             <Image
                                 src={image}
@@ -52,7 +52,7 @@ export default function CourseDesIns({
                         <div className="w-full md:w-2/3 p-4">
                   <div className="flex justify-between items-start">
                     <div>
-                      <Link href={`/courses/${id}`}>
+                      <Link href={`./edit-course`}>
                         <h2 className="text-xl font-bold text-blue-600 hover:text-blue-800">
                           {title}
                         </h2>

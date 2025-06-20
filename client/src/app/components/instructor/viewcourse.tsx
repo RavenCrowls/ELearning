@@ -3,6 +3,7 @@
 // import { useState } from 'react';
 import React from "react";
 import CourseDesIns from "./CourseDescription";
+import Link from "next/link";
 const courses = [
     {
       id: 1,
@@ -43,9 +44,11 @@ export default function CoursePageIns(){
         <div className='flex flex-col md:flex-row gap-6 justify-center '>
             
             <div className='flex flex-col w-full md:w-full'>
+              <Link href={"./edit-course"}>
                 {courses.map((course) => (
                 <CourseDesIns key={course.id} {...course}/>
             ))}
+              </Link> 
             </div>
             
                 
