@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import CourseController from '../controllers/courseController';
+import { filterCourses } from '../controllers/courseFilterController';
 
 const router = Router();
 const courseController = new CourseController();
@@ -15,6 +16,7 @@ const {
 } = courseController;
 
 router.post("/", createCourse.bind(courseController));
+router.get("/filter", filterCourses);
 router.get("/", getAllCourses.bind(courseController));
 router.get("/popular", getPopularCourse.bind(courseController));
 router.get("/newest", getNewestCourse.bind(courseController));

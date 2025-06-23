@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import mongoose from 'mongoose';
 import { courseRouter } from './routes/courseRoutes';
+import courseFilterRouter from './routes/courseFilterRoutes';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
@@ -22,6 +23,7 @@ mongoose.connect(mongoUri)
 
 // Routes
 app.use('/api/courses', courseRouter);
+app.use('/api/courses', courseFilterRouter);
 
 if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => {
