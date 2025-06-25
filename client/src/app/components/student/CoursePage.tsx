@@ -24,6 +24,10 @@ export default function CoursePage() {
         const subCat = searchParams.get('subcategory');
         if (cat) setCategory(cat);
         if (subCat) setSubCategory(subCat);
+        // If both are present, apply filter immediately
+        if (cat && subCat) {
+            handleApplyFilter(cat, subCat);
+        }
     }, [searchParams, categories.length]);
 
     // Only fetch all courses if no filter is present
@@ -276,9 +280,13 @@ export default function CoursePage() {
                     </div>
                 </div>
                 <div className='flex flex-col w-full md:w-3/4'>
-                    {courses.map((course) => (
-                        <CourseDes key={course.id} {...course} />
-                    ))}
+                    {courses.length === 0 ? (
+                        <div className="text-center text-gray-500 text-lg mt-10">Không tìm thấy khóa học nào</div>
+                    ) : (
+                        courses.map((course) => (
+                            <CourseDes key={course.id} {...course} />
+                        ))
+                    )}
                 </div>
 
 

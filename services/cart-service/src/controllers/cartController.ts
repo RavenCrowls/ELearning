@@ -11,6 +11,25 @@ class CartController {
                 TOTAL_PRICE,
                 PAYMENT_STATUS
             } = req.body;
+
+            let existingCart = await Cart.findOne({
+                USER_ID,
+                PAYMENT_STATUS: 'pending',
+                STATUS: true
+            });
+            if (existingCart) {
+                const newItem = ITEMS && ITEMS[0];
+                if (newItem) {
+                    const alreadyInCart = existingCart.ITEMS.some((item: any) => item.COURSE_ID === newItem.COURSE_ID);
+                    if (!alreadyInCart) {
+                        existingCart.ITEMS.push(newItem);
+                        existingCart.TOTAL_PRICE += newItem.PRICE;
+                        await existingCart.save();
+                    }
+                }
+                return res.status(200).json(existingCart);
+            }
+
             const newCart = new Cart({
                 CART_ID,
                 USER_ID,
@@ -103,4 +122,4 @@ class CartController {
     }
 }
 
-export default CartController; 
+export default CartController;

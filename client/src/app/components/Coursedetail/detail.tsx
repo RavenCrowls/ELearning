@@ -7,6 +7,7 @@ import Overall from './overall';
 import Lesson from './lesson';
 import Instructor from './instructor';
 import Review from './review';
+import { useUser } from '@clerk/nextjs';
 
 // Define types
 interface CourseProps {
@@ -58,6 +59,8 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
     left: '0px',
     width: '0px'
   });
+  const { user } = useUser();
+  const [isAdding, setIsAdding] = useState(false);
 
   const navItems = [
     { id: 0, label: 'Tổng quan' },
@@ -211,6 +214,71 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
       : [],
     imageUrl: courseData.IMAGE_URL
   } : course;
+
+  const generateCartId = () => {
+    // Example: C + timestamp + random 3 digits
+    return 'C' + Date.now() + Math.floor(Math.random() * 1000);
+  };
+
+  const handleAddToCart = async () => {
+    if (!user) return;
+    setIsAdding(true);
+    try {
+      // 1. Check if user already has any pending carts
+      const cartRes = await fetch(`http://localhost:5008/api/carts/user/${user.id}`);
+      let cartData = null;
+      if (cartRes.ok) {
+        cartData = await cartRes.json();
+      }
+      // Find all user's active carts (pending payment and status true)
+      let activeCarts: any[] = [];
+      if (cartData && Array.isArray(cartData)) {
+        activeCarts = cartData.filter((cart: any) => cart.PAYMENT_STATUS === 'pending' && cart.STATUS === true);
+      }
+      // Pick the latest cart by CART_ID (assuming it encodes timestamp)
+      let activeCart = null;
+      if (activeCarts.length > 0) {
+        activeCart = activeCarts.reduce((latest, cart) => {
+          return cart.CART_ID > latest.CART_ID ? cart : latest;
+        }, activeCarts[0]);
+      }
+      if (activeCart && activeCart.CART_ID) {
+        // Cart exists, update it using CART_ID
+        const updatedItems = [
+          ...(activeCart.ITEMS || []),
+          {
+            COURSE_ID: courseId,
+            TITLE: mappedCourse.title,
+            PRICE: mappedCourse.price
+          }
+        ];
+        await fetch(`http://localhost:5008/api/carts/${activeCart.CART_ID}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ITEMS: updatedItems, TOTAL_PRICE: (activeCart.TOTAL_PRICE || 0) + mappedCourse.price })
+        });
+      } else {
+        // No active cart, create a new one
+        await fetch('http://localhost:5008/api/carts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            CART_ID: generateCartId(),
+            USER_ID: user.id,
+            ITEMS: [{ COURSE_ID: courseId, TITLE: mappedCourse.title, PRICE: mappedCourse.price }],
+            TOTAL_PRICE: mappedCourse.price,
+            STATUS: true,
+            PAYMENT_STATUS: 'pending'
+          })
+        });
+      }
+      // Optionally show a success message here
+    } catch (err) {
+      console.error('Failed to add to cart:', err);
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-4">
@@ -381,11 +449,15 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
 
             {/* Action buttons */}
             <div className="space-y-3">
-              <button className="flex items-center justify-center w-full py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors">
+              <button
+                className="flex items-center justify-center w-full py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+                onClick={handleAddToCart}
+                disabled={isAdding}
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                 </svg>
-                Thêm vào giỏ hàng
+                {isAdding ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
               </button>
               <button className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
                 Đăng ký
