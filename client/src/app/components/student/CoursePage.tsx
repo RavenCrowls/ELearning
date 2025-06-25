@@ -2,6 +2,7 @@
 
 // import { useState } from 'react';
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from 'next/navigation';
 import CourseDes from "./CourseDescription";
 
 export default function CoursePage() {
@@ -13,6 +14,8 @@ export default function CoursePage() {
     const [instructor, setInstructor] = useState('');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
+
+    const searchParams = useSearchParams();
 
     useEffect(() => {
         async function fetchAll() {
@@ -85,6 +88,22 @@ export default function CoursePage() {
     }, []);
 
     useEffect(() => {
+        // Check for query params and set filter state
+        const cat = searchParams.get('category');
+        const subCat = searchParams.get('subcategory');
+        if (cat) setCategory(cat);
+        if (subCat) setSubCategory(subCat);
+    }, [searchParams]);
+
+    useEffect(() => {
+        // If category or subCategory is set from query, trigger filter
+        if (category || subCategory) {
+            handleApplyFilter(category, subCategory);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [category, subCategory]);
+
+    useEffect(() => {
         if (!category) {
             setSubCategories([]);
             setSubCategory('');
@@ -95,13 +114,15 @@ export default function CoursePage() {
         setSubCategory('');
     }, [category, categories]);
 
-    const handleApplyFilter = async () => {
+    const handleApplyFilter = async (catOverride?: string, subCatOverride?: string) => {
         const params = new URLSearchParams();
         if (instructor) params.append('instructor', instructor);
         if (minPrice) params.append('minPrice', minPrice);
         if (maxPrice) params.append('maxPrice', maxPrice);
-        if (category) params.append('category', category);
-        if (subCategory) params.append('subcategory', subCategory);
+        const catToUse = catOverride !== undefined ? catOverride : category;
+        const subCatToUse = subCatOverride !== undefined ? subCatOverride : subCategory;
+        if (catToUse) params.append('category', catToUse);
+        if (subCatToUse) params.append('subcategory', subCatToUse);
         const url = `http://localhost:5003/api/courses/filter?${params.toString()}`;
         try {
             const res = await fetch(url);
@@ -241,7 +262,7 @@ export default function CoursePage() {
                         </div>
 
                         <button
-                            onClick={handleApplyFilter}
+                            onClick={() => handleApplyFilter()}
                             className='w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200'
                         >
                             Áp dụng bộ lọc

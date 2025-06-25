@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function CourseCategories() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,6 +10,7 @@ export default function CourseCategories() {
   const popupRef = useRef<HTMLDivElement>(null);
   const [categories, setCategories] = useState<{ leftColumn: { id: string; title: string; hasSubmenu: boolean }[] }>({ leftColumn: [] });
   const [submenuData, setSubmenuData] = useState<{ [key: string]: { id: string; title: string; hasSubmenu: boolean }[] }>({});
+  const router = useRouter();
 
   // Fetch categories from API
   useEffect(() => {
@@ -71,11 +73,16 @@ export default function CourseCategories() {
   };
 
   // Xử lý click item
-  const handleItemClick = (item: { id: string; title: string; hasSubmenu?: boolean }) => {
-    console.log('Clicked:', item.title);
-    if (!item.hasSubmenu) {
+  const handleItemClick = (item: { id: string; title: string; hasSubmenu?: boolean; parentId?: string }) => {
+    if (item.hasSubmenu === false && item.parentId) {
+      // Subcategory click: pass both parent and subcategory id
+      router.push(`/coursefilter?category=${item.parentId}&subcategory=${item.id}`);
       closePopup();
+      return;
     }
+    // Always allow clicking main category (even if it has submenu)
+    router.push(`/coursefilter?category=${item.id}`);
+    closePopup();
   };
 
   // Tính toán width động
@@ -114,7 +121,7 @@ export default function CourseCategories() {
       {/* Popup overlay */}
       {isOpen && (
         <div className="fixed inset-0 flex items-start justify-start ml-15 pt-20 z-50">
-          <div 
+          <div
             ref={popupRef}
             className="bg-white rounded-lg shadow-2xl overflow-hidden animate-in fade-in duration-200"
             style={{
@@ -132,11 +139,10 @@ export default function CourseCategories() {
                       key={item.id}
                       onClick={() => handleItemClick(item)}
                       onMouseEnter={() => handleLeftColumnHover(item)}
-                      className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors duration-150 ${
-                        hoveredItem === item.id && item.hasSubmenu
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'hover:bg-gray-100'
-                      }`}
+                      className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors duration-150 ${hoveredItem === item.id && item.hasSubmenu
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'hover:bg-gray-100'
+                        }`}
                     >
                       <span className={`text-gray-700`}>
                         {item.title}
@@ -159,7 +165,7 @@ export default function CourseCategories() {
                       submenuData[activeSubmenu].map((item) => (
                         <div
                           key={item.id}
-                          onClick={() => handleItemClick(item)}
+                          onClick={() => handleItemClick({ ...item, parentId: activeSubmenu })}
                           className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors duration-150 hover:bg-gray-100`}
                         >
                           <span className="text-gray-700">{item.title}</span>
