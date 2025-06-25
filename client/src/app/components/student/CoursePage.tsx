@@ -10,6 +10,9 @@ export default function CoursePage() {
     const [category, setCategory] = useState('');
     const [subCategory, setSubCategory] = useState('');
     const [subCategories, setSubCategories] = useState<any[]>([]);
+    const [instructor, setInstructor] = useState('');
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
 
     useEffect(() => {
         async function fetchAll() {
@@ -92,6 +95,60 @@ export default function CoursePage() {
         setSubCategory('');
     }, [category, categories]);
 
+    const handleApplyFilter = async () => {
+        const params = new URLSearchParams();
+        if (instructor) params.append('instructor', instructor);
+        if (minPrice) params.append('minPrice', minPrice);
+        if (maxPrice) params.append('maxPrice', maxPrice);
+        if (category) params.append('category', category);
+        if (subCategory) params.append('subcategory', subCategory);
+        const url = `http://localhost:5003/api/courses/filter?${params.toString()}`;
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            // Map user IDs to names for quick lookup
+            const usersRes = await fetch('http://localhost:5000/api/users/');
+            const usersData = await usersRes.json();
+            const userMap: Record<string, string> = {};
+            usersData.forEach((user: any) => {
+                userMap[user.USER_ID] = user.NAME;
+            });
+            // Map category and subcategory IDs to names
+            const categoryMap: Record<string, any> = {};
+            categories.forEach((cat: any) => {
+                categoryMap[cat.CATEGORY_ID] = cat;
+            });
+            const mappedCourses = data.map((course: any) => {
+                const mainCatId = Array.isArray(course.CATEGORIES) ? course.CATEGORIES[0] : course.CATEGORIES;
+                const cat = categoryMap[mainCatId];
+                const mainCatName = cat ? cat.NAME : null;
+                let subCategoryNames: string[] = [];
+                if (cat && cat.SUB_CATEGORIES && course.SUB_CATEGORIES) {
+                    subCategoryNames = course.SUB_CATEGORIES.map((subId: string) => {
+                        const subCat = cat.SUB_CATEGORIES.find((sub: any) => sub.SUB_CATEGORY_ID === subId);
+                        return subCat ? subCat.NAME : null;
+                    }).filter(Boolean);
+                }
+                return {
+                    id: course.COURSE_ID,
+                    title: course.TITLE,
+                    description: course.DESCRIPTION,
+                    image: course.IMAGE_URL,
+                    price: course.PRICE,
+                    rating: course.RATING && course.RATING[0] ? parseFloat(course.RATING[0]) : 0,
+                    reviewCount: course.RATING && course.RATING[1] ? parseInt(course.RATING[1]) : 0,
+                    duration: course.DURATION ? `${course.DURATION} giờ` : '',
+                    lessons: course.NUMBER_OF_VIDEOS ? `${course.NUMBER_OF_VIDEOS} bài giảng` : '',
+                    tags: [mainCatName, ...subCategoryNames].filter(Boolean),
+                    instructor: userMap[course.INSTRUCTOR_ID] || course.INSTRUCTOR_ID
+                };
+            });
+            setCourses(mappedCourses);
+        } catch (err) {
+            setCourses([]);
+        }
+    };
+
     return (
         <div className='container mx-auto p-4'>
             <h1 className='text-start text-2xl font-bold text-blue-600 my-6'>Tất cả khóa học</h1>
@@ -106,12 +163,14 @@ export default function CoursePage() {
                         <span className='font-medium'>Bộ lọc tìm kiếm</span>
                     </div>
 
-                    {/* Ô tìm kiếm theo tên giảng viên */}
                     <div className='mb-6'>
+                        {/* Ô tìm kiếm theo tên giảng viên */}
                         <div className='relative'>
                             <input
                                 type="text"
                                 placeholder='Tên giảng viên'
+                                value={instructor}
+                                onChange={e => setInstructor(e.target.value)}
                                 className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                             />
                             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -122,8 +181,8 @@ export default function CoursePage() {
                         </div>
                     </div>
 
-                    {/* Lọc theo giá */}
                     <div className='mb-6'>
+                        {/* Lọc theo giá */}
                         <div className='flex items-center text-blue-600 mb-3'>
                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -135,6 +194,8 @@ export default function CoursePage() {
                                 <input
                                     type="text"
                                     placeholder='Từ'
+                                    value={minPrice}
+                                    onChange={e => setMinPrice(e.target.value)}
                                     className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                                 />
                             </div>
@@ -142,6 +203,8 @@ export default function CoursePage() {
                                 <input
                                     type="text"
                                     placeholder='Đến'
+                                    value={maxPrice}
+                                    onChange={e => setMaxPrice(e.target.value)}
                                     className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                                 />
                             </div>
@@ -177,7 +240,10 @@ export default function CoursePage() {
                             </select>
                         </div>
 
-                        <button className='w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200'>
+                        <button
+                            onClick={handleApplyFilter}
+                            className='w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200'
+                        >
                             Áp dụng bộ lọc
                         </button>
                     </div>
