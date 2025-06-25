@@ -9,14 +9,16 @@ class EnrollmentController {
                 COURSE_ID,
                 USER_ID,
                 PROGRESS,
-                STATUS
+                STATUS,
+                WATCHED
             } = req.body;
             const newEnrollment = new Enrollment({
                 ENROLLMENT_ID,
                 COURSE_ID,
                 USER_ID,
                 PROGRESS,
-                STATUS
+                STATUS,
+                WATCHED
             });
             await newEnrollment.save();
             res.status(201).json(newEnrollment);
@@ -53,12 +55,14 @@ class EnrollmentController {
             const {
                 COURSE_ID,
                 USER_ID,
-                PROGRESS
+                PROGRESS,
+                WATCHED
             } = req.body;
             const data = {
                 COURSE_ID,
                 USER_ID,
                 PROGRESS,
+                WATCHED
             };
             const updatedEnrollment = await Enrollment.findOneAndUpdate(
                 { ENROLLMENT_ID: enrollmentId, STATUS: 1 },
