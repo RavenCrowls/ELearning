@@ -6,6 +6,10 @@ import CourseDes from "./CourseDescription";
 
 export default function CoursePage() {
     const [courses, setCourses] = useState<any[]>([]);
+    const [categories, setCategories] = useState<any[]>([]);
+    const [category, setCategory] = useState('');
+    const [subCategory, setSubCategory] = useState('');
+    const [subCategories, setSubCategories] = useState<any[]>([]);
 
     useEffect(() => {
         async function fetchAll() {
@@ -23,31 +27,24 @@ export default function CoursePage() {
                 usersData.forEach((user: any) => {
                     userMap[user.USER_ID] = user.NAME;
                 });
-                // Map category and subcategory IDs to names (composite key for subcategories)
-                const categoryMap: Record<string, string> = {};
-                const subCategoryMap: Record<string, string> = {};
+                // Map category and subcategory IDs to names
+                const categoryMap: Record<string, any> = {};
                 categoriesData.forEach((cat: any) => {
-                    categoryMap[cat.CATEGORY_ID] = cat.NAME;
-                    if (cat.SUB_CATEGORIES) {
-                        cat.SUB_CATEGORIES.forEach((sub: any) => {
-                            // Use composite key: CATEGORY_ID|SUB_CATEGORY_ID
-                            subCategoryMap[`${cat.CATEGORY_ID}|${sub.SUB_CATEGORY_ID}`] = sub.NAME;
-                        });
-                    }
+                    categoryMap[cat.CATEGORY_ID] = cat;
                 });
                 // Transform API data to match CourseDes props
                 const mappedCourses = coursesData.map((course: any) => {
-                    // Get category name(s)
-                    const categoryNames = (course.CATEGORIES || []).map((catId: string) => categoryMap[catId]).filter(Boolean);
-                    // Get subcategory name(s) using composite key
+                    // Get main category name
+                    const mainCatId = Array.isArray(course.CATEGORIES) ? course.CATEGORIES[0] : course.CATEGORIES;
+                    const cat = categoryMap[mainCatId];
+                    const mainCatName = cat ? cat.NAME : null;
+                    // Get subcategory names that belong to the main category
                     let subCategoryNames: string[] = [];
-                    if (course.CATEGORIES && course.SUB_CATEGORIES) {
-                        course.CATEGORIES.forEach((catId: string) => {
-                            course.SUB_CATEGORIES.forEach((subId: string) => {
-                                const name = subCategoryMap[`${catId}|${subId}`];
-                                if (name) subCategoryNames.push(name);
-                            });
-                        });
+                    if (cat && cat.SUB_CATEGORIES && course.SUB_CATEGORIES) {
+                        subCategoryNames = course.SUB_CATEGORIES.map((subId: string) => {
+                            const subCat = cat.SUB_CATEGORIES.find((sub: any) => sub.SUB_CATEGORY_ID === subId);
+                            return subCat ? subCat.NAME : null;
+                        }).filter(Boolean);
                     }
                     return {
                         id: course.COURSE_ID,
@@ -59,7 +56,7 @@ export default function CoursePage() {
                         reviewCount: course.RATING && course.RATING[1] ? parseInt(course.RATING[1]) : 0,
                         duration: course.DURATION ? `${course.DURATION} giờ` : '',
                         lessons: course.NUMBER_OF_VIDEOS ? `${course.NUMBER_OF_VIDEOS} bài giảng` : '',
-                        tags: [...categoryNames, ...subCategoryNames],
+                        tags: [mainCatName, ...subCategoryNames].filter(Boolean),
                         instructor: userMap[course.INSTRUCTOR_ID] || course.INSTRUCTOR_ID
                     };
                 });
@@ -70,6 +67,30 @@ export default function CoursePage() {
         }
         fetchAll();
     }, []);
+
+    useEffect(() => {
+        async function fetchCategories() {
+            try {
+                const res = await fetch('http://localhost:5004/api/categories/');
+                const data = await res.json();
+                setCategories(data);
+            } catch (err) {
+                setCategories([]);
+            }
+        }
+        fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        if (!category) {
+            setSubCategories([]);
+            setSubCategory('');
+            return;
+        }
+        const cat = categories.find((c: any) => c.CATEGORY_ID === category);
+        setSubCategories(cat && cat.SUB_CATEGORIES ? cat.SUB_CATEGORIES : []);
+        setSubCategory('');
+    }, [category, categories]);
 
     return (
         <div className='container mx-auto p-4'>
@@ -131,19 +152,28 @@ export default function CoursePage() {
                     <div className='mb-6'>
                         <h3 className='text-blue-600 font-medium mb-3'>Thể loại</h3>
                         <div className='mb-3'>
-                            <select className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'>
+                            <select
+                                className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                value={category}
+                                onChange={e => setCategory(e.target.value)}
+                            >
                                 <option value="">Chọn thể loại</option>
-                                <option value="programming">Programming</option>
-                                <option value="design">Desgin</option>
-                                <option value="business">Business</option>
+                                {categories.map((cat: any) => (
+                                    <option key={cat.CATEGORY_ID} value={cat.CATEGORY_ID}>{cat.NAME}</option>
+                                ))}
                             </select>
                         </div>
                         <div className="mb-4">
-                            <select className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <select
+                                className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${!category ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}`}
+                                value={subCategory}
+                                onChange={e => setSubCategory(e.target.value)}
+                                disabled={!category}
+                            >
                                 <option value="">Chọn thể loại con</option>
-                                <option value="web">Web Development</option>
-                                <option value="mobile">Mobile Development</option>
-                                <option value="desktop">Desktop Development</option>
+                                {subCategories.map((sub: any) => (
+                                    <option key={sub.SUB_CATEGORY_ID} value={sub.SUB_CATEGORY_ID}>{sub.NAME}</option>
+                                ))}
                             </select>
                         </div>
 
