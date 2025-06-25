@@ -28,15 +28,27 @@ export default function ShoppingCart({ items = [] }: ShoppingCartProps) {
                 if (!res.ok) throw new Error('Failed to fetch cart');
                 const data = await res.json();
                 if (data && Array.isArray(data.ITEMS)) {
-                    setCartItems(
-                        data.ITEMS.map((item: any) => ({
-                            id: Number(item.COURSE_ID),
-                            title: item.TITLE,
-                            price: item.PRICE,
-                            image: '/course1.jpg', // You may want to update this if you have image URLs
-                            quantity: 1,
-                        }))
+                    // Fetch course details for each item to get IMAGE_URL
+                    const itemsWithImages = await Promise.all(
+                        data.ITEMS.map(async (item: any) => {
+                            let imageUrl = '/course1.jpg';
+                            try {
+                                const courseRes = await fetch(`http://localhost:5003/api/courses/${item.COURSE_ID}`);
+                                if (courseRes.ok) {
+                                    const courseData = await courseRes.json();
+                                    imageUrl = courseData.IMAGE_URL || imageUrl;
+                                }
+                            } catch (e) { /* fallback to default image */ }
+                            return {
+                                id: Number(item.COURSE_ID),
+                                title: item.TITLE,
+                                price: item.PRICE,
+                                image: imageUrl,
+                                quantity: 1,
+                            };
+                        })
                     );
+                    setCartItems(itemsWithImages);
                 }
             } catch (err) {
                 console.error(err);
