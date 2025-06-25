@@ -94,6 +94,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
     }
     return stars;
   };
+  // State cho tag được hover
   const [hoveredTag, setHoveredTag] = useState<string | null>(null);
 
   // Hàm xử lý khi hover vào tag
@@ -110,26 +111,19 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
     // Bạn có thể thêm logic xử lý khác ở đây
   };
 
-  const getTagColorClass = (tag: string) => {
-    const isHovered = hoveredTag === tag;
+  const getTagColorClass = (tagName: string, index: number) => {
+    const isHovered = hoveredTag === tagName;
 
-    switch (tag) {
-      case "Technique":
-        return isHovered
-          ? "bg-blue-600 text-white"
-          : "bg-blue-500 text-white";
-      case "Programming":
-        return isHovered
-          ? "bg-pink-50 border border-pink-300"
-          : "bg-white border border-pink-300";
-      case "C++":
-        return isHovered
-          ? "bg-blue-50 border border-blue-300"
-          : "bg-white border border-blue-300";
-      default:
-        return isHovered
-          ? "bg-gray-200"
-          : "bg-gray-100";
+    // Logic dựa trên tên tag
+    if (index === 0) {
+      return isHovered
+        ? "bg-blue-700 text-white"
+        : "bg-blue-600 text-white";
+    }
+    else {
+      return isHovered
+        ? "bg-blue-50 border border-blue-400 text-blue-700"
+        : "bg-white border border-blue-300 text-blue-600";
     }
   };
 
@@ -236,10 +230,10 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
 
           {/* Tags and rating */}
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            {mappedCourse.tags.map((tag) => (
+            {mappedCourse.tags.map((tag, index) => (
               <span
                 key={tag}
-                className={`px-4 py-1 ${getTagColorClass(tag)} rounded-full text-sm font-medium transition-colors duration-200 cursor-pointer`}
+                className={`px-4 py-1 ${getTagColorClass(tag, index)} rounded-full text-sm font-medium transition-colors duration-200 cursor-pointer`}
                 onMouseEnter={() => handleTagHover(tag)}
                 onMouseLeave={handleTagLeave}
               >

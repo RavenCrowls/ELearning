@@ -84,7 +84,7 @@ export default function HeaderStudent() {
         <nav className="flex items-center space-x-4">
           <Link
             href="/coursefilter"
-            className="px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap"
+            className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-md transition-colors duration-200 whitespace-nowrap cursor-pointer"
           >
             Các khóa học
           </Link>

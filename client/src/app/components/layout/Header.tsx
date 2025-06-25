@@ -34,7 +34,7 @@ export default function Header() {
 
         {/* Navigation links */}
         <nav className="flex items-center space-x-4">
-          <Link href="/coursefilter" className="px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap">
+          <Link href="/coursefilter" className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-md transition-colors duration-200 whitespace-nowrap cursor-pointer">
             Các khóa học
           </Link>
           <Link href="/sign-in" className="bg-white text-blue-600 border border-blue-600 px-4 py-1.5 rounded-md hover:bg-blue-50 whitespace-nowrap">

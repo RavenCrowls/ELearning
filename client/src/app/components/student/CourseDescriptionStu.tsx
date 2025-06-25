@@ -25,14 +25,14 @@ export default function CourseDesStu({
     duration,
     lessons,
     tags
-}: CourseInfo){
+}: CourseInfo) {
 
     return (
-        <div className='w-full max-w-5xl mx-auto'>
+        <div className='w-full'>
             <div key={id} className='mb-6 bg-white rounded-lg overflow-hidden border border-gray-200'>
                 <div className='flex flex-col md:flex-row'>
                     {/* Image Section - Reduced width */}
-                    <div className='w-full md:w-2/5 flex-shrink-0'>
+                    <div className='w-full md:w-1/4 flex-shrink-0'>
                         <Link href={`/course/${id}`}>
                             <div className='h-48 md:h-full relative'>
                                 <Image
@@ -44,7 +44,7 @@ export default function CourseDesStu({
                             </div>
                         </Link>
                     </div>
-                    
+
                     {/* Content Section - Increased width */}
                     <div className="flex-1 p-4">
                         <div className="h-full flex flex-col justify-between">
@@ -55,32 +55,32 @@ export default function CourseDesStu({
                                     </h2>
                                 </Link>
                                 <p className="text-gray-700 mt-1">{description}</p>
-                                                
+
                                 {/* Thời lượng */}
                                 <div className="text-gray-700 mt-2">
                                     Thời lượng: {duration} • {lessons}
                                 </div>
-                                
+
                                 {/* Tags */}
                                 <div className="flex flex-wrap gap-2 mt-3">
                                     {tags.map((tag, index) => (
-                                        <span 
-                                            key={index} 
+                                        <span
+                                            key={index}
                                             className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full"
                                         >
-                                            {tag} 
+                                            {tag}
                                         </span>
                                     ))}
                                 </div>
-                                
+
                                 {/* Progress bar */}
                                 <div className='bg-gray-200 rounded-full h-2 mt-4'>
-                                    <div 
-                                        className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-300" 
+                                    <div
+                                        className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-300"
                                         style={{ width: `${progress}%` }}
                                     ></div>
                                 </div>
-                                
+
                                 {/* Progress Text */}
                                 <div className='flex justify-between mt-3 text-gray-700'>
                                     <span>Tiến độ</span>

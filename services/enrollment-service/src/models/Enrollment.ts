@@ -6,6 +6,7 @@ export interface IEnrollment extends Document {
   USER_ID: string;
   PROGRESS: number;
   STATUS: boolean;
+  WATCHED: string[];
 }
 
 const enrollmentSchema: Schema = new Schema({
@@ -29,6 +30,10 @@ const enrollmentSchema: Schema = new Schema({
   STATUS: {
     type: Boolean,
     default: true,
+  },
+  WATCHED: {
+    type: [String],
+    default: [],
   },
 }, { versionKey: false });
 
