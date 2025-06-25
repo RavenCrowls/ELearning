@@ -17,62 +17,76 @@ export default function CoursePage() {
 
     const searchParams = useSearchParams();
 
+    // Set category/subCategory from URL only after categories are loaded
     useEffect(() => {
-        async function fetchAll() {
-            try {
-                const [coursesRes, usersRes, categoriesRes] = await Promise.all([
-                    fetch('http://localhost:5003/api/courses/'),
-                    fetch('http://localhost:5000/api/users/'),
-                    fetch('http://localhost:5004/api/categories/')
-                ]);
-                const coursesData = await coursesRes.json();
-                const usersData = await usersRes.json();
-                const categoriesData = await categoriesRes.json();
-                // Map user IDs to names for quick lookup
-                const userMap: Record<string, string> = {};
-                usersData.forEach((user: any) => {
-                    userMap[user.USER_ID] = user.NAME;
-                });
-                // Map category and subcategory IDs to names
-                const categoryMap: Record<string, any> = {};
-                categoriesData.forEach((cat: any) => {
-                    categoryMap[cat.CATEGORY_ID] = cat;
-                });
-                // Transform API data to match CourseDes props
-                const mappedCourses = coursesData.map((course: any) => {
-                    // Get main category name
-                    const mainCatId = Array.isArray(course.CATEGORIES) ? course.CATEGORIES[0] : course.CATEGORIES;
-                    const cat = categoryMap[mainCatId];
-                    const mainCatName = cat ? cat.NAME : null;
-                    // Get subcategory names that belong to the main category
-                    let subCategoryNames: string[] = [];
-                    if (cat && cat.SUB_CATEGORIES && course.SUB_CATEGORIES) {
-                        subCategoryNames = course.SUB_CATEGORIES.map((subId: string) => {
-                            const subCat = cat.SUB_CATEGORIES.find((sub: any) => sub.SUB_CATEGORY_ID === subId);
-                            return subCat ? subCat.NAME : null;
-                        }).filter(Boolean);
-                    }
-                    return {
-                        id: course.COURSE_ID,
-                        title: course.TITLE,
-                        description: course.DESCRIPTION,
-                        image: course.IMAGE_URL,
-                        price: course.PRICE,
-                        rating: course.RATING && course.RATING[0] ? parseFloat(course.RATING[0]) : 0,
-                        reviewCount: course.RATING && course.RATING[1] ? parseInt(course.RATING[1]) : 0,
-                        duration: course.DURATION ? `${course.DURATION} giờ` : '',
-                        lessons: course.NUMBER_OF_VIDEOS ? `${course.NUMBER_OF_VIDEOS} bài giảng` : '',
-                        tags: [mainCatName, ...subCategoryNames].filter(Boolean),
-                        instructor: userMap[course.INSTRUCTOR_ID] || course.INSTRUCTOR_ID
-                    };
-                });
-                setCourses(mappedCourses);
-            } catch (err) {
-                setCourses([]);
+        if (categories.length === 0) return;
+        const cat = searchParams.get('category');
+        const subCat = searchParams.get('subcategory');
+        if (cat) setCategory(cat);
+        if (subCat) setSubCategory(subCat);
+    }, [searchParams, categories.length]);
+
+    // Only fetch all courses if no filter is present
+    useEffect(() => {
+        const cat = searchParams.get('category');
+        const subCat = searchParams.get('subcategory');
+        if (!cat && !subCat) {
+            async function fetchAll() {
+                try {
+                    const [coursesRes, usersRes, categoriesRes] = await Promise.all([
+                        fetch('http://localhost:5003/api/courses/'),
+                        fetch('http://localhost:5000/api/users/'),
+                        fetch('http://localhost:5004/api/categories/')
+                    ]);
+                    const coursesData = await coursesRes.json();
+                    const usersData = await usersRes.json();
+                    const categoriesData = await categoriesRes.json();
+                    // Map user IDs to names for quick lookup
+                    const userMap: Record<string, string> = {};
+                    usersData.forEach((user: any) => {
+                        userMap[user.USER_ID] = user.NAME;
+                    });
+                    // Map category and subcategory IDs to names
+                    const categoryMap: Record<string, any> = {};
+                    categoriesData.forEach((cat: any) => {
+                        categoryMap[cat.CATEGORY_ID] = cat;
+                    });
+                    // Transform API data to match CourseDes props
+                    const mappedCourses = coursesData.map((course: any) => {
+                        // Get main category name
+                        const mainCatId = Array.isArray(course.CATEGORIES) ? course.CATEGORIES[0] : course.CATEGORIES;
+                        const cat = categoryMap[mainCatId];
+                        const mainCatName = cat ? cat.NAME : null;
+                        // Get subcategory names that belong to the main category
+                        let subCategoryNames: string[] = [];
+                        if (cat && cat.SUB_CATEGORIES && course.SUB_CATEGORIES) {
+                            subCategoryNames = course.SUB_CATEGORIES.map((subId: string) => {
+                                const subCat = cat.SUB_CATEGORIES.find((sub: any) => sub.SUB_CATEGORY_ID === subId);
+                                return subCat ? subCat.NAME : null;
+                            }).filter(Boolean);
+                        }
+                        return {
+                            id: course.COURSE_ID,
+                            title: course.TITLE,
+                            description: course.DESCRIPTION,
+                            image: course.IMAGE_URL,
+                            price: course.PRICE,
+                            rating: course.RATING && course.RATING[0] ? parseFloat(course.RATING[0]) : 0,
+                            reviewCount: course.RATING && course.RATING[1] ? parseInt(course.RATING[1]) : 0,
+                            duration: course.DURATION ? `${course.DURATION} giờ` : '',
+                            lessons: course.NUMBER_OF_VIDEOS ? `${course.NUMBER_OF_VIDEOS} bài giảng` : '',
+                            tags: [mainCatName, ...subCategoryNames].filter(Boolean),
+                            instructor: userMap[course.INSTRUCTOR_ID] || course.INSTRUCTOR_ID
+                        };
+                    });
+                    setCourses(mappedCourses);
+                } catch (err) {
+                    setCourses([]);
+                }
             }
+            fetchAll();
         }
-        fetchAll();
-    }, []);
+    }, [searchParams, categories]);
 
     useEffect(() => {
         async function fetchCategories() {
@@ -86,14 +100,6 @@ export default function CoursePage() {
         }
         fetchCategories();
     }, []);
-
-    useEffect(() => {
-        // Check for query params and set filter state
-        const cat = searchParams.get('category');
-        const subCat = searchParams.get('subcategory');
-        if (cat) setCategory(cat);
-        if (subCat) setSubCategory(subCat);
-    }, [searchParams]);
 
     useEffect(() => {
         // If category or subCategory is set from query, trigger filter
