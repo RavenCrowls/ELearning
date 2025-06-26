@@ -101,7 +101,8 @@ export default function Lesson() {
                     >
                       <div className="flex items-center">
                         <button
-                          className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-600 mr-4 shadow-sm cursor-pointer"
+                          className={`w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-600 mr-4 shadow-sm cursor-pointer ${item.locked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          disabled={item.locked}
                           onClick={() => {
                             const params = new URLSearchParams(window.location.search);
                             const courseId = params.get('id');
