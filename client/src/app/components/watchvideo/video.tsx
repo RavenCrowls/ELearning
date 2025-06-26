@@ -16,6 +16,7 @@ interface VideoOption {
   videoUrl?: string;
   duration?: string;
   completed?: boolean;
+  freeTrial?: boolean;
 }
 
 interface LessonProps {
@@ -330,7 +331,8 @@ const VideoPlayerWithLessons: React.FC = () => {
               title: video.TITLE,
               videoUrl: video.URL,
               duration: video.DURATION,
-              completed: watched.includes(String(video.VIDEO_ID)) // Ensure string comparison
+              completed: watched.includes(String(video.VIDEO_ID)), // Ensure string comparison
+              freeTrial: video.FREE_TRIAL // Map freeTrial from backend
             }));
             allLessons.push(...videoOptions);
             return {
@@ -446,63 +448,57 @@ const VideoPlayerWithLessons: React.FC = () => {
                   </button>
                   {expandedSections[section.section] && (
                     <div className="pb-2">
-                      {section.lessons.map((lesson: VideoOption) => (
-                        <div
-                          key={lesson.id}
-                          className={`w-full text-left p-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 ${currentLessonId === lesson.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''}`}
-                        >
-                          {/* Left part: status circle */}
-                          <div className="flex-shrink-0">
+                      {section.lessons.map((lesson: VideoOption) => {
+                        const isLocked = !lesson.freeTrial && !enrollmentId;
+                        return (
+                          <div
+                            key={lesson.id}
+                            className={`w-full text-left p-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 ${currentLessonId === lesson.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''} ${isLocked ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          >
+                            {/* Left part: status circle */}
+                            <div className="flex-shrink-0">
+                              <div
+                                className={`w-5 h-5 rounded-full flex items-center justify-center relative ${lesson.completed ? 'bg-blue-500' : currentLessonId === lesson.id ? 'bg-blue-500' : 'border-2 border-gray-300'} ${isLocked ? '' : 'cursor-pointer'}`}
+                                style={{ zIndex: 0 }}
+                              >
+                                {/* Always show green check if completed, else show playing indicator if current, else blank */}
+                                {lesson.completed ? (
+                                  // Green circle with checkmark overlay
+                                  <svg className="w-3 h-3 text-white z-20" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                ) : currentLessonId === lesson.id ? (
+                                  // Blue circle with white center (playing)
+                                  <svg className="w-3 h-3 z-20" viewBox="0 0 20 20">
+                                    <circle cx="10" cy="10" r="8" fill="#fff" />
+                                  </svg>
+                                ) : isLocked ? (
+                                  // Lock icon for locked videos
+                                  <svg className="w-3 h-3 text-gray-400 z-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <rect x="3" y="11" width="18" height="10" rx="2" strokeWidth="2" />
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" strokeWidth="2" />
+                                    <circle cx="12" cy="16" r="1" strokeWidth="2" />
+                                  </svg>
+                                ) : null}
+                                {/* Only show the white circle if not completed and not current and not locked */}
+                                {!lesson.completed && currentLessonId !== lesson.id && !isLocked && (
+                                  <span className="block w-3 h-3 rounded-full bg-white z-0"></span>
+                                )}
+                              </div>
+                            </div>
+                            {/* Right part: lesson info, only this triggers lesson change */}
                             <div
-                              className={`w-5 h-5 rounded-full flex items-center justify-center cursor-pointer relative ${lesson.completed ? 'bg-blue-500' : currentLessonId === lesson.id ? 'bg-blue-500' : 'border-2 border-gray-300'}`}
-                              style={{ zIndex: 0 }} // Ensure the status circle stays below popups
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                handleToggleCompleted(lesson.id);
-                                // Get courseId from URL
-                                const params = new URLSearchParams(window.location.search);
-                                const courseId = params.get('id');
-                                // Call API to update enrollment progress
-                                if (user?.id && courseId && enrollmentId) {
-                                  await fetch(`http://localhost:5002/api/enrollments/progress/${enrollmentId}`, {
-                                    method: 'PATCH',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                      VIDEO_ID: lesson.id,
-                                      COURSE_ID: courseId
-                                    })
-                                  });
-                                }
+                              className={`flex-1 min-w-0 flex items-center justify-between ${isLocked ? 'pointer-events-none' : 'cursor-pointer'}`}
+                              onClick={() => {
+                                if (!isLocked) handleLessonSelect(lesson.id);
                               }}
                             >
-                              {/* Always show green check if completed, else show playing indicator if current, else blank */}
-                              {lesson.completed ? (
-                                // Green circle with checkmark overlay
-                                <svg className="w-3 h-3 text-white z-20" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                              ) : currentLessonId === lesson.id ? (
-                                // Blue circle with white center (playing)
-                                <svg className="w-3 h-3 z-20" viewBox="0 0 20 20">
-                                  <circle cx="10" cy="10" r="8" fill="#fff" />
-                                </svg>
-                              ) : null}
-                              {/* Only show the white circle if not completed and not current */}
-                              {!lesson.completed && currentLessonId !== lesson.id && (
-                                <span className="block w-3 h-3 rounded-full bg-white z-0"></span>
-                              )}
+                              <p className={`text-sm font-medium truncate ${currentLessonId === lesson.id ? 'text-blue-700' : 'text-gray-900'}`}>{lesson.title}</p>
+                              <span className="text-xs text-gray-500 ml-2">{lesson.duration}</span>
                             </div>
                           </div>
-                          {/* Right part: lesson info, only this triggers lesson change */}
-                          <div
-                            className="flex-1 min-w-0 flex items-center justify-between cursor-pointer"
-                            onClick={() => handleLessonSelect(lesson.id)}
-                          >
-                            <p className={`text-sm font-medium truncate ${currentLessonId === lesson.id ? 'text-blue-700' : 'text-gray-900'}`}>{lesson.title}</p>
-                            <span className="text-xs text-gray-500 ml-2">{lesson.duration}</span>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
