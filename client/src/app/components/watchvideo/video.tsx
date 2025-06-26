@@ -455,6 +455,7 @@ const VideoPlayerWithLessons: React.FC = () => {
                           <div className="flex-shrink-0">
                             <div
                               className={`w-5 h-5 rounded-full flex items-center justify-center cursor-pointer relative ${lesson.completed ? 'bg-blue-500' : currentLessonId === lesson.id ? 'bg-blue-500' : 'border-2 border-gray-300'}`}
+                              style={{ zIndex: 0 }} // Ensure the status circle stays below popups
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 handleToggleCompleted(lesson.id);
@@ -486,6 +487,10 @@ const VideoPlayerWithLessons: React.FC = () => {
                                   <circle cx="10" cy="10" r="8" fill="#fff" />
                                 </svg>
                               ) : null}
+                              {/* Only show the white circle if not completed and not current */}
+                              {!lesson.completed && currentLessonId !== lesson.id && (
+                                <span className="block w-3 h-3 rounded-full bg-white z-0"></span>
+                              )}
                             </div>
                           </div>
                           {/* Right part: lesson info, only this triggers lesson change */}
