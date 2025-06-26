@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 interface InstructorProps {
-    name: string; 
+    name: string;
     image: string;
     description: string;
     lessons: number;
@@ -17,14 +17,14 @@ export default function Instructor() {
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-6 md:w-[60vw] lg:w-[45vw] xl:w-[42.5vw] mx-auto">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-6 w-full">
             <div className="flex items-center mb-4">
-                
-                <Image src={instructor.image} 
-                alt={instructor.name} 
-                width={40} 
-                height={40}
-                className="w-30 h-30 rounded-full mr-4" />
+
+                <Image src={instructor.image}
+                    alt={instructor.name}
+                    width={40}
+                    height={40}
+                    className="w-30 h-30 rounded-full mr-4" />
                 <div>
                     <h2 className="text-xl font-semibold">{instructor.name}</h2>
                     <div className='flex space-x-2 flex-row'>
@@ -32,11 +32,11 @@ export default function Instructor() {
                         <p className="text-gray-500">Số học viên: {instructor.students}</p>
 
                     </div>
-                    
+
                     <p className="text-gray-600">{instructor.description}</p>
                 </div>
             </div>
-            
-          </div>
+
+        </div>
     );
 }

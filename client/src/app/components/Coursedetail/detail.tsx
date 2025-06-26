@@ -357,10 +357,10 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
 
 
           {/* Navigation tabs */}
-          <div className="flex flex-col items-start mb-6 overflow-x-auto bg-gray-50 rounded-lg">
+          <div className="mb-6 overflow-x-auto">
             <div
               ref={navRef}
-              className="relative flex bg-white rounded-full p-2 shadow-md"
+              className="relative inline-flex bg-white rounded-full p-2 shadow-md"
             >
               {/* Background slider */}
               <div
@@ -385,7 +385,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
             </div>
 
             {/* Active tab content */}
-            <div>
+            <div className="w-full">
               {getContentofclickedbutton(activeIndex)}
             </div>
           </div>
