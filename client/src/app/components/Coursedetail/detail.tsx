@@ -61,6 +61,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
   });
   const { user } = useUser();
   const [isAdding, setIsAdding] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   const navItems = [
     { id: 0, label: 'Tổng quan' },
@@ -190,6 +191,21 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
       })
       .catch((err) => console.error('Failed to fetch course data:', err));
   }, [courseId]);
+
+  // Check if user is enrolled in the course
+  useEffect(() => {
+    if (!user) return;
+    fetch(`http://localhost:5002/api/enrollments/user/${user.id}`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (Array.isArray(data)) {
+          setIsEnrolled(data.some((enr: any) => enr.COURSE_ID === courseId));
+        } else {
+          setIsEnrolled(false);
+        }
+      })
+      .catch(() => setIsEnrolled(false));
+  }, [user, courseId]);
 
   // Map API data to UI fields
   const mappedCourse = courseData ? {
@@ -450,16 +466,19 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
             {/* Action buttons */}
             <div className="space-y-3">
               <button
-                className="flex items-center justify-center w-full py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
-                onClick={handleAddToCart}
-                disabled={isAdding}
+                className={`flex items-center justify-center w-full py-2 border border-blue-600 rounded-md transition-colors ${isEnrolled ? 'bg-gray-300 text-gray-400 border-gray-300 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-50'}`}
+                onClick={isEnrolled ? undefined : handleAddToCart}
+                disabled={isAdding || isEnrolled}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                 </svg>
-                {isAdding ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
+                {isEnrolled ? 'Đã đăng ký' : (isAdding ? 'Đang thêm...' : 'Thêm vào giỏ hàng')}
               </button>
-              <button className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+              <button
+                className={`w-full py-2 rounded-md transition-colors ${isEnrolled ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                disabled={isEnrolled}
+              >
                 Đăng ký
               </button>
             </div>

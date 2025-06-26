@@ -9,6 +9,15 @@ import { useSearchParams } from 'next/navigation';
 export default function PaymentPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
+  const [courseTitle, setCourseTitle] = React.useState('');
+
+  React.useEffect(() => {
+    if (!id) return;
+    fetch(`http://localhost:5003/api/courses/${id}`)
+      .then(res => res.json())
+      .then(data => setCourseTitle(data?.TITLE || ''));
+  }, [id]);
+
   // Giả lập dữ liệu khóa học
   return (
     <div className="min-h-screen bg-gray-50">
@@ -23,7 +32,7 @@ export default function PaymentPage() {
           </li>
           <li className='mx-2 text-gray-500'>/</li>
           <li className='text-gray-500 hover:text-blue-500'>
-            <Link href={`/coursedetail?id=${id || ''}`} className='hover:text-blue-600'>Introduction to Programming</Link>
+            <Link href={`/coursedetail?id=${id || ''}`} className='hover:text-blue-600'>{courseTitle || 'Introduction to Programming'}</Link>
           </li>
           <li className='mx-2 text-gray-500'>/</li>
           <li className='text-gray-500'>

@@ -120,6 +120,41 @@ class CartController {
             res.status(500).json({ message: "Error deleting cart", error });
         }
     }
+
+    async removeItemFromCart(req: Request, res: Response) {
+        try {
+            const { userId, courseId } = req.params;
+            const cart = await Cart.findOne({ USER_ID: userId, STATUS: 1 });
+            if (!cart) {
+                return res.status(404).json({ message: "Cart not found for this user" });
+            }
+            const initialLength = cart.ITEMS.length;
+            cart.ITEMS = cart.ITEMS.filter((item: any) => item.COURSE_ID !== courseId);
+            if (cart.ITEMS.length === initialLength) {
+                return res.status(404).json({ message: "Item not found in cart" });
+            }
+            cart.TOTAL_PRICE = cart.ITEMS.reduce((sum: number, item: any) => sum + item.PRICE, 0);
+            await cart.save();
+            res.status(200).json(cart);
+        } catch (error) {
+            res.status(500).json({ message: "Error removing item from cart", error });
+        }
+    }
+
+    async deleteUserCart(req: Request, res: Response) {
+        try {
+            const { userId } = req.params;
+            const cart = await Cart.findOne({ USER_ID: userId, STATUS: 1 });
+            if (!cart) {
+                return res.status(404).json({ message: 'Cart not found for this user' });
+            }
+            cart.STATUS = false;
+            await cart.save();
+            res.status(200).json({ message: 'Cart cleared successfully' });
+        } catch (error) {
+            res.status(500).json({ message: 'Error clearing cart', error });
+        }
+    }
 }
 
 export default CartController;

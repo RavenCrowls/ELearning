@@ -57,12 +57,34 @@ export default function ShoppingCart({ items = [] }: ShoppingCartProps) {
         fetchCart();
     }, [user]);
 
-    const removeItem = (id: number) => {
-        setCartItems(cartItems.filter(item => item.id !== id));
+    const removeItem = async (id: number) => {
+        if (!user) return;
+        const confirmDelete = window.confirm('Bạn có muốn xóa sản phẩm này khỏi giỏ hàng?');
+        if (!confirmDelete) return;
+        try {
+            const res = await fetch(`http://localhost:5008/api/carts/user/${user.id}/item/${id}`, {
+                method: 'DELETE',
+            });
+            if (!res.ok) throw new Error('Failed to remove item from cart');
+            setCartItems(cartItems.filter(item => item.id !== id));
+        } catch (err) {
+            console.error(err);
+        }
     };
 
-    const clearCart = () => {
-        setCartItems([]);
+    const clearCart = async () => {
+        if (!user) return;
+        const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?');
+        if (!confirmDelete) return;
+        try {
+            const res = await fetch(`http://localhost:5008/api/carts/user/${user.id}`, {
+                method: 'DELETE',
+            });
+            if (!res.ok) throw new Error('Failed to clear cart');
+            setCartItems([]);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const totalAmount = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
