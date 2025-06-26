@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
+import { useUser } from '@clerk/nextjs';
 
 interface VideoPlayerProps {
   title?: string;
@@ -219,7 +220,7 @@ const LessonList: React.FC<LessonProps> = ({ lessons, currentLesson, onLessonSel
                   >
                     <div className="flex-shrink-0">
                       {lesson.completed ? (
-                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
                           <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
@@ -235,9 +236,11 @@ const LessonList: React.FC<LessonProps> = ({ lessons, currentLesson, onLessonSel
                           <input
                             type="checkbox"
                             checked={lesson.completed}
-                            onChange={e => {
+                            onClick={e => {
                               e.stopPropagation();
+                              console.log("clicked");
                             }}
+                            onChange={() => { }}
                             className="absolute w-full h-full opacity-0 cursor-pointer m-0 p-0 z-10"
                             style={{ left: 0, top: 0 }}
                           />
@@ -269,10 +272,13 @@ const LessonList: React.FC<LessonProps> = ({ lessons, currentLesson, onLessonSel
 };
 
 const VideoPlayerWithLessons: React.FC = () => {
+  const { user } = useUser();
   const [currentLessonId, setCurrentLessonId] = useState('');
   const [lessons, setLessons] = useState<VideoOption[]>([]);
   const [lectureSections, setLectureSections] = useState<any[]>([]);
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
+  const [watched, setWatched] = useState<string[]>([]);
+  const [enrollmentId, setEnrollmentId] = useState<string | null>(null);
 
   // Add handler to toggle completed state (now inside the component)
   const handleToggleCompleted = (lessonId: string) => {
@@ -295,7 +301,20 @@ const VideoPlayerWithLessons: React.FC = () => {
     const params = new URLSearchParams(window.location.search);
     const courseId = params.get('id');
     const videoIdFromUrl = params.get('video'); // Get video param
-    if (!courseId) return;
+    if (!courseId || !user?.id) return;
+
+    // Fetch enrollment for this user and course
+    fetch(`http://localhost:5002/api/enrollments/user/${user.id}`)
+      .then(res => res.json())
+      .then((enrollments) => {
+        // Find enrollment for this course
+        const enrollment = Array.isArray(enrollments)
+          ? enrollments.find((e: any) => e.COURSE_ID === courseId)
+          : (enrollments.COURSE_ID === courseId ? enrollments : null);
+        setWatched(enrollment?.WATCHED || []);
+        setEnrollmentId(enrollment?.ENROLLMENT_ID || null);
+      });
+
     // Fetch lectures for the course
     fetch(`http://localhost:5006/api/lectures/by-course/${courseId}`)
       .then(res => res.json())
@@ -311,7 +330,7 @@ const VideoPlayerWithLessons: React.FC = () => {
               title: video.TITLE,
               videoUrl: video.URL,
               duration: video.DURATION,
-              completed: false // You can update this logic as needed
+              completed: watched.includes(String(video.VIDEO_ID)) // Ensure string comparison
             }));
             allLessons.push(...videoOptions);
             return {
@@ -340,7 +359,26 @@ const VideoPlayerWithLessons: React.FC = () => {
           }
         }
       });
-  }, []);
+  }, [user]);
+
+  // Update lessons' completed state when watched or lessons change
+  useEffect(() => {
+    setLessons((prevLessons: VideoOption[]) =>
+      prevLessons.map((lesson: VideoOption) => ({
+        ...lesson,
+        completed: watched.includes(String(lesson.id)) // Ensure string comparison
+      }))
+    );
+    setLectureSections((prevSections: any[]) =>
+      prevSections.map((section: any) => ({
+        ...section,
+        lessons: section.lessons.map((lesson: VideoOption) => ({
+          ...lesson,
+          completed: watched.includes(String(lesson.id)) // Ensure string comparison
+        }))
+      }))
+    );
+  }, [watched, lessons.length]);
 
   const currentLesson = lessons.find(lesson => lesson.id === currentLessonId) || lessons[0];
 
@@ -359,7 +397,7 @@ const VideoPlayerWithLessons: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
         {/* Video Player Section - Left side (70%) */}
-        <div className="flex-1 bg-black flex items-center justify-center" style={{ minHeight: '700px', height: '70vh' }}>
+        <div className="flex-1 bg-black flex flex-col items-center justify-center" style={{ minHeight: '700px', height: '70vh' }}>
           <VideoPlayer
             title={currentLesson?.title}
             videoUrl={currentLesson?.videoUrl}
@@ -367,6 +405,10 @@ const VideoPlayerWithLessons: React.FC = () => {
             height="100%"
             className="w-full h-full"
           />
+          {/* Show video title under the player */}
+          <div className="w-full px-8 py-4 bg-white">
+            <h2 className="text-xl font-semibold text-black truncate">{currentLesson?.title}</h2>
+          </div>
         </div>
 
         {/* Lesson List Section - Right side (30%) */}
@@ -397,17 +439,36 @@ const VideoPlayerWithLessons: React.FC = () => {
                   {expandedSections[section.section] && (
                     <div className="pb-2">
                       {section.lessons.map((lesson: VideoOption) => (
-                        <button
+                        <div
                           key={lesson.id}
-                          onClick={() => handleLessonSelect(lesson.id)}
                           className={`w-full text-left p-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 ${currentLessonId === lesson.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''}`}
                         >
+                          {/* Left part: status circle */}
                           <div className="flex-shrink-0">
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center cursor-pointer relative ${currentLessonId === lesson.id ? 'bg-blue-500' : 'border-2 border-gray-300'}`}
+                            <div
+                              className={`w-5 h-5 rounded-full flex items-center justify-center cursor-pointer relative ${lesson.completed ? 'bg-blue-500' : currentLessonId === lesson.id ? 'bg-blue-500' : 'border-2 border-gray-300'}`}
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                handleToggleCompleted(lesson.id);
+                                // Get courseId from URL
+                                const params = new URLSearchParams(window.location.search);
+                                const courseId = params.get('id');
+                                // Call API to update enrollment progress
+                                if (user?.id && courseId && enrollmentId) {
+                                  await fetch(`http://localhost:5002/api/enrollments/progress/${enrollmentId}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      VIDEO_ID: lesson.id,
+                                      COURSE_ID: courseId
+                                    })
+                                  });
+                                }
+                              }}
                             >
-                              {/* Three states: blank, blue+white (playing), blue circle with white tick (completed) */}
-                              {currentLessonId === lesson.id && lesson.completed ? (
-                                // Blue circle with checkmark overlay
+                              {/* Always show green check if completed, else show playing indicator if current, else blank */}
+                              {lesson.completed ? (
+                                // Green circle with checkmark overlay
                                 <svg className="w-3 h-3 text-white z-20" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
@@ -416,24 +477,18 @@ const VideoPlayerWithLessons: React.FC = () => {
                                 <svg className="w-3 h-3 z-20" viewBox="0 0 20 20">
                                   <circle cx="10" cy="10" r="8" fill="#fff" />
                                 </svg>
-                              ) : lesson.completed ? (
-                                // Blue circle with checkmark overlay (completed)
-                                <svg className="w-3 h-3 text-white z-20" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
                               ) : null}
                             </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium truncate ${currentLessonId === lesson.id ? 'text-blue-700' : 'text-gray-900'
-                              }`}>
-                              {lesson.title}
-                            </p>
+                          {/* Right part: lesson info, only this triggers lesson change */}
+                          <div
+                            className="flex-1 min-w-0 flex items-center justify-between cursor-pointer"
+                            onClick={() => handleLessonSelect(lesson.id)}
+                          >
+                            <p className={`text-sm font-medium truncate ${currentLessonId === lesson.id ? 'text-blue-700' : 'text-gray-900'}`}>{lesson.title}</p>
+                            <span className="text-xs text-gray-500 ml-2">{lesson.duration}</span>
                           </div>
-                          <div className="flex-shrink-0">
-                            <span className="text-xs text-gray-500">{lesson.duration}</span>
-                          </div>
-                        </button>
+                        </div>
                       ))}
                     </div>
                   )}

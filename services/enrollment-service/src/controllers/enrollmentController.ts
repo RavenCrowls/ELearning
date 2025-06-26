@@ -105,6 +105,37 @@ class EnrollmentController {
             res.status(500).json({ message: "Error getting enrollments by user ID", error });
         }
     }
+
+    async updateProgress(req: Request, res: Response) {
+        try {
+            const { enrollmentId } = req.params;
+            const { VIDEO_ID, COURSE_ID } = req.body;
+            if (!VIDEO_ID || !COURSE_ID) {
+                return res.status(400).json({ message: "VIDEO_ID and COURSE_ID are required" });
+            }
+            const enrollment = await Enrollment.findOne({ ENROLLMENT_ID: enrollmentId, STATUS: 1 });
+            if (!enrollment) {
+                return res.status(404).json({ message: "Enrollment not found" });
+            }
+            const index = enrollment.WATCHED.indexOf(VIDEO_ID);
+            if (index !== -1) {
+                enrollment.WATCHED.splice(index, 1);
+            } else {
+                enrollment.WATCHED.push(VIDEO_ID);
+            }
+            const courseRes = await fetch(`http://localhost:5003/api/courses/${COURSE_ID}`);
+            if (!courseRes.ok) {
+                return res.status(500).json({ message: "Failed to fetch course info" });
+            }
+            const courseData = await courseRes.json();
+            const totalVideos = courseData.NUMBER_OF_VIDEOS || 1;
+            enrollment.PROGRESS = Math.floor((enrollment.WATCHED.length / totalVideos) * 100);
+            await enrollment.save();
+            res.status(200).json(enrollment);
+        } catch (error) {
+            res.status(500).json({ message: "Error updating progress", error });
+        }
+    }
 }
 
 export default EnrollmentController;

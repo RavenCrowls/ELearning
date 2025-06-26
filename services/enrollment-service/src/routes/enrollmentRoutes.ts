@@ -19,5 +19,6 @@ router.get("/:enrollmentId", getEnrollment.bind(enrollmentController));
 router.delete("/:enrollmentId", deleteEnrollment.bind(enrollmentController));
 router.put("/:enrollmentId", updateEnrollment.bind(enrollmentController));
 router.get("/user/:userId", getEnrollmentsByUserID.bind(enrollmentController));
+router.patch("/progress/:enrollmentId", enrollmentController.updateProgress.bind(enrollmentController));
 
 export { router as enrollmentRouter };
