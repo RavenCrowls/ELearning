@@ -69,7 +69,7 @@ class CartController {
     async getUserCart(req: Request, res: Response) {
         try {
             const { userId } = req.params;
-            const cart = await Cart.findOne({ USER_ID: userId, STATUS: 1 });
+            const cart = await Cart.findOne({ USER_ID: userId, STATUS: 1, PAYMENT_STATUS: 'pending' });
             if (!cart) {
                 return res.status(404).json({ message: "Cart not found for this user" });
             }

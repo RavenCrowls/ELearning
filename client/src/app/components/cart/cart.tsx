@@ -193,6 +193,11 @@ export default function ShoppingCart({ items = [] }: ShoppingCartProps) {
                                 <button
                                     className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-lg mt-6 transition-colors cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed"
                                     disabled={cartItems.length === 0}
+                                    onClick={() => {
+                                        if (cartItems.length > 0) {
+                                            window.location.href = "/payment";
+                                        }
+                                    }}
                                 >
                                     Thanh toán
                                 </button>
