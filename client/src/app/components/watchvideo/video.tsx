@@ -231,8 +231,20 @@ const LessonList: React.FC<LessonProps> = ({ lessons, currentLesson, onLessonSel
                           </svg>
                         </div>
                       ) : (
-                        <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center">
-                          <input type="checkbox" className="w-3 h-3 text-blue-600 rounded border-gray-300" />
+                        <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center cursor-pointer relative">
+                          <input
+                            type="checkbox"
+                            checked={lesson.completed}
+                            onChange={e => {
+                              e.stopPropagation();
+                            }}
+                            className="absolute w-full h-full opacity-0 cursor-pointer m-0 p-0 z-10"
+                            style={{ left: 0, top: 0 }}
+                          />
+                          {/* Custom circle, only visible when not completed */}
+                          {!lesson.completed && (
+                            <span className="block w-3 h-3 rounded-full bg-white"></span>
+                          )}
                         </div>
                       )}
                     </div>
@@ -261,6 +273,23 @@ const VideoPlayerWithLessons: React.FC = () => {
   const [lessons, setLessons] = useState<VideoOption[]>([]);
   const [lectureSections, setLectureSections] = useState<any[]>([]);
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
+
+  // Add handler to toggle completed state (now inside the component)
+  const handleToggleCompleted = (lessonId: string) => {
+    setLessons((prevLessons: VideoOption[]) =>
+      prevLessons.map((lesson: VideoOption) =>
+        lesson.id === lessonId ? { ...lesson, completed: !lesson.completed } : lesson
+      )
+    );
+    setLectureSections((prevSections: any[]) =>
+      prevSections.map((section: any) => ({
+        ...section,
+        lessons: section.lessons.map((lesson: VideoOption) =>
+          lesson.id === lessonId ? { ...lesson, completed: !lesson.completed } : lesson
+        )
+      }))
+    );
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -374,26 +403,32 @@ const VideoPlayerWithLessons: React.FC = () => {
                           className={`w-full text-left p-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 ${currentLessonId === lesson.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''}`}
                         >
                           <div className="flex-shrink-0">
-                            {lesson.completed ? (
-                              <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center cursor-pointer relative ${currentLessonId === lesson.id ? 'bg-blue-500' : 'border-2 border-gray-300'}`}
+                            >
+                              {/* Three states: blank, blue+white (playing), blue circle with white tick (completed) */}
+                              {currentLessonId === lesson.id && lesson.completed ? (
+                                // Blue circle with checkmark overlay
+                                <svg className="w-3 h-3 text-white z-20" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
-                              </div>
-                            ) : currentLessonId === lesson.id ? (
-                              <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                              ) : currentLessonId === lesson.id ? (
+                                // Blue circle with white center (playing)
+                                <svg className="w-3 h-3 z-20" viewBox="0 0 20 20">
+                                  <circle cx="10" cy="10" r="8" fill="#fff" />
                                 </svg>
-                              </div>
-                            ) : (
-                              <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center">
-                                <input type="checkbox" className="w-3 h-3 text-blue-600 rounded border-gray-300" />
-                              </div>
-                            )}
+                              ) : lesson.completed ? (
+                                // Blue circle with checkmark overlay (completed)
+                                <svg className="w-3 h-3 text-white z-20" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              ) : null}
+                            </div>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium truncate ${currentLessonId === lesson.id ? 'text-blue-700' : 'text-gray-900'}`}>{lesson.title}</p>
+                            <p className={`text-sm font-medium truncate ${currentLessonId === lesson.id ? 'text-blue-700' : 'text-gray-900'
+                              }`}>
+                              {lesson.title}
+                            </p>
                           </div>
                           <div className="flex-shrink-0">
                             <span className="text-xs text-gray-500">{lesson.duration}</span>
@@ -407,10 +442,6 @@ const VideoPlayerWithLessons: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-      {/* Video Title Section */}
-      <div className="bg-white px-6 py-4 border-t border-gray-200">
-        <h1 className="text-2xl font-bold text-gray-900">{currentLesson?.title}</h1>
       </div>
     </div>
   );
