@@ -342,10 +342,18 @@ const VideoPlayerWithLessons: React.FC = () => {
         setLectureSections(sections);
         setLessons(allLessons);
         // Determine which video to show
-        let initialLessonId = allLessons[0]?.id;
+        let initialLessonId = undefined;
         if (allLessons.length > 0) {
           if (videoIdFromUrl && allLessons.some(l => l.id === videoIdFromUrl)) {
             initialLessonId = videoIdFromUrl;
+          } else {
+            // Find the first available video from the first lecture that has videos
+            const firstSectionWithVideos = sections.find(sec => sec.lessons && sec.lessons.length > 0);
+            if (firstSectionWithVideos) {
+              initialLessonId = firstSectionWithVideos.lessons[0].id;
+            } else {
+              initialLessonId = allLessons[0].id; // fallback
+            }
           }
           setCurrentLessonId(initialLessonId);
         }

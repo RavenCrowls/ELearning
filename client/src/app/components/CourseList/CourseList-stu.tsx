@@ -174,7 +174,7 @@ export default function CourseListstu() {
                             return course && typeof course === 'object' ? (
                                 <div
                                     key={course.COURSE_ID || course.id || idx}
-                                    onClick={() => router.push(`/coursedetail?id=${course.COURSE_ID || course.id}`)}
+                                    onClick={() => router.push(`/coursecontent?id=${course.COURSE_ID || course.id}`)}
                                     className="cursor-pointer"
                                 >
                                     <CourseCardProgress {...mapCourseData(course, progress)} />
