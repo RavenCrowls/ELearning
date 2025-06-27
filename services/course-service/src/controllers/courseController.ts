@@ -177,6 +177,24 @@ class CourseController {
             res.status(500).json({ message: 'Error searching courses by name', error });
         }
     }
+
+    async getCoursesByInstructor(req: Request, res: Response) {
+        try {
+            const { instructorId } = req.params;
+            if (!instructorId) {
+                return res.status(400).json({ message: 'Missing instructor ID parameter' });
+            }
+
+            const courses = await Course.find({
+                INSTRUCTOR_ID: instructorId,
+                STATUS: 1
+            }).sort({ CREATED_DATE: -1 });
+
+            res.status(200).json(courses);
+        } catch (error) {
+            res.status(500).json({ message: 'Error getting courses by instructor', error });
+        }
+    }
 }
 
 export default CourseController;

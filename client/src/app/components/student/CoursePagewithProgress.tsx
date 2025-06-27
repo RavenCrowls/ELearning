@@ -27,7 +27,7 @@ export default function CoursePage() {
 
     useEffect(() => {
         const fetchCourses = async () => {
-            if (!user?.id) return;
+            if (!user?.id || categories.length === 0) return;
             setLoading(true);
             try {
                 const enrollRes = await fetch(`http://localhost:5002/api/enrollments/user/${user.id}`);
@@ -52,12 +52,10 @@ export default function CoursePage() {
                         lessons: course.NUMBER_OF_VIDEOS ? `${course.NUMBER_OF_VIDEOS} bài giảng` : '',
                         tags: [
                             (() => {
-                                // Get the main category name from the first CATEGORY_ID in course.CATEGORIES
                                 const mainCatId = Array.isArray(course.CATEGORIES) ? course.CATEGORIES[0] : course.CATEGORIES;
                                 const cat = categories.find((c: any) => c.CATEGORY_ID === mainCatId);
                                 return cat ? cat.NAME : null;
                             })(),
-                            // Only subcategory names that belong to the main category
                             ...(() => {
                                 const mainCatId = Array.isArray(course.CATEGORIES) ? course.CATEGORIES[0] : course.CATEGORIES;
                                 const cat = categories.find((c: any) => c.CATEGORY_ID === mainCatId);
@@ -91,7 +89,7 @@ export default function CoursePage() {
             setLoading(false);
         };
         fetchCourses();
-    }, [user?.id, selectedCategory, selectedSubCategory]);
+    }, [user?.id, selectedCategory, selectedSubCategory, categories]);
 
     // Get subcategories for selected category
     const subCategories = React.useMemo(() => {

@@ -49,6 +49,7 @@ export default function CourseList() {
                                 if (sub && sub.NAME) tagNames.push(sub.NAME);
                             });
                         }
+                        console.log('Course:', course.TITLE, 'MainCat:', cat.NAME, 'Course.SUB_CATEGORIES:', course.SUB_CATEGORIES, 'Cat.SUB_CATEGORIES:', cat.SUB_CATEGORIES, 'Tags:', tagNames);
                     }
                 });
             }

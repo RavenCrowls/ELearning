@@ -1,6 +1,6 @@
 'use client'
 
-// import { useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -26,6 +26,22 @@ export default function CourseDesStu({
     lessons,
     tags
 }: CourseInfo) {
+    // Tag hover state and logic
+    const [hoveredTag, setHoveredTag] = useState<string | null>(null);
+    const handleTagHover = (tag: string) => setHoveredTag(tag);
+    const handleTagLeave = () => setHoveredTag(null);
+    const getTagColorClass = (tagName: string, index: number) => {
+        const isHovered = hoveredTag === tagName;
+        if (index === 0) {
+            return isHovered
+                ? "bg-blue-700 text-white"
+                : "bg-blue-600 text-white";
+        } else {
+            return isHovered
+                ? "bg-blue-50 border border-blue-400 text-blue-700"
+                : "bg-white border border-blue-300 text-blue-600";
+        }
+    };
 
     return (
         <div className='w-full'>
@@ -66,7 +82,9 @@ export default function CourseDesStu({
                                     {tags.map((tag, index) => (
                                         <span
                                             key={index}
-                                            className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full"
+                                            className={`px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200 cursor-pointer ${getTagColorClass(tag, index)}`}
+                                            onMouseEnter={() => handleTagHover(tag)}
+                                            onMouseLeave={handleTagLeave}
                                         >
                                             {tag}
                                         </span>
