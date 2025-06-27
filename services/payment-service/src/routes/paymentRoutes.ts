@@ -6,10 +6,14 @@ const paymentController = new PaymentController();
 
 const {
     createQRPayment,
-    checkPaymentStatus
+    checkPaymentStatus,
+    createQRDirectPayment,
+    checkDirectPaymentStatus
 } = paymentController;
 
 router.post("/create-qr", createQRPayment.bind(paymentController));
 router.get("/check-payment-vnpay", checkPaymentStatus.bind(paymentController));
+router.post("/create-qr-direct-payment", createQRDirectPayment.bind(paymentController));
+router.get("/check-direct-payment-status", checkDirectPaymentStatus.bind(paymentController));
 
 export { router as paymentRouter }; 

@@ -13,7 +13,7 @@ router.post('/clerk-webhook', async (req: Request, res: Response) => {
             // Map Clerk fields to your User model
             const newUser = new User({
                 USER_ID: clerkUser.id, // Clerk user ID
-                ROLE_ID: '3', // or assign based on your logic
+                ROLE_ID: '2', // or assign based on your logic
                 NAME: (clerkUser.first_name || '') + ' ' + (clerkUser.last_name || ''),
                 ADDRESS: '',
                 PHONE: '',

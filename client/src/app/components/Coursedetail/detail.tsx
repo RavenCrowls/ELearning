@@ -8,6 +8,7 @@ import Lesson from './lesson';
 import Instructor from './instructor';
 import Review from './review';
 import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 // Define types
 interface CourseProps {
@@ -70,6 +71,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
     { id: 3, label: 'Đánh giá' }
   ];
 
+  const router = useRouter();
 
   // Format price to Vietnamese Dong
   const formatPrice = (price: number) => {
@@ -296,6 +298,11 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
     }
   };
 
+  const handleDirectPayment = () => {
+    if (isEnrolled) return;
+    router.push(`/direct-payment?courseId=${courseId}`);
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-4">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -351,10 +358,6 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
               <p className="text-gray-500 text-sm">{mappedCourse.date}</p>
             </div>
           </div>
-
-
-
-
 
           {/* Navigation tabs */}
           <div className="mb-6 overflow-x-auto">
@@ -478,6 +481,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
               <button
                 className={`w-full py-2 rounded-md transition-colors ${isEnrolled ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
                 disabled={isEnrolled}
+                onClick={handleDirectPayment}
               >
                 Đăng ký
               </button>
