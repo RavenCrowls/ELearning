@@ -27,11 +27,11 @@ const videoSchema: Schema = new Schema({
     },
     DURATION: {
         type: String,
-        required: true,
+        default: '0:00',
     },
     URL: {
         type: String,
-        required: true,
+        default: '',
     },
     FREE_TRIAL: {
         type: Boolean,

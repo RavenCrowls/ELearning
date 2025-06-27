@@ -8,6 +8,8 @@ interface VideoItem {
     name: string;
     order: number;
     isChecked: boolean;
+    duration?: string;
+    url?: string;
 }
 
 interface Lecture {
@@ -93,6 +95,10 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
     const [success, setSuccess] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
 
+    const [errorRight, setErrorRight] = useState<string | null>(null);
+    const [successRight, setSuccessRight] = useState<string | null>(null);
+    const [isLoadingRight, setIsLoadingRight] = useState(false);
+
     useEffect(() => {
         async function fetchCategories() {
             try {
@@ -126,10 +132,50 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                 }));
                 setOutputs(initialOutputs);
             }
+
+            // Fetch lectures and videos for edit mode
+            if (initialData.COURSE_ID) {
+                (async () => {
+                    try {
+                        const resLectures = await fetch(`http://localhost:5006/api/lectures/by-course/${initialData.COURSE_ID}`);
+                        const lecturesData = await resLectures.json();
+                        const lecturesWithVideos = await Promise.all(
+                            lecturesData.map(async (lecture: any) => {
+                                const resVideos = await fetch(`http://localhost:5007/api/videos/by-lecture/${lecture.LECTURE_ID}`);
+                                const videosData = await resVideos.json();
+                                return {
+                                    id: lecture.LECTURE_ID,
+                                    name: lecture.TITLE,
+                                    order: lecture.ORDER,
+                                    videos: videosData.map((video: any) => ({
+                                        id: video.VIDEO_ID,
+                                        name: video.TITLE,
+                                        order: video.ORDER,
+                                        isChecked: !!video.FREE_TRIAL
+                                    }))
+                                };
+                            })
+                        );
+                        setLectures(lecturesWithVideos);
+                    } catch (err) {
+                        setLectures([]);
+                    }
+                })();
+            }
         } else if (mode === 'create') {
             // Add a default sub-category row for new courses
             setSubCategories([{ id: '1', name: '' }]);
             setOutputs([{ id: '1', name: '' }]);
+            setLectures([
+                {
+                    id: '1',
+                    name: '',
+                    order: 1,
+                    videos: [
+                        { id: '1-1', name: '', order: 1, isChecked: false }
+                    ]
+                }
+            ]);
         }
     }, [initialData, mode]);
 
@@ -363,6 +409,72 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
 
     const triggerFileInput = () => {
         fileInputRef.current?.click();
+    };
+
+    // Handler for saving lectures and videos
+    const handleSaveLecturesAndVideos = async () => {
+        setIsLoadingRight(true);
+        setErrorRight(null);
+        setSuccessRight(null);
+        try {
+            // 1. Validate at least one free trial video
+            const hasFreeTrial = lectures.some(lecture => lecture.videos.some(video => video.isChecked));
+            if (!hasFreeTrial) {
+                const errorMessage = 'There must be at least one free trial video for the course.';
+                setErrorRight(errorMessage);
+                setIsLoadingRight(false);
+                return;
+            }
+            // 2. Save lectures and videos
+            const courseId = initialData?.COURSE_ID || '';
+            for (const lecture of lectures) {
+                // Determine if lecture is existing (numeric ID)
+                const isExistingLecture = !isNaN(Number(lecture.id)) && String(lecture.id).length < 15;
+                let LECTURE_ID = isExistingLecture ? Number(lecture.id) : Date.now() + Math.floor(Math.random() * 1000);
+                const lectureBody = {
+                    COURSE_ID: courseId,
+                    LECTURE_ID,
+                    TITLE: lecture.name,
+                    ORDER: lecture.order,
+                    STATUS: 1
+                };
+                await fetch(`http://localhost:5006/api/lectures/${isExistingLecture ? LECTURE_ID : ''}`,
+                    {
+                        method: isExistingLecture ? 'PUT' : 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(lectureBody)
+                    }
+                );
+                // Save videos for this lecture
+                for (const video of lecture.videos) {
+                    // Determine if video is existing (numeric ID)
+                    const isExistingVideo = !isNaN(Number(video.id)) && String(video.id).length < 15;
+                    let VIDEO_ID = isExistingVideo ? Number(video.id) : Date.now() + Math.floor(Math.random() * 1000);
+                    const videoBody = {
+                        LECTURE_ID,
+                        VIDEO_ID,
+                        ORDER: video.order,
+                        TITLE: video.name,
+                        DURATION: video.duration || '',
+                        URL: video.url || '',
+                        FREE_TRIAL: !!video.isChecked,
+                        STATUS: 1
+                    };
+                    await fetch(`http://localhost:5007/api/videos/${isExistingVideo ? VIDEO_ID : ''}`,
+                        {
+                            method: isExistingVideo ? 'PUT' : 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(videoBody)
+                        }
+                    );
+                }
+            }
+            setSuccessRight('Lectures and videos saved successfully!');
+        } catch (err) {
+            setErrorRight('Failed to save lectures or videos');
+        } finally {
+            setIsLoadingRight(false);
+        }
     };
 
     return (
@@ -785,25 +897,25 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                                     )}
                                 </div>
                                 {/* Status Messages & Save Button */}
-                                {error && (
+                                {errorRight && (
                                     <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                                        {error}
+                                        {errorRight}
                                     </div>
                                 )}
-                                {success && (
+                                {successRight && (
                                     <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-                                        {success}
+                                        {successRight}
                                     </div>
                                 )}
                                 <button
-                                    onClick={handleSave}
-                                    disabled={isLoading}
-                                    className={`w-full px-6 py-2 text-white rounded-lg transition-colors ${isLoading
+                                    onClick={handleSaveLecturesAndVideos}
+                                    disabled={isLoadingRight}
+                                    className={`w-full px-6 py-2 text-white rounded-lg transition-colors ${isLoadingRight
                                         ? 'bg-gray-400 cursor-not-allowed'
                                         : 'bg-blue-500 hover:bg-blue-600'
                                         }`}
                                 >
-                                    {isLoading ? (
+                                    {isLoadingRight ? (
                                         <span className="flex items-center justify-center gap-2">
                                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                             {mode === 'create' ? 'Creating...' : 'Saving...'}
@@ -909,15 +1021,26 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                                         Add new lecture
                                     </button>
 
+                                    {/* Status Messages & Save Button */}
+                                    {errorRight && (
+                                        <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                                            {errorRight}
+                                        </div>
+                                    )}
+                                    {successRight && (
+                                        <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                                            {successRight}
+                                        </div>
+                                    )}
                                     <button
-                                        onClick={handleSave}
-                                        disabled={isLoading}
-                                        className={`w-full px-6 py-2 text-white rounded-lg transition-colors ${isLoading
+                                        onClick={handleSaveLecturesAndVideos}
+                                        disabled={isLoadingRight}
+                                        className={`w-full px-6 py-2 text-white rounded-lg transition-colors ${isLoadingRight
                                             ? 'bg-gray-400 cursor-not-allowed'
                                             : 'bg-blue-500 hover:bg-blue-600'
                                             }`}
                                     >
-                                        {isLoading ? (
+                                        {isLoadingRight ? (
                                             <span className="flex items-center justify-center gap-2">
                                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                                 {mode === 'create' ? 'Creating...' : 'Saving...'}
