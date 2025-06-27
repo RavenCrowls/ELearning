@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from "react";
 import CourseDesIns from "./CourseDescription";
 import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 export default function CoursePageIns() {
   const { user } = useUser();
+  const router = useRouter();
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
@@ -50,7 +52,7 @@ export default function CoursePageIns() {
             });
           }
           return {
-            id: course._id,
+            id: course.COURSE_ID,
             title: course.TITLE,
             description: course.DESCRIPTION,
             image: course.IMAGE_URL || '/course1.jpg',
@@ -72,6 +74,10 @@ export default function CoursePageIns() {
     fetchCourses();
   }, [user?.id, categories, user?.fullName, user?.username]);
 
+  const handleCourseClick = (courseId: string) => {
+    router.push(`/edit-course?id=${courseId}`);
+  };
+
   return (
     <div className='max-w-5xl mx-auto p-4 bg-white shadow-md rounded-lg object-cover'>
       <h1 className=' text-2xl font-bold text-blue-600 my-6'>Your Courses</h1>
@@ -83,7 +89,9 @@ export default function CoursePageIns() {
             <div>No courses found.</div>
           ) : (
             courses.map((course) => (
-              <CourseDesIns key={course.id} {...course} />
+              <div key={course.id} onClick={() => handleCourseClick(course.id)} className="cursor-pointer">
+                <CourseDesIns {...course} />
+              </div>
             ))
           )}
         </div>

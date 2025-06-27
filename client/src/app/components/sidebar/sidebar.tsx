@@ -35,7 +35,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <div className="w-64 h-screen fixed top-0 left-0 bg-white border-r border-gray-200 flex flex-col z-30">
       {/* Header */}
       <div className="p-6 border-b border-gray-100">
         <h1 className="text-xl font-semibold text-gray-900">ELearning</h1>

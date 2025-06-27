@@ -2,7 +2,6 @@
 
 // import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import React, { useState } from 'react';
 interface CourseInfo {
   id: number;
@@ -51,28 +50,24 @@ export default function CourseDesIns({
   return (
 
     <div className='w-full '>
-      <div key={id} className='mb-6 bg-white rounded-lg overflow-hidden border border-gray-200'>
+      <div key={id} className='mb-6 bg-white rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-200'>
         <div className='flex flex-col md:flex-row'>
           <div className='w-full md:w-1/3'>
-            <Link href={`./edit-course`}>
-              <div className='h-48 md:h-full relative'>
-                <Image
-                  src={image}
-                  alt={title}
-                  layout='fill'
-                  objectFit='cover'
-                />
-              </div>
-            </Link>
+            <div className='h-48 md:h-full relative'>
+              <Image
+                src={image}
+                alt={title}
+                layout='fill'
+                objectFit='cover'
+              />
+            </div>
           </div>
           <div className="w-full md:w-2/3 p-4">
             <div className="flex justify-between items-start">
               <div>
-                <Link href={`./edit-course`}>
-                  <h2 className="text-xl font-bold text-blue-600 hover:text-blue-800">
-                    {title}
-                  </h2>
-                </Link>
+                <h2 className="text-xl font-bold text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                  {title}
+                </h2>
                 <p className="text-gray-700 mt-1">{description}</p>
 
                 {/* Rating */}

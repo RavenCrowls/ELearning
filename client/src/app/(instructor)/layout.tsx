@@ -47,7 +47,7 @@ export default function InstructorLayout({
       <Sidebar />
 
       {/* Main content area - Takes remaining space */}
-      <div className="flex-1">
+      <div className="flex-1 pl-64">
         <HeaderInstructor />
         {children}
       </div>
