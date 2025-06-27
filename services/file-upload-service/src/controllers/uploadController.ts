@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -22,6 +24,28 @@ const upload = multer({
             cb(null, true);
         } else {
             cb(new Error('Only image files are allowed'));
+        }
+    }
+});
+
+// Multer disk storage for large video files
+const videoStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Make sure this folder exists
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, `${Date.now()}-${file.fieldname}${ext}`);
+    }
+});
+const videoUpload = multer({
+    storage: videoStorage,
+    limits: { fileSize: 1024 * 1024 * 1024 }, // 1GB
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('video/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only video files are allowed'));
         }
     }
 });
@@ -112,4 +136,45 @@ export const deleteImage = async (req: Request, res: Response) => {
             message: 'Failed to delete image'
         });
     }
+};
+
+export const uploadVideo = (req: Request, res: Response): void => {
+    videoUpload.single('video')(req, res, async (err: any) => {
+        try {
+            if (err) {
+                res.status(400).json({ success: false, message: err.message });
+                return;
+            }
+            if (!req.file) {
+                res.status(400).json({ success: false, message: 'No file uploaded' });
+                return;
+            }
+            const filePath = req.file.path;
+            const uploadStream = cloudinary.uploader.upload_stream(
+                { resource_type: 'video', folder: 'elearning-videos' },
+                (error, result) => {
+                    fs.unlink(filePath, () => { });
+                    if (error || !result) {
+                        res.status(500).json({ success: false, message: 'Failed to upload video', error });
+                    } else {
+                        res.status(200).json({
+                            success: true,
+                            message: 'Video uploaded successfully',
+                            data: {
+                                url: result.secure_url,
+                                public_id: result.public_id,
+                                width: result.width,
+                                height: result.height,
+                                format: result.format,
+                                duration: result.duration
+                            }
+                        });
+                    }
+                }
+            );
+            fs.createReadStream(filePath).pipe(uploadStream);
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Failed to upload video' });
+        }
+    });
 }; 
