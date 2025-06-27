@@ -1,9 +1,11 @@
 import Image from 'next/image';
 import HomeCourses from '@/app/components/CourseList/HomeCourses';
+import HeaderStudent from './components/layout/Header-stu';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
+      <HeaderStudent />
       <div className='w-full h-full relative flex items-center justify-start '>
         <Image
           src="/images/home.png"

@@ -1,11 +1,14 @@
 // import Image from 'next/image';
-export default function AuthLayout({
+import HeaderStudent from '../components/layout/Header-stu';
+
+export default function StudentLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <div className="min-h-screen">
+      <HeaderStudent />
       {children}
     </div>
   );
