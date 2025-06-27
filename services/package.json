@@ -12,11 +12,12 @@
         "lecture-service",
         "video-service",
         "cart-service",
-        "payment-service"
+        "payment-service",
+        "file-upload-service"
     ],
     "scripts": {
-        "dev": "concurrently \"npm run dev --workspace=user-service\" \"npm run dev --workspace=role-service\" \"npm run dev --workspace=enrollment-service\" \"npm run dev --workspace=course-service\" \"npm run dev --workspace=category-service\" \"npm run dev --workspace=publishment-service\" \"npm run dev --workspace=lecture-service\" \"npm run dev --workspace=video-service\" \"npm run dev --workspace=cart-service\" \"npm run dev --workspace=payment-service\"",
-        "build": "npm run build --workspace=user-service && npm run build --workspace=role-service && npm run build --workspace=enrollment-service && npm run build --workspace=course-service && npm run build --workspace=category-service && npm run build --workspace=publishment-service && npm run build --workspace=lecture-service && npm run build --workspace=video-service && npm run build --workspace=cart-service  && npm run build --workspace=payment-service"
+        "dev": "concurrently \"npm run dev --workspace=user-service\" \"npm run dev --workspace=role-service\" \"npm run dev --workspace=enrollment-service\" \"npm run dev --workspace=course-service\" \"npm run dev --workspace=category-service\" \"npm run dev --workspace=publishment-service\" \"npm run dev --workspace=lecture-service\" \"npm run dev --workspace=video-service\" \"npm run dev --workspace=cart-service\" \"npm run dev --workspace=payment-service\" \"npm run dev --workspace=file-upload-service\"",
+        "build": "npm run build --workspace=user-service && npm run build --workspace=role-service && npm run build --workspace=enrollment-service && npm run build --workspace=course-service && npm run build --workspace=category-service && npm run build --workspace=publishment-service && npm run build --workspace=lecture-service && npm run build --workspace=video-service && npm run build --workspace=cart-service  && npm run build --workspace=payment-service && npm run build --workspace=file-upload-service"
     },
     "devDependencies": {
         "@types/cors": "^2.8.18",

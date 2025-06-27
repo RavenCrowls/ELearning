@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, X, Check, Download, Upload } from 'lucide-react';
 
 interface VideoItem {
@@ -53,6 +53,8 @@ interface CourseFormProps {
 }
 
 const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const [courseData, setCourseData] = useState({
         title: initialData?.TITLE || '',
         category: initialData?.CATEGORIES?.[0] || '',
@@ -88,6 +90,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         async function fetchCategories() {
@@ -303,6 +306,51 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
         }
     };
 
+    const handleFileUpload = async (file: File) => {
+        setIsUploading(true);
+        setError(null);
+
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('http://localhost:5010/api/upload/image', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to upload image');
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                setCourseData(prev => ({ ...prev, image: result.data.url }));
+                setSuccess('Image uploaded successfully!');
+            } else {
+                throw new Error(result.message || 'Upload failed');
+            }
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to upload image';
+            setError(errorMessage);
+            console.error('Upload error:', err);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            handleFileUpload(file);
+        }
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current?.click();
+    };
+
     return (
         <div className="max-w-7xl mx-auto p-6 bg-white shadow-md">
             <div className="max-w-7xl mx-auto">
@@ -472,12 +520,33 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                             value={courseData.image}
                                             onChange={(e) => setCourseData({ ...courseData, image: e.target.value })}
                                             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            placeholder="Enter image URL"
+                                            placeholder="Enter image URL or upload an image"
                                         />
-                                        <button className="p-2 text-gray-500 hover:text-gray-600">
-                                            <Upload size={16} />
+                                        <button
+                                            type="button"
+                                            onClick={triggerFileInput}
+                                            disabled={isUploading}
+                                            className={`p-2 text-gray-500 hover:text-gray-600 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                                                }`}
+                                        >
+                                            {isUploading ? (
+                                                <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
+                                            ) : (
+                                                <Upload size={16} />
+                                            )}
                                         </button>
                                     </div>
+                                    {/* Hidden file input */}
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileSelect}
+                                        className="hidden"
+                                    />
+                                    {isUploading && (
+                                        <p className="text-sm text-blue-600 mt-1">Uploading image...</p>
+                                    )}
                                 </div>
 
                                 {/* Status Messages */}
