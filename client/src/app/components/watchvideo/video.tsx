@@ -302,21 +302,8 @@ const VideoPlayerWithLessons: React.FC = () => {
     const params = new URLSearchParams(window.location.search);
     const courseId = params.get('id');
     const videoIdFromUrl = params.get('video'); // Get video param
-    if (!courseId || !user?.id) return;
+    if (!courseId) return;
 
-    // Fetch enrollment for this user and course
-    fetch(`http://localhost:5002/api/enrollments/user/${user.id}`)
-      .then(res => res.json())
-      .then((enrollments) => {
-        // Find enrollment for this course
-        const enrollment = Array.isArray(enrollments)
-          ? enrollments.find((e: any) => e.COURSE_ID === courseId)
-          : (enrollments.COURSE_ID === courseId ? enrollments : null);
-        setWatched(enrollment?.WATCHED || []);
-        setEnrollmentId(enrollment?.ENROLLMENT_ID || null);
-      });
-
-    // Fetch lectures for the course
     fetch(`http://localhost:5006/api/lectures/by-course/${courseId}`)
       .then(res => res.json())
       .then(async (lectures) => {
@@ -369,6 +356,23 @@ const VideoPlayerWithLessons: React.FC = () => {
           }
         }
       });
+
+    // Only fetch enrollment if logged in
+    if (user?.id) {
+      fetch(`http://localhost:5002/api/enrollments/user/${user.id}`)
+        .then(res => res.json())
+        .then((enrollments) => {
+          // Find enrollment for this course
+          const enrollment = Array.isArray(enrollments)
+            ? enrollments.find((e: any) => e.COURSE_ID === courseId)
+            : (enrollments.COURSE_ID === courseId ? enrollments : null);
+          setWatched(enrollment?.WATCHED || []);
+          setEnrollmentId(enrollment?.ENROLLMENT_ID || null);
+        });
+    } else {
+      setEnrollmentId(null);
+      setWatched([]);
+    }
   }, [user]);
 
   // Update lessons' completed state when watched or lessons change
