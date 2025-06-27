@@ -12,11 +12,13 @@ const {
     deleteCourse,
     updateCourse,
     getPopularCourse,
-    getNewestCourse
+    getNewestCourse,
+    searchCourseByName
 } = courseController;
 
 router.post("/", createCourse.bind(courseController));
 router.get("/filter", filterCourses);
+router.get("/search", searchCourseByName.bind(courseController));
 router.get("/", getAllCourses.bind(courseController));
 router.get("/popular", getPopularCourse.bind(courseController));
 router.get("/newest", getNewestCourse.bind(courseController));

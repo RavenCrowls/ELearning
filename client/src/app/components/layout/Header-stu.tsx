@@ -45,6 +45,12 @@ export default function HeaderStudent() {
     clerk.signOut();
   };
 
+  const handleSearch = () => {
+    if (searchQuery.trim() !== "") {
+      router.push(`/coursefilter?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   return (
     <header className="bg-white shadow-sm py-4 sticky top-0 z-10 transition-all duration-300">
       <div className="container max-w-none flex justify-start flex-row  items-center space-x-5 px-8 ">
@@ -60,9 +66,12 @@ export default function HeaderStudent() {
             placeholder="Tìm kiếm khóa học..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
             className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <div className="absolute left-3 top-2.5 text-gray-400">
+          <div className="absolute left-3 top-2.5 text-gray-400 cursor-pointer" onClick={handleSearch}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"

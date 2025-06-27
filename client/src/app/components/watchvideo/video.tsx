@@ -15,7 +15,6 @@ interface VideoOption {
   title: string;
   videoUrl?: string;
   duration?: string;
-  completed?: boolean;
   freeTrial?: boolean;
 }
 
@@ -220,37 +219,15 @@ const LessonList: React.FC<LessonProps> = ({ lessons, currentLesson, onLessonSel
                       }`}
                   >
                     <div className="flex-shrink-0">
-                      {lesson.completed ? (
-                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      ) : currentLesson === lesson.id ? (
-                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      ) : (
-                        <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center cursor-pointer relative">
-                          <input
-                            type="checkbox"
-                            checked={lesson.completed}
-                            onClick={e => {
-                              e.stopPropagation();
-                              console.log("clicked");
-                            }}
-                            onChange={() => { }}
-                            className="absolute w-full h-full opacity-0 cursor-pointer m-0 p-0 z-10"
-                            style={{ left: 0, top: 0 }}
-                          />
-                          {/* Custom circle, only visible when not completed */}
-                          {!lesson.completed && (
-                            <span className="block w-3 h-3 rounded-full bg-white"></span>
-                          )}
-                        </div>
-                      )}
+                      <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center cursor-pointer relative">
+                        <input
+                          type="checkbox"
+                          checked={currentLesson === lesson.id}
+                          onChange={() => { }}
+                          className="absolute w-full h-full opacity-0 cursor-pointer m-0 p-0 z-10"
+                          style={{ left: 0, top: 0 }}
+                        />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-medium truncate ${currentLesson === lesson.id ? 'text-blue-700' : 'text-gray-900'
@@ -281,29 +258,13 @@ const VideoPlayerWithLessons: React.FC = () => {
   const [watched, setWatched] = useState<string[]>([]);
   const [enrollmentId, setEnrollmentId] = useState<string | null>(null);
 
-  // Add handler to toggle completed state (now inside the component)
-  const handleToggleCompleted = (lessonId: string) => {
-    setLessons((prevLessons: VideoOption[]) =>
-      prevLessons.map((lesson: VideoOption) =>
-        lesson.id === lessonId ? { ...lesson, completed: !lesson.completed } : lesson
-      )
-    );
-    setLectureSections((prevSections: any[]) =>
-      prevSections.map((section: any) => ({
-        ...section,
-        lessons: section.lessons.map((lesson: VideoOption) =>
-          lesson.id === lessonId ? { ...lesson, completed: !lesson.completed } : lesson
-        )
-      }))
-    );
-  };
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const courseId = params.get('id');
-    const videoIdFromUrl = params.get('video'); // Get video param
+    const videoIdFromUrl = params.get('video');
     if (!courseId) return;
 
+    // Always fetch lectures for the course
     fetch(`http://localhost:5006/api/lectures/by-course/${courseId}`)
       .then(res => res.json())
       .then(async (lectures) => {
@@ -318,8 +279,7 @@ const VideoPlayerWithLessons: React.FC = () => {
               title: video.TITLE,
               videoUrl: video.URL,
               duration: video.DURATION,
-              completed: watched.includes(String(video.VIDEO_ID)), // Ensure string comparison
-              freeTrial: video.FREE_TRIAL // Map freeTrial from backend
+              freeTrial: video.FREE_TRIAL
             }));
             allLessons.push(...videoOptions);
             return {
@@ -366,35 +326,48 @@ const VideoPlayerWithLessons: React.FC = () => {
           const enrollment = Array.isArray(enrollments)
             ? enrollments.find((e: any) => e.COURSE_ID === courseId)
             : (enrollments.COURSE_ID === courseId ? enrollments : null);
-          setWatched(enrollment?.WATCHED || []);
+          const newWatched = enrollment?.WATCHED || [];
+          setWatched(newWatched);
+          setLessons(prevLessons =>
+            prevLessons.map((lesson: VideoOption) => ({
+              ...lesson,
+              completed: newWatched.includes(String(lesson.id))
+            }))
+          );
+          setLectureSections(prevSections =>
+            prevSections.map((section: any) => ({
+              ...section,
+              lessons: section.lessons.map((lesson: VideoOption) => ({
+                ...lesson,
+                completed: newWatched.includes(String(lesson.id))
+              }))
+            }))
+          );
           setEnrollmentId(enrollment?.ENROLLMENT_ID || null);
         });
     } else {
       setEnrollmentId(null);
       setWatched([]);
+      setLessons(prevLessons =>
+        prevLessons.map((lesson: VideoOption) => ({
+          ...lesson,
+          completed: false
+        }))
+      );
+      setLectureSections(prevSections =>
+        prevSections.map((section: any) => ({
+          ...section,
+          lessons: section.lessons.map((lesson: VideoOption) => ({
+            ...lesson,
+            completed: false
+          }))
+        }))
+      );
     }
   }, [user]);
 
-  // Update lessons' completed state when watched or lessons change
-  useEffect(() => {
-    setLessons((prevLessons: VideoOption[]) =>
-      prevLessons.map((lesson: VideoOption) => ({
-        ...lesson,
-        completed: watched.includes(String(lesson.id)) // Ensure string comparison
-      }))
-    );
-    setLectureSections((prevSections: any[]) =>
-      prevSections.map((section: any) => ({
-        ...section,
-        lessons: section.lessons.map((lesson: VideoOption) => ({
-          ...lesson,
-          completed: watched.includes(String(lesson.id)) // Ensure string comparison
-        }))
-      }))
-    );
-  }, [watched, lessons.length]);
-
   const currentLesson = lessons.find(lesson => lesson.id === currentLessonId) || lessons[0];
+  const isCurrentLessonLocked = currentLesson && !currentLesson.freeTrial && !enrollmentId;
 
   const handleLessonSelect = (lessonId: string) => {
     setCurrentLessonId(lessonId);
@@ -414,7 +387,7 @@ const VideoPlayerWithLessons: React.FC = () => {
         <div className="flex-1 bg-black flex flex-col items-center justify-center" style={{ minHeight: '700px', height: '70vh' }}>
           <VideoPlayer
             title={currentLesson?.title}
-            videoUrl={currentLesson?.videoUrl}
+            videoUrl={isCurrentLessonLocked ? undefined : currentLesson?.videoUrl}
             width="100%"
             height="100%"
             className="w-full h-full"
@@ -454,41 +427,66 @@ const VideoPlayerWithLessons: React.FC = () => {
                     <div className="pb-2">
                       {section.lessons.map((lesson: VideoOption) => {
                         const isLocked = !lesson.freeTrial && !enrollmentId;
+                        const canToggle = !!enrollmentId;
+                        const isLessonCompleted = watched.includes(String(lesson.id));
                         return (
                           <div
                             key={lesson.id}
                             className={`w-full text-left p-3 hover:bg-gray-50 transition-colors flex items-center space-x-3 ${currentLessonId === lesson.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''} ${isLocked ? 'opacity-60 cursor-not-allowed' : ''}`}
                           >
-                            {/* Left part: status circle */}
+                            {/* Left part: status circle or lock */}
                             <div className="flex-shrink-0">
-                              <div
-                                className={`w-5 h-5 rounded-full flex items-center justify-center relative ${lesson.completed ? 'bg-blue-500' : currentLessonId === lesson.id ? 'bg-blue-500' : 'border-2 border-gray-300'} ${isLocked ? '' : 'cursor-pointer'}`}
-                                style={{ zIndex: 0 }}
-                              >
-                                {/* Always show green check if completed, else show playing indicator if current, else blank */}
-                                {lesson.completed ? (
-                                  // Green circle with checkmark overlay
-                                  <svg className="w-3 h-3 text-white z-20" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                  </svg>
-                                ) : currentLessonId === lesson.id ? (
-                                  // Blue circle with white center (playing)
-                                  <svg className="w-3 h-3 z-20" viewBox="0 0 20 20">
-                                    <circle cx="10" cy="10" r="8" fill="#fff" />
-                                  </svg>
-                                ) : isLocked ? (
-                                  // Lock icon for locked videos
-                                  <svg className="w-3 h-3 text-gray-400 z-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              {isLocked ? (
+                                <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center cursor-not-allowed bg-gray-100">
+                                  <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <rect x="3" y="11" width="18" height="10" rx="2" strokeWidth="2" />
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4" strokeWidth="2" />
                                     <circle cx="12" cy="16" r="1" strokeWidth="2" />
                                   </svg>
-                                ) : null}
-                                {/* Only show the white circle if not completed and not current and not locked */}
-                                {!lesson.completed && currentLessonId !== lesson.id && !isLocked && (
-                                  <span className="block w-3 h-3 rounded-full bg-white z-0"></span>
-                                )}
-                              </div>
+                                </div>
+                              ) : (
+                                <div
+                                  className={`w-5 h-5 rounded-full flex items-center justify-center relative ${isLessonCompleted ? 'bg-blue-500' : currentLessonId === lesson.id ? 'bg-blue-500' : 'border-2 border-gray-300'} ${canToggle ? 'cursor-pointer' : 'cursor-default'}`}
+                                  style={{ zIndex: 0 }}
+                                  onClick={canToggle ? async (e) => {
+                                    e.stopPropagation();
+                                    // Get courseId from URL
+                                    const params = new URLSearchParams(window.location.search);
+                                    const courseId = params.get('id');
+                                    // Call API to update enrollment progress
+                                    if (user?.id && courseId && enrollmentId) {
+                                      await fetch(`http://localhost:5002/api/enrollments/progress/${enrollmentId}`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                          VIDEO_ID: lesson.id,
+                                          COURSE_ID: courseId
+                                        })
+                                      });
+                                      // Immediately refetch watched list
+                                      const enrollRes = await fetch(`http://localhost:5002/api/enrollments/user/${user.id}`);
+                                      const enrollments = await enrollRes.json();
+                                      const enrollment = Array.isArray(enrollments)
+                                        ? enrollments.find((e: any) => e.COURSE_ID === courseId)
+                                        : (enrollments.COURSE_ID === courseId ? enrollments : null);
+                                      setWatched(enrollment?.WATCHED || []);
+                                    }
+                                  } : undefined}
+                                >
+                                  {isLessonCompleted ? (
+                                    <svg className="w-3 h-3 text-white z-20" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  ) : currentLessonId === lesson.id ? (
+                                    <svg className="w-3 h-3 z-20" viewBox="0 0 20 20">
+                                      <circle cx="10" cy="10" r="8" fill="#fff" />
+                                    </svg>
+                                  ) : null}
+                                  {!isLessonCompleted && currentLessonId !== lesson.id && (
+                                    <span className="block w-3 h-3 rounded-full bg-white z-0"></span>
+                                  )}
+                                </div>
+                              )}
                             </div>
                             {/* Right part: lesson info, only this triggers lesson change */}
                             <div

@@ -2,7 +2,7 @@
 
 // import { useState } from 'react';
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import CourseDes from "./CourseDescription";
 
 export default function CoursePage() {
@@ -16,22 +16,82 @@ export default function CoursePage() {
     const [maxPrice, setMaxPrice] = useState('');
 
     const searchParams = useSearchParams();
+    const router = useRouter();
+
+    useEffect(() => {
+        const search = searchParams.get('search');
+        if (search) {
+            async function fetchSearchResults() {
+                try {
+                    const res = await fetch(`http://localhost:5003/api/courses/search?name=${encodeURIComponent(search ?? '')}`);
+                    const data = await res.json();
+                    // Map user IDs to names for quick lookup
+                    const usersRes = await fetch('http://localhost:5000/api/users/');
+                    const usersData = await usersRes.json();
+                    const userMap: Record<string, string> = {};
+                    usersData.forEach((user: any) => {
+                        userMap[user.USER_ID] = user.NAME;
+                    });
+                    // Map category and subcategory IDs to names
+                    const categoriesRes = await fetch('http://localhost:5004/api/categories/');
+                    const categoriesData = await categoriesRes.json();
+                    const categoryMap: Record<string, any> = {};
+                    categoriesData.forEach((cat: any) => {
+                        categoryMap[cat.CATEGORY_ID] = cat;
+                    });
+                    const mappedCourses = data.map((course: any) => {
+                        const mainCatId = Array.isArray(course.CATEGORIES) ? course.CATEGORIES[0] : course.CATEGORIES;
+                        const cat = categoryMap[mainCatId];
+                        const mainCatName = cat ? cat.NAME : null;
+                        let subCategoryNames: string[] = [];
+                        if (cat && cat.SUB_CATEGORIES && course.SUB_CATEGORIES) {
+                            subCategoryNames = course.SUB_CATEGORIES.map((subId: string) => {
+                                const subCat = cat.SUB_CATEGORIES.find((sub: any) => sub.SUB_CATEGORY_ID === subId);
+                                return subCat ? subCat.NAME : null;
+                            }).filter(Boolean);
+                        }
+                        return {
+                            id: course.COURSE_ID,
+                            title: course.TITLE,
+                            description: course.DESCRIPTION,
+                            image: course.IMAGE_URL,
+                            price: course.PRICE,
+                            rating: course.RATING && course.RATING[0] ? parseFloat(course.RATING[0]) : 0,
+                            reviewCount: course.RATING && course.RATING[1] ? parseInt(course.RATING[1]) : 0,
+                            duration: course.DURATION ? `${course.DURATION} giờ` : '',
+                            lessons: course.NUMBER_OF_VIDEOS ? `${course.NUMBER_OF_VIDEOS} bài giảng` : '',
+                            tags: [mainCatName, ...subCategoryNames].filter(Boolean),
+                            instructor: userMap[course.INSTRUCTOR_ID] || course.INSTRUCTOR_ID
+                        };
+                    });
+                    setCourses(mappedCourses);
+                } catch (err) {
+                    setCourses([]);
+                }
+            }
+            fetchSearchResults();
+        }
+    }, [searchParams]);
 
     // Set category/subCategory from URL only after categories are loaded
     useEffect(() => {
         if (categories.length === 0) return;
+        const search = searchParams.get('search');
+        if (search) return; // Don't run filter logic if searching
         const cat = searchParams.get('category');
         const subCat = searchParams.get('subcategory');
         if (cat) setCategory(cat);
         if (subCat) setSubCategory(subCat);
-        // If both are present, apply filter immediately
-        if (cat && subCat) {
-            handleApplyFilter(cat, subCat);
+        // Apply filter if either category or subcategory is present
+        if (cat) {
+            handleApplyFilter(cat, subCat || undefined);
         }
     }, [searchParams, categories.length]);
 
     // Only fetch all courses if no filter is present
     useEffect(() => {
+        const search = searchParams.get('search');
+        if (search) return; // Don't run filter logic if searching
         const cat = searchParams.get('category');
         const subCat = searchParams.get('subcategory');
         if (!cat && !subCat) {
@@ -106,14 +166,6 @@ export default function CoursePage() {
     }, []);
 
     useEffect(() => {
-        // If category or subCategory is set from query, trigger filter
-        if (category || subCategory) {
-            handleApplyFilter(category, subCategory);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [category, subCategory]);
-
-    useEffect(() => {
         if (!category) {
             setSubCategories([]);
             setSubCategory('');
@@ -121,8 +173,18 @@ export default function CoursePage() {
         }
         const cat = categories.find((c: any) => c.CATEGORY_ID === category);
         setSubCategories(cat && cat.SUB_CATEGORIES ? cat.SUB_CATEGORIES : []);
-        setSubCategory('');
-    }, [category, categories]);
+        const urlSubCat = searchParams.get('subcategory');
+        if (
+            urlSubCat &&
+            cat &&
+            cat.SUB_CATEGORIES &&
+            cat.SUB_CATEGORIES.some((sub: any) => sub.SUB_CATEGORY_ID === urlSubCat)
+        ) {
+            setSubCategory(urlSubCat);
+        } else {
+            setSubCategory('');
+        }
+    }, [category, categories, searchParams]);
 
     const handleApplyFilter = async (catOverride?: string, subCatOverride?: string) => {
         const params = new URLSearchParams();
@@ -133,52 +195,142 @@ export default function CoursePage() {
         const subCatToUse = subCatOverride !== undefined ? subCatOverride : subCategory;
         if (catToUse) params.append('category', catToUse);
         if (subCatToUse) params.append('subcategory', subCatToUse);
-        const url = `http://localhost:5003/api/courses/filter?${params.toString()}`;
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
-            // Map user IDs to names for quick lookup
-            const usersRes = await fetch('http://localhost:5000/api/users/');
-            const usersData = await usersRes.json();
-            const userMap: Record<string, string> = {};
-            usersData.forEach((user: any) => {
-                userMap[user.USER_ID] = user.NAME;
-            });
-            // Map category and subcategory IDs to names
-            const categoryMap: Record<string, any> = {};
-            categories.forEach((cat: any) => {
-                categoryMap[cat.CATEGORY_ID] = cat;
-            });
-            const mappedCourses = data.map((course: any) => {
-                const mainCatId = Array.isArray(course.CATEGORIES) ? course.CATEGORIES[0] : course.CATEGORIES;
-                const cat = categoryMap[mainCatId];
-                const mainCatName = cat ? cat.NAME : null;
-                let subCategoryNames: string[] = [];
-                if (cat && cat.SUB_CATEGORIES && course.SUB_CATEGORIES) {
-                    subCategoryNames = course.SUB_CATEGORIES.map((subId: string) => {
-                        const subCat = cat.SUB_CATEGORIES.find((sub: any) => sub.SUB_CATEGORY_ID === subId);
-                        return subCat ? subCat.NAME : null;
-                    }).filter(Boolean);
-                }
-                return {
-                    id: course.COURSE_ID,
-                    title: course.TITLE,
-                    description: course.DESCRIPTION,
-                    image: course.IMAGE_URL,
-                    price: course.PRICE,
-                    rating: course.RATING && course.RATING[0] ? parseFloat(course.RATING[0]) : 0,
-                    reviewCount: course.RATING && course.RATING[1] ? parseInt(course.RATING[1]) : 0,
-                    duration: course.DURATION ? `${course.DURATION} giờ` : '',
-                    lessons: course.NUMBER_OF_VIDEOS ? `${course.NUMBER_OF_VIDEOS} bài giảng` : '',
-                    tags: [mainCatName, ...subCategoryNames].filter(Boolean),
-                    instructor: userMap[course.INSTRUCTOR_ID] || course.INSTRUCTOR_ID
-                };
-            });
-            setCourses(mappedCourses);
-        } catch (err) {
-            setCourses([]);
-        }
+        // Remove search param by redirecting without it
+        router.push(`/coursefilter?${params.toString()}`);
     };
+
+    useEffect(() => {
+        const search = searchParams.get('search');
+        if (search) return; // Don't run filter logic if searching
+
+        // Gather filter params
+        const cat = searchParams.get('category');
+        const subCat = searchParams.get('subcategory');
+        const instructorParam = searchParams.get('instructor');
+        const minPriceParam = searchParams.get('minPrice');
+        const maxPriceParam = searchParams.get('maxPrice');
+
+        // If no filter, fetch all courses
+        if (!cat && !subCat && !instructorParam && !minPriceParam && !maxPriceParam) {
+            async function fetchAll() {
+                try {
+                    const [coursesRes, usersRes, categoriesRes] = await Promise.all([
+                        fetch('http://localhost:5003/api/courses/'),
+                        fetch('http://localhost:5000/api/users/'),
+                        fetch('http://localhost:5004/api/categories/')
+                    ]);
+                    const coursesData = await coursesRes.json();
+                    const usersData = await usersRes.json();
+                    const categoriesData = await categoriesRes.json();
+                    // Map user IDs to names for quick lookup
+                    const userMap: Record<string, string> = {};
+                    usersData.forEach((user: any) => {
+                        userMap[user.USER_ID] = user.NAME;
+                    });
+                    // Map category and subcategory IDs to names
+                    const categoryMap: Record<string, any> = {};
+                    categoriesData.forEach((cat: any) => {
+                        categoryMap[cat.CATEGORY_ID] = cat;
+                    });
+                    // Transform API data to match CourseDes props
+                    const mappedCourses = coursesData.map((course: any) => {
+                        // Get main category name
+                        const mainCatId = Array.isArray(course.CATEGORIES) ? course.CATEGORIES[0] : course.CATEGORIES;
+                        const cat = categoryMap[mainCatId];
+                        const mainCatName = cat ? cat.NAME : null;
+                        // Get subcategory names that belong to the main category
+                        let subCategoryNames: string[] = [];
+                        if (cat && cat.SUB_CATEGORIES && course.SUB_CATEGORIES) {
+                            subCategoryNames = course.SUB_CATEGORIES.map((subId: string) => {
+                                const subCat = cat.SUB_CATEGORIES.find((sub: any) => sub.SUB_CATEGORY_ID === subId);
+                                return subCat ? subCat.NAME : null;
+                            }).filter(Boolean);
+                        }
+                        return {
+                            id: course.COURSE_ID,
+                            title: course.TITLE,
+                            description: course.DESCRIPTION,
+                            image: course.IMAGE_URL,
+                            price: course.PRICE,
+                            rating: course.RATING && course.RATING[0] ? parseFloat(course.RATING[0]) : 0,
+                            reviewCount: course.RATING && course.RATING[1] ? parseInt(course.RATING[1]) : 0,
+                            duration: course.DURATION ? `${course.DURATION} giờ` : '',
+                            lessons: course.NUMBER_OF_VIDEOS ? `${course.NUMBER_OF_VIDEOS} bài giảng` : '',
+                            tags: [mainCatName, ...subCategoryNames].filter(Boolean),
+                            instructor: userMap[course.INSTRUCTOR_ID] || course.INSTRUCTOR_ID
+                        };
+                    });
+                    setCourses(mappedCourses);
+                } catch (err) {
+                    setCourses([]);
+                }
+            }
+            fetchAll();
+        } else {
+            // If any filter is present, fetch filtered courses
+            async function fetchFiltered() {
+                try {
+                    const params = new URLSearchParams();
+                    if (cat) params.append('category', cat);
+                    if (subCat) params.append('subcategory', subCat);
+                    if (instructorParam) params.append('instructor', instructorParam);
+                    if (minPriceParam) params.append('minPrice', minPriceParam);
+                    if (maxPriceParam) params.append('maxPrice', maxPriceParam);
+                    const url = `http://localhost:5003/api/courses/filter?${params.toString()}`;
+                    const [coursesRes, usersRes, categoriesRes] = await Promise.all([
+                        fetch(url),
+                        fetch('http://localhost:5000/api/users/'),
+                        fetch('http://localhost:5004/api/categories/')
+                    ]);
+                    const coursesData = await coursesRes.json();
+                    const usersData = await usersRes.json();
+                    const categoriesData = await categoriesRes.json();
+                    // Map user IDs to names for quick lookup
+                    const userMap: Record<string, string> = {};
+                    usersData.forEach((user: any) => {
+                        userMap[user.USER_ID] = user.NAME;
+                    });
+                    // Map category and subcategory IDs to names
+                    const categoryMap: Record<string, any> = {};
+                    categoriesData.forEach((cat: any) => {
+                        categoryMap[cat.CATEGORY_ID] = cat;
+                    });
+                    // Transform API data to match CourseDes props
+                    const mappedCourses = coursesData.map((course: any) => {
+                        // Get main category name
+                        const mainCatId = Array.isArray(course.CATEGORIES) ? course.CATEGORIES[0] : course.CATEGORIES;
+                        const cat = categoryMap[mainCatId];
+                        const mainCatName = cat ? cat.NAME : null;
+                        // Get subcategory names that belong to the main category
+                        let subCategoryNames: string[] = [];
+                        if (cat && cat.SUB_CATEGORIES && course.SUB_CATEGORIES) {
+                            subCategoryNames = course.SUB_CATEGORIES.map((subId: string) => {
+                                const subCat = cat.SUB_CATEGORIES.find((sub: any) => sub.SUB_CATEGORY_ID === subId);
+                                return subCat ? subCat.NAME : null;
+                            }).filter(Boolean);
+                        }
+                        return {
+                            id: course.COURSE_ID,
+                            title: course.TITLE,
+                            description: course.DESCRIPTION,
+                            image: course.IMAGE_URL,
+                            price: course.PRICE,
+                            rating: course.RATING && course.RATING[0] ? parseFloat(course.RATING[0]) : 0,
+                            reviewCount: course.RATING && course.RATING[1] ? parseInt(course.RATING[1]) : 0,
+                            duration: course.DURATION ? `${course.DURATION} giờ` : '',
+                            lessons: course.NUMBER_OF_VIDEOS ? `${course.NUMBER_OF_VIDEOS} bài giảng` : '',
+                            tags: [mainCatName, ...subCategoryNames].filter(Boolean),
+                            instructor: userMap[course.INSTRUCTOR_ID] || course.INSTRUCTOR_ID
+                        };
+                    });
+                    setCourses(mappedCourses);
+                } catch (err) {
+                    setCourses([]);
+                }
+            }
+            fetchFiltered();
+        }
+    }, [searchParams, categories]);
 
     return (
         <div className='container mx-auto p-4'>

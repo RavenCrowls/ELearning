@@ -160,6 +160,23 @@ class CourseController {
             res.status(500).json({ message: "Error getting newest courses", error });
         }
     }
+
+    async searchCourseByName(req: Request, res: Response) {
+        try {
+            const { name } = req.query;
+            if (!name || typeof name !== 'string') {
+                return res.status(400).json({ message: 'Missing or invalid name parameter' });
+            }
+            // Case-insensitive partial match
+            const courses = await Course.find({
+                TITLE: { $regex: name, $options: 'i' },
+                STATUS: 1
+            });
+            res.status(200).json(courses);
+        } catch (error) {
+            res.status(500).json({ message: 'Error searching courses by name', error });
+        }
+    }
 }
 
 export default CourseController;

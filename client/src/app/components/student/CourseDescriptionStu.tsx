@@ -33,7 +33,7 @@ export default function CourseDesStu({
                 <div className='flex flex-col md:flex-row'>
                     {/* Image Section - Reduced width */}
                     <div className='w-full md:w-1/4 flex-shrink-0'>
-                        <Link href={`/course/${id}`}>
+                        <Link href={`/coursecontent?id=${id}`}>
                             <div className='h-48 md:h-full relative'>
                                 <Image
                                     src={image}
@@ -49,7 +49,7 @@ export default function CourseDesStu({
                     <div className="flex-1 p-4">
                         <div className="h-full flex flex-col justify-between">
                             <div className="flex-1">
-                                <Link href={`/courses/${id}`}>
+                                <Link href={`/coursecontent?id=${id}`}>
                                     <h2 className="text-xl font-bold text-blue-600 hover:text-blue-800">
                                         {title}
                                     </h2>

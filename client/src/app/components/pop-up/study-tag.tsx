@@ -138,7 +138,12 @@ export default function NavLinkWithPopup() {
                 <div className="p-4 text-center text-gray-500">Bạn chưa đăng ký khóa học nào</div>
               ) : (
                 courses.map((course) => (
-                  <div key={course.id} className="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <Link
+                    key={course.id}
+                    href={`/coursecontent?id=${course.id}`}
+                    className="block p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    onClick={closePopup}
+                  >
                     <div className="flex items-center space-x-4">
                       <Image
                         src={course.image}
@@ -166,7 +171,7 @@ export default function NavLinkWithPopup() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>
