@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
 
 interface SubCategory {
@@ -13,6 +13,10 @@ interface Category {
   name: string;
   subCategories: SubCategory[];
   isActive: boolean;
+}
+
+function generateId() {
+  return Date.now().toString() + Math.random().toString(36).substring(2, 9);
 }
 
 const Category: React.FC = () => {
@@ -37,6 +41,24 @@ const Category: React.FC = () => {
   const [newSubCategories, setNewSubCategories] = useState<string[]>(['']);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
+  useEffect(() => {
+    fetch('http://localhost:5004/api/categories/')
+      .then(res => res.json())
+      .then(data => {
+        const transformed = data.map((cat: any, idx: number) => ({
+          id: cat.CATEGORY_ID,
+          name: cat.NAME,
+          subCategories: (cat.SUB_CATEGORIES || []).map((sub: any) => ({
+            id: sub.SUB_CATEGORY_ID,
+            name: sub.NAME
+          })),
+          isActive: idx === 0 // first one active by default
+        }));
+        setCategories(transformed);
+        setSelectedCategory(transformed[0] || null);
+      });
+  }, []);
+
   const handleCategoryClick = (category: Category) => {
     setCategories(prev => prev.map(cat => ({
       ...cat,
@@ -51,45 +73,102 @@ const Category: React.FC = () => {
     setNewSubCategories(category.subCategories.map(sub => sub.name));
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingCategory) {
-      setCategories(prev => prev.map(cat => 
-        cat.id === editingCategory.id 
-          ? {
-              ...cat,
-              name: newCategoryName,
-              subCategories: newSubCategories
-                .filter(name => name.trim() !== '')
-                .map((name, index) => ({
-                  id: `${cat.id}-${index + 1}`,
-                  name: name.trim()
-                }))
-            }
-          : cat
-      ));
-      setEditingCategory(null);
-      setNewCategoryName('');
-      setNewSubCategories(['']);
-    }
-  };
-
-  const handleCreateCategory = () => {
-    if (newCategoryName.trim()) {
-      const newCategory: Category = {
-        id: Date.now().toString(),
-        name: newCategoryName.trim(),
+      if (!window.confirm('Are you sure you want to save these changes?')) return;
+      const updatedCategory = {
+        ...editingCategory,
+        name: newCategoryName,
         subCategories: newSubCategories
           .filter(name => name.trim() !== '')
           .map((name, index) => ({
-            id: `${Date.now()}-${index + 1}`,
+            id: `${editingCategory.id}-${index + 1}`,
             name: name.trim()
-          })),
-        isActive: false
+          }))
       };
-      setCategories(prev => [...prev, newCategory]);
-      setNewCategoryName('');
-      setNewSubCategories(['']);
-      setShowCreateForm(false);
+
+      // Prepare data for API (match backend structure)
+      const apiData = {
+        NAME: updatedCategory.name,
+        SUB_CATEGORIES: updatedCategory.subCategories.map(sub => ({
+          NAME: sub.name,
+          SUB_CATEGORY_ID: sub.id,
+          STATUS: true
+        })),
+        STATUS: true
+      };
+
+      try {
+        const res = await fetch(`http://localhost:5004/api/categories/${editingCategory.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(apiData)
+        });
+
+        if (res.ok) {
+          setCategories(prev => prev.map(cat =>
+            cat.id === editingCategory.id ? updatedCategory : cat
+          ));
+          setSelectedCategory(updatedCategory);
+          setEditingCategory(null);
+          setNewCategoryName('');
+          setNewSubCategories(['']);
+        } else {
+          alert('Failed to update category');
+        }
+      } catch (err) {
+        alert('Error updating category');
+      }
+    }
+  };
+
+  const handleCreateCategory = async () => {
+    if (newCategoryName.trim()) {
+      const categoryId = generateId();
+      const subCategories = newSubCategories
+        .filter(name => name.trim() !== '')
+        .map((name) => ({
+          NAME: name.trim(),
+          STATUS: true,
+          SUB_CATEGORY_ID: generateId()
+        }));
+      const newCategory = {
+        NAME: newCategoryName.trim(),
+        SUB_CATEGORIES: subCategories,
+        STATUS: true,
+        CATEGORY_ID: categoryId
+      };
+
+      try {
+        const res = await fetch('http://localhost:5004/api/categories/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newCategory)
+        });
+
+        if (res.ok) {
+          const created = await res.json();
+          setCategories(prev => [
+            ...prev,
+            {
+              id: created.CATEGORY_ID || categoryId,
+              name: created.NAME,
+              subCategories: (created.SUB_CATEGORIES || subCategories).map((sub: any, idx: number) => ({
+                id: sub.SUB_CATEGORY_ID || subCategories[idx].SUB_CATEGORY_ID,
+                name: sub.NAME
+              })),
+              isActive: false
+            }
+          ]);
+          setNewCategoryName('');
+          setNewSubCategories(['']);
+          setShowCreateForm(false);
+        } else {
+          alert('Failed to create category');
+        }
+      } catch (err) {
+        alert('Error creating category');
+      }
     }
   };
 
@@ -105,6 +184,38 @@ const Category: React.FC = () => {
     setNewSubCategories(prev => prev.map((item, i) => i === index ? value : item));
   };
 
+  const handleDeleteSubCategory = async (categoryId: string, subCategoryId: string) => {
+    if (!window.confirm('Are you sure you want to delete this sub-category?')) return;
+
+    try {
+      const res = await fetch(`http://localhost:5004/api/categories/${categoryId}/sub-categories/${subCategoryId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setCategories(prev =>
+          prev.map(cat =>
+            cat.id === categoryId
+              ? {
+                ...cat,
+                subCategories: cat.subCategories.filter(sub => sub.id !== subCategoryId)
+              }
+              : cat
+          )
+        );
+        if (selectedCategory && selectedCategory.id === categoryId) {
+          setSelectedCategory(cat => cat
+            ? { ...cat, subCategories: cat.subCategories.filter(sub => sub.id !== subCategoryId) }
+            : cat
+          );
+        }
+      } else {
+        alert('Failed to delete sub-category');
+      }
+    } catch (err) {
+      alert('Error deleting sub-category');
+    }
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
@@ -115,12 +226,14 @@ const Category: React.FC = () => {
             {categories.map(category => (
               <button
                 key={category.id}
-                onClick={() => handleCategoryClick(category)}
-                className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
-                  category.isActive
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                }`}
+                onClick={() => {
+                  handleCategoryClick(category);
+                  handleEditCategory(category);
+                }}
+                className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${category.isActive
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
               >
                 {category.name}
               </button>
@@ -152,7 +265,7 @@ const Category: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-blue-500 font-medium">Edit category</h3>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-gray-500 mb-2">
@@ -168,7 +281,7 @@ const Category: React.FC = () => {
                     }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Backend Basics"
+                  placeholder="Category name"
                 />
               </div>
 
@@ -189,7 +302,7 @@ const Category: React.FC = () => {
                           }
                         }}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent "
-                        placeholder="Subcate 1"
+                        placeholder="Sub-category name"
                       />
                       {(editingCategory ? newSubCategories : selectedCategory?.subCategories || []).length > 1 && (
                         <button
@@ -231,7 +344,7 @@ const Category: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-blue-500 font-medium">Create new category</h3>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-gray-500 mb-2">
@@ -248,7 +361,7 @@ const Category: React.FC = () => {
                     }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Backend Basics"
+                  placeholder="Category name"
                 />
               </div>
 
@@ -270,7 +383,7 @@ const Category: React.FC = () => {
                           }
                         }}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Subcate 1"
+                        placeholder="Sub-category name"
                       />
                       {(showCreateForm ? newSubCategories : ['']).length > 1 && (
                         <button
