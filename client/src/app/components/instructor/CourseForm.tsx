@@ -74,11 +74,10 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
     const [lectures, setLectures] = useState<Lecture[]>([
         {
             id: '1',
-            name: 'Introduction',
+            name: '',
             order: 1,
             videos: [
-                { id: '1-1', name: 'Welcome to the course', order: 1, isChecked: true },
-                { id: '1-2', name: 'Course overview', order: 2, isChecked: false }
+                { id: '1-1', name: '', order: 1, isChecked: false }
             ]
         }
     ]);
@@ -840,7 +839,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                                                     value={lecture.name}
                                                     onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, name: e.target.value } : l))}
                                                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    placeholder="Enter lecture name"
+                                                    placeholder="Lecture title"
                                                 />
                                                 <input
                                                     type="number"
@@ -866,7 +865,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                                                             value={video.name}
                                                             onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, videos: l.videos.map(v => v.id === video.id ? { ...v, name: e.target.value } : v) } : l))}
                                                             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                            placeholder="Enter video name"
+                                                            placeholder="Video title"
                                                         />
                                                         <button className="p-2 text-gray-500 hover:text-gray-600">
                                                             <Upload size={16} />
