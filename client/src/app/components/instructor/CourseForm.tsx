@@ -50,9 +50,11 @@ interface CourseFormProps {
         IMAGE_URL?: string;
     };
     onSave: (data: any) => void;
+    showLecturesColumn?: boolean;
+    instructorId?: string;
 }
 
-const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) => {
+const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, showLecturesColumn = true, instructorId }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [courseData, setCourseData] = useState({
@@ -238,14 +240,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
     };
 
     const handleSave = async () => {
-        // Ask for confirmation before updating
-        if (mode === 'edit') {
-            const isConfirmed = window.confirm('Are you sure you want to update this course? This action cannot be undone.');
-            if (!isConfirmed) {
-                return;
-            }
-        }
-
         setIsLoading(true);
         setError(null);
         setSuccess(null);
@@ -262,18 +256,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                 DURATION: courseData.duration,
                 IMAGE_URL: courseData.image,
                 lectures,
-                // Include original data for edit mode
-                ...(initialData && mode === 'edit' && {
-                    _id: initialData._id,
-                    COURSE_ID: initialData.COURSE_ID,
-                    INSTRUCTOR_ID: initialData.INSTRUCTOR_ID,
-                    CREATED_DATE: initialData.CREATED_DATE,
-                    RATING: initialData.RATING,
-                    NUMBER_OF_VIDEOS: initialData.NUMBER_OF_VIDEOS,
-                    ENROLLMENT_COUNT: initialData.ENROLLMENT_COUNT,
-                    APPROVAL_STATUS: initialData.APPROVAL_STATUS,
-                    STATUS: initialData.STATUS
-                })
             };
 
             if (mode === 'edit' && initialData?.COURSE_ID) {
@@ -294,8 +276,41 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                 setSuccess('Course updated successfully!');
                 console.log('Course updated:', result);
             } else {
-                // For create mode, just call the onSave callback
-                onSave(formData);
+                // CREATE MODE: POST to API
+                const now = new Date();
+                const createdDate = now.toISOString().split('T')[0];
+                const newCourse = {
+                    COURSE_ID: Date.now().toString(),
+                    TITLE: formData.TITLE,
+                    INSTRUCTOR_ID: instructorId,
+                    IMAGE_URL: formData.IMAGE_URL,
+                    CREATED_DATE: createdDate,
+                    CATEGORIES: formData.CATEGORIES,
+                    SUB_CATEGORIES: formData.SUB_CATEGORIES,
+                    RATING: ['0', '0'],
+                    DESCRIPTION: formData.DESCRIPTION,
+                    OUTPUT: formData.OUTPUT,
+                    PRICE: formData.PRICE,
+                    LEVEL: formData.LEVEL,
+                    DURATION: formData.DURATION,
+                    NUMBER_OF_VIDEOS: 0,
+                    ENROLLMENT_COUNT: 0,
+                    APPROVAL_STATUS: 'Approved',
+                    STATUS: 1
+                };
+                const response = await fetch('http://localhost:5003/api/courses/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newCourse)
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to create course');
+                }
+                const result = await response.json();
+                setSuccess('Course created successfully!');
+                onSave(result);
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'An error occurred while saving the course';
@@ -358,12 +373,236 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                     {mode === 'create' ? 'Create course' : 'Edit course'}
                 </h1>
 
-                <div className="grid grid-cols-2 gap-8">
+                <div className={`grid ${showLecturesColumn ? 'grid-cols-2' : 'grid-cols-1'} gap-8`}>
                     {/* Left Column - Basic Information */}
-                    <div className="space-y-6">
-                        <div>
-                            <h2 className="text-lg font-medium text-gray-900 mb-4">Basic information</h2>
+                    {showLecturesColumn ? (
+                        <div className="space-y-6">
+                            <div>
+                                <h2 className="text-lg font-medium text-gray-900 mb-4">Basic information</h2>
 
+                                <div className="space-y-4">
+                                    {/* Title */}
+                                    <div>
+                                        <label className="block text-sm text-gray-500 mb-2">Title</label>
+                                        <input
+                                            type="text"
+                                            value={courseData.title}
+                                            onChange={(e) => setCourseData({ ...courseData, title: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter course title"
+                                        />
+                                    </div>
+
+                                    {/* Category */}
+                                    <div>
+                                        <label className="block text-sm text-gray-500 mb-2">Category</label>
+                                        <select
+                                            value={courseData.category}
+                                            onChange={e => setCourseData({ ...courseData, category: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="">Select a category</option>
+                                            {categories.map(cat => (
+                                                <option key={cat.CATEGORY_ID} value={cat.CATEGORY_ID}>{cat.NAME}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Sub-category */}
+                                    <div>
+                                        <label className="block text-sm text-gray-500 mb-2">Sub-category</label>
+                                        <div className="space-y-2">
+                                            {subCategories.map((subCat, idx) => (
+                                                <div key={subCat.id} className="flex items-center gap-2">
+                                                    <select
+                                                        value={subCat.name}
+                                                        onChange={e => updateSubCategory(subCat.id, e.target.value)}
+                                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        disabled={!courseData.category}
+                                                    >
+                                                        {!courseData.category ? (
+                                                            <option value="">Sub-category</option>
+                                                        ) : (
+                                                            <>
+                                                                <option value="">Select a sub-category</option>
+                                                                {subCategoryOptions.map((sub: any) => (
+                                                                    <option key={sub.SUB_CATEGORY_ID} value={sub.SUB_CATEGORY_ID}>{sub.NAME}</option>
+                                                                ))}
+                                                            </>
+                                                        )}
+                                                    </select>
+                                                    <button
+                                                        onClick={() => removeSubCategory(subCat.id)}
+                                                        className="p-2 text-red-500 hover:text-red-600"
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <button
+                                                onClick={addSubCategory}
+                                                className="flex items-center gap-2 text-blue-500 hover:text-blue-600 text-sm w-full px-3 py-2 border border-dashed border-gray-300 rounded-lg"
+                                            >
+                                                <Plus size={16} />
+                                                Add new sub-category
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Description */}
+                                    <div>
+                                        <label className="block text-sm text-gray-500 mb-2">Description</label>
+                                        <textarea
+                                            value={courseData.description}
+                                            onChange={(e) => setCourseData({ ...courseData, description: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
+                                            placeholder="Enter course description"
+                                        />
+                                    </div>
+
+                                    {/* Output */}
+                                    <div>
+                                        <label className="block text-sm text-gray-500 mb-2">Output</label>
+                                        <div className="space-y-2">
+                                            {outputs.map((output) => (
+                                                <div key={output.id} className="flex items-center gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={output.name}
+                                                        onChange={(e) => updateOutput(output.id, e.target.value)}
+                                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        placeholder="Enter output"
+                                                    />
+                                                    <button
+                                                        onClick={() => removeOutput(output.id)}
+                                                        className="p-2 text-red-500 hover:text-red-600"
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <button
+                                                onClick={addOutput}
+                                                className="flex items-center gap-2 text-blue-500 hover:text-blue-600 text-sm w-full px-3 py-2 border border-dashed border-gray-300 rounded-lg"
+                                            >
+                                                <Plus size={16} />
+                                                Add new Output
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Level */}
+                                    <div>
+                                        <label className="block text-sm text-gray-500 mb-2">Level</label>
+                                        <select
+                                            value={courseData.level}
+                                            onChange={(e) => setCourseData({ ...courseData, level: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="">Select level</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Price */}
+                                    <div>
+                                        <label className="block text-sm text-gray-500 mb-2">Price (VND)</label>
+                                        <input
+                                            type="number"
+                                            value={courseData.price}
+                                            onChange={(e) => setCourseData({ ...courseData, price: Number(e.target.value) })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter price"
+                                        />
+                                    </div>
+
+                                    {/* Duration */}
+                                    <div>
+                                        <label className="block text-sm text-gray-500 mb-2">Duration (hours)</label>
+                                        <input
+                                            type="text"
+                                            value={courseData.duration}
+                                            onChange={(e) => setCourseData({ ...courseData, duration: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter duration"
+                                        />
+                                    </div>
+
+                                    {/* Image */}
+                                    <div>
+                                        <label className="block text-sm text-gray-500 mb-2">Image URL</label>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="text"
+                                                value={courseData.image}
+                                                onChange={(e) => setCourseData({ ...courseData, image: e.target.value })}
+                                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                placeholder="Enter image URL or upload an image"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={triggerFileInput}
+                                                disabled={isUploading}
+                                                className={`p-2 text-gray-500 hover:text-gray-600 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                                                    }`}
+                                            >
+                                                {isUploading ? (
+                                                    <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
+                                                ) : (
+                                                    <Upload size={16} />
+                                                )}
+                                            </button>
+                                        </div>
+                                        {/* Hidden file input */}
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileSelect}
+                                            className="hidden"
+                                        />
+                                        {isUploading && (
+                                            <p className="text-sm text-blue-600 mt-1">Uploading image...</p>
+                                        )}
+                                    </div>
+
+                                    {/* Status Messages */}
+                                    {error && (
+                                        <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                                            {error}
+                                        </div>
+                                    )}
+                                    {success && (
+                                        <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                                            {success}
+                                        </div>
+                                    )}
+
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={isLoading}
+                                        className={`w-full px-6 py-2 text-white rounded-lg transition-colors ${isLoading
+                                            ? 'bg-gray-400 cursor-not-allowed'
+                                            : 'bg-blue-500 hover:bg-blue-600'
+                                            }`}
+                                    >
+                                        {isLoading ? (
+                                            <span className="flex items-center justify-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                {mode === 'create' ? 'Creating...' : 'Saving...'}
+                                            </span>
+                                        ) : (
+                                            mode === 'create' ? 'Create Course' : 'Save Changes'
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-8">
+                            {/* Left sub-column */}
                             <div className="space-y-4">
                                 {/* Title */}
                                 <div>
@@ -376,7 +615,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                         placeholder="Enter course title"
                                     />
                                 </div>
-
                                 {/* Category */}
                                 <div>
                                     <label className="block text-sm text-gray-500 mb-2">Category</label>
@@ -391,7 +629,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                         ))}
                                     </select>
                                 </div>
-
                                 {/* Sub-category */}
                                 <div>
                                     <label className="block text-sm text-gray-500 mb-2">Sub-category</label>
@@ -432,7 +669,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                         </button>
                                     </div>
                                 </div>
-
                                 {/* Description */}
                                 <div>
                                     <label className="block text-sm text-gray-500 mb-2">Description</label>
@@ -443,7 +679,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                         placeholder="Enter course description"
                                     />
                                 </div>
-
+                            </div>
+                            {/* Right sub-column */}
+                            <div className="space-y-4">
                                 {/* Output */}
                                 <div>
                                     <label className="block text-sm text-gray-500 mb-2">Output</label>
@@ -474,19 +712,20 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                         </button>
                                     </div>
                                 </div>
-
                                 {/* Level */}
                                 <div>
                                     <label className="block text-sm text-gray-500 mb-2">Level</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={courseData.level}
                                         onChange={(e) => setCourseData({ ...courseData, level: e.target.value })}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter level (e.g., Beginner, Intermediate, Advanced)"
-                                    />
+                                    >
+                                        <option value="">Select level</option>
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                    </select>
                                 </div>
-
                                 {/* Price */}
                                 <div>
                                     <label className="block text-sm text-gray-500 mb-2">Price (VND)</label>
@@ -498,7 +737,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                         placeholder="Enter price"
                                     />
                                 </div>
-
                                 {/* Duration */}
                                 <div>
                                     <label className="block text-sm text-gray-500 mb-2">Duration (hours)</label>
@@ -510,7 +748,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                         placeholder="Enter duration"
                                     />
                                 </div>
-
                                 {/* Image */}
                                 <div>
                                     <label className="block text-sm text-gray-500 mb-2">Image URL</label>
@@ -548,8 +785,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                         <p className="text-sm text-blue-600 mt-1">Uploading image...</p>
                                     )}
                                 </div>
-
-                                {/* Status Messages */}
+                                {/* Status Messages & Save Button */}
                                 {error && (
                                     <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
                                         {error}
@@ -560,7 +796,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                         {success}
                                     </div>
                                 )}
-
                                 <button
                                     onClick={handleSave}
                                     disabled={isLoading}
@@ -580,120 +815,122 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave }) =>
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Right Column - Lecture and Video */}
-                    <div className="space-y-6">
-                        <div>
-                            <h2 className="text-lg font-medium text-gray-900 mb-4">Lecture and video</h2>
+                    {showLecturesColumn && (
+                        <div className="space-y-6">
+                            <div>
+                                <h2 className="text-lg font-medium text-gray-900 mb-4">Lecture and video</h2>
 
-                            <div className="space-y-6">
-                                {lectures.map((lecture) => (
-                                    <div key={lecture.id} className="border border-gray-200 rounded-lg p-4 bg-white">
-                                        {/* Lecture Header */}
-                                        <div className="flex items-center justify-between mb-4">
-                                            <span className="text-sm text-gray-500">Lecture</span>
-                                            <div className="flex gap-4 ml-auto mr-13">
-                                                <span className="text-sm text-gray-500">Free trial</span>
-                                                <span className="text-sm text-gray-500">Order</span>
+                                <div className="space-y-6">
+                                    {lectures.map((lecture) => (
+                                        <div key={lecture.id} className="border border-gray-200 rounded-lg p-4 bg-white">
+                                            {/* Lecture Header */}
+                                            <div className="flex items-center justify-between mb-4">
+                                                <span className="text-sm text-gray-500">Lecture</span>
+                                                <div className="flex gap-4 ml-auto mr-13">
+                                                    <span className="text-sm text-gray-500">Free trial</span>
+                                                    <span className="text-sm text-gray-500">Order</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <input
+                                                    type="text"
+                                                    value={lecture.name}
+                                                    onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, name: e.target.value } : l))}
+                                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    placeholder="Enter lecture name"
+                                                />
+                                                <input
+                                                    type="number"
+                                                    value={lecture.order}
+                                                    onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, order: Number(e.target.value) } : l))}
+                                                    className="w-16 px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                                                />
+                                                <button
+                                                    onClick={() => removeLecture(lecture.id)}
+                                                    className="p-2 text-red-500 hover:text-red-600"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+
+                                            {/* Video List */}
+                                            <div className="space-y-2">
+                                                <span className="text-sm text-gray-500">Video list</span>
+                                                {lecture.videos.map((video) => (
+                                                    <div key={video.id} className="flex items-center gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={video.name}
+                                                            onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, videos: l.videos.map(v => v.id === video.id ? { ...v, name: e.target.value } : v) } : l))}
+                                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            placeholder="Enter video name"
+                                                        />
+                                                        <button className="p-2 text-gray-500 hover:text-gray-600">
+                                                            <Upload size={16} />
+                                                        </button>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={video.isChecked}
+                                                            onChange={() => toggleVideoCheck(lecture.id, video.id)}
+                                                            className="w-5 h-5 accent-blue-500 cursor-pointer"
+                                                        />
+                                                        <input
+                                                            type="number"
+                                                            value={video.order}
+                                                            onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, videos: l.videos.map(v => v.id === video.id ? { ...v, order: Number(e.target.value) } : v) } : l))}
+                                                            className="w-16 px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center ml-2"
+                                                        />
+                                                        <button
+                                                            onClick={() => removeVideo(lecture.id, video.id)}
+                                                            className="p-2 text-red-500 hover:text-red-600"
+                                                        >
+                                                            <X size={16} />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                <button
+                                                    onClick={() => addVideo(lecture.id)}
+                                                    className="flex items-center gap-2 text-blue-500 hover:text-blue-600 text-sm w-full px-3 py-2 border border-dashed border-gray-300 rounded-lg"
+                                                >
+                                                    <Plus size={16} />
+                                                    Add new video
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <input
-                                                type="text"
-                                                value={lecture.name}
-                                                onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, name: e.target.value } : l))}
-                                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="Enter lecture name"
-                                            />
-                                            <input
-                                                type="number"
-                                                value={lecture.order}
-                                                onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, order: Number(e.target.value) } : l))}
-                                                className="w-16 px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
-                                            />
-                                            <button
-                                                onClick={() => removeLecture(lecture.id)}
-                                                className="p-2 text-red-500 hover:text-red-600"
-                                            >
-                                                <X size={16} />
-                                            </button>
-                                        </div>
+                                    ))}
 
-                                        {/* Video List */}
-                                        <div className="space-y-2">
-                                            <span className="text-sm text-gray-500">Video list</span>
-                                            {lecture.videos.map((video) => (
-                                                <div key={video.id} className="flex items-center gap-2">
-                                                    <input
-                                                        type="text"
-                                                        value={video.name}
-                                                        onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, videos: l.videos.map(v => v.id === video.id ? { ...v, name: e.target.value } : v) } : l))}
-                                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                        placeholder="Enter video name"
-                                                    />
-                                                    <button className="p-2 text-gray-500 hover:text-gray-600">
-                                                        <Upload size={16} />
-                                                    </button>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={video.isChecked}
-                                                        onChange={() => toggleVideoCheck(lecture.id, video.id)}
-                                                        className="w-5 h-5 accent-blue-500 cursor-pointer"
-                                                    />
-                                                    <input
-                                                        type="number"
-                                                        value={video.order}
-                                                        onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, videos: l.videos.map(v => v.id === video.id ? { ...v, order: Number(e.target.value) } : v) } : l))}
-                                                        className="w-16 px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center ml-2"
-                                                    />
-                                                    <button
-                                                        onClick={() => removeVideo(lecture.id, video.id)}
-                                                        className="p-2 text-red-500 hover:text-red-600"
-                                                    >
-                                                        <X size={16} />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <button
-                                                onClick={() => addVideo(lecture.id)}
-                                                className="flex items-center gap-2 text-blue-500 hover:text-blue-600 text-sm w-full px-3 py-2 border border-dashed border-gray-300 rounded-lg"
-                                            >
-                                                <Plus size={16} />
-                                                Add new video
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
+                                    <button
+                                        onClick={addNewLecture}
+                                        className="flex items-center gap-2 text-white bg-blue-500 hover:bg-blue-600 text-sm w-full px-4 py-3 rounded-lg transition-colors"
+                                    >
+                                        <Plus size={16} />
+                                        Add new lecture
+                                    </button>
 
-                                <button
-                                    onClick={addNewLecture}
-                                    className="flex items-center gap-2 text-white bg-blue-500 hover:bg-blue-600 text-sm w-full px-4 py-3 rounded-lg transition-colors"
-                                >
-                                    <Plus size={16} />
-                                    Add new lecture
-                                </button>
-
-                                <button
-                                    onClick={handleSave}
-                                    disabled={isLoading}
-                                    className={`w-full px-6 py-2 text-white rounded-lg transition-colors ${isLoading
-                                        ? 'bg-gray-400 cursor-not-allowed'
-                                        : 'bg-blue-500 hover:bg-blue-600'
-                                        }`}
-                                >
-                                    {isLoading ? (
-                                        <span className="flex items-center justify-center gap-2">
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            {mode === 'create' ? 'Creating...' : 'Saving...'}
-                                        </span>
-                                    ) : (
-                                        mode === 'create' ? 'Create Course' : 'Save Changes'
-                                    )}
-                                </button>
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={isLoading}
+                                        className={`w-full px-6 py-2 text-white rounded-lg transition-colors ${isLoading
+                                            ? 'bg-gray-400 cursor-not-allowed'
+                                            : 'bg-blue-500 hover:bg-blue-600'
+                                            }`}
+                                    >
+                                        {isLoading ? (
+                                            <span className="flex items-center justify-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                {mode === 'create' ? 'Creating...' : 'Saving...'}
+                                            </span>
+                                        ) : (
+                                            mode === 'create' ? 'Create Course' : 'Save Changes'
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>
