@@ -50,7 +50,7 @@ export default function AuthRedirectPage() {
                         // Student - redirect to homepage
                         router.push("/");
                     } else if (userData.ROLE_ID === "3") {
-                        // Instructor - redirect to instructor profile
+                        // Teacher/Instructor - redirect to instructor profile
                         router.push("/profile-instructor");
                     } else {
                         // Default fallback
