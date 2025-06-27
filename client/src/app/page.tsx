@@ -1,11 +1,17 @@
+'use client';
+
 import Image from 'next/image';
 import HomeCourses from '@/app/components/CourseList/HomeCourses';
 import HeaderStudent from './components/layout/Header-stu';
+import Header from './components/layout/Header';
+import { useUser } from '@clerk/nextjs';
 
 export default function Home() {
+  const { isSignedIn } = useUser();
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <HeaderStudent />
+      {isSignedIn ? <HeaderStudent /> : <Header />}
       <div className='w-full h-full relative flex items-center justify-start '>
         <Image
           src="/images/home.png"

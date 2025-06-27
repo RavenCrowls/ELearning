@@ -15,12 +15,15 @@ export default function SignInPage() {
                 justifyContent: "center",
                 width: "100%"
             }}>
-                <SignIn appearance={{
-                    elements: {
-                        card: { boxShadow: "0 4px 32px rgba(0,0,0,0.08)", borderRadius: 0 },
-                        formButtonPrimary: { backgroundColor: "#2563eb" }
-                    }
-                }} />
+                <SignIn
+                    redirectUrl="/auth-redirect"
+                    appearance={{
+                        elements: {
+                            card: { boxShadow: "0 4px 32px rgba(0,0,0,0.08)", borderRadius: 0 },
+                            formButtonPrimary: { backgroundColor: "#2563eb" }
+                        }
+                    }}
+                />
             </div>
         </div>
     );
