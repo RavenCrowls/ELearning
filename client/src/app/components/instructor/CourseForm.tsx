@@ -58,6 +58,7 @@ interface CourseFormProps {
 
 const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, showLecturesColumn = true, instructorId }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const fileInputsRef = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
     const [courseData, setCourseData] = useState({
         title: initialData?.TITLE || '',
@@ -244,15 +245,39 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
         ));
     };
 
-    const removeVideo = (lectureId: string, videoId: string) => {
-        setLectures(lectures.map(lecture =>
-            lecture.id === lectureId
-                ? {
-                    ...lecture,
-                    videos: lecture.videos.filter(video => video.id !== videoId)
-                }
-                : lecture
+    // Remove a video from a lecture, with backend sync and confirmation
+    const removeVideo = async (lectureId: string, videoId: string) => {
+        const lecture = lectures.find(l => l.id === lectureId);
+        const video = lecture?.videos.find(v => v.id === videoId);
+        if (!lecture || !video) return;
+        // Confirm deletion
+        if (!window.confirm('Are you sure you want to delete this video?')) return;
+        // If video has a real ID, call DELETE API
+        if (videoId && videoId !== '' && videoId !== '1-1') {
+            try {
+                await fetch(`http://localhost:5007/api/videos/${videoId}`, { method: 'DELETE' });
+            } catch { }
+        }
+        setLectures(lectures.map(l =>
+            l.id === lectureId
+                ? { ...l, videos: l.videos.filter(v => v.id !== videoId) }
+                : l
         ));
+    };
+
+    // Remove a lecture from the course, with backend sync and confirmation
+    const removeLecture = async (lectureId: string) => {
+        const lecture = lectures.find(l => l.id === lectureId);
+        if (!lecture) return;
+        // Confirm deletion
+        if (!window.confirm('Are you sure you want to delete this lecture?')) return;
+        // If lecture has a real ID, call DELETE API
+        if (lectureId && lectureId !== '' && lectureId !== '1') {
+            try {
+                await fetch(`http://localhost:5006/api/lectures/${lectureId}`, { method: 'DELETE' });
+            } catch { }
+        }
+        setLectures(lectures.filter(l => l.id !== lectureId));
     };
 
     const toggleVideoCheck = (lectureId: string, videoId: string) => {
@@ -268,10 +293,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                 }
                 : lecture
         ));
-    };
-
-    const removeLecture = (lectureId: string) => {
-        setLectures(lectures.filter(lecture => lecture.id !== lectureId));
     };
 
     const addNewLecture = () => {
@@ -428,9 +449,10 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
             // 2. Save lectures and videos
             const courseId = initialData?.COURSE_ID || '';
             for (const lecture of lectures) {
-                // Determine if lecture is existing (numeric ID)
-                const isExistingLecture = !isNaN(Number(lecture.id)) && String(lecture.id).length < 15;
-                let LECTURE_ID = isExistingLecture ? Number(lecture.id) : Date.now() + Math.floor(Math.random() * 1000);
+                let LECTURE_ID = lecture.id;
+                if (!LECTURE_ID || LECTURE_ID === '' || LECTURE_ID === '1') {
+                    LECTURE_ID = (Date.now() + Math.floor(Math.random() * 1000)).toString();
+                }
                 const lectureBody = {
                     COURSE_ID: courseId,
                     LECTURE_ID,
@@ -438,31 +460,45 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                     ORDER: lecture.order,
                     STATUS: 1
                 };
-                await fetch(`http://localhost:5006/api/lectures/${isExistingLecture ? LECTURE_ID : ''}`,
+                // Check if lecture exists
+                let lectureExists = false;
+                try {
+                    const res = await fetch(`http://localhost:5006/api/lectures/${LECTURE_ID}`);
+                    lectureExists = res.ok;
+                } catch { }
+                await fetch(`http://localhost:5006/api/lectures/${lectureExists ? LECTURE_ID : ''}`,
                     {
-                        method: isExistingLecture ? 'PUT' : 'POST',
+                        method: lectureExists ? 'PUT' : 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(lectureBody)
                     }
                 );
                 // Save videos for this lecture
                 for (const video of lecture.videos) {
-                    // Determine if video is existing (numeric ID)
-                    const isExistingVideo = !isNaN(Number(video.id)) && String(video.id).length < 15;
-                    let VIDEO_ID = isExistingVideo ? Number(video.id) : Date.now() + Math.floor(Math.random() * 1000);
+                    let VIDEO_ID = video.id;
+                    if (!VIDEO_ID || VIDEO_ID === '' || VIDEO_ID === '1-1') {
+                        VIDEO_ID = (Date.now() + Math.floor(Math.random() * 1000)).toString();
+                    }
+                    const formattedDuration = formatDuration(video.duration?.toString());
                     const videoBody = {
                         LECTURE_ID,
                         VIDEO_ID,
                         ORDER: video.order,
                         TITLE: video.name,
-                        DURATION: video.duration || '',
+                        DURATION: formattedDuration,
                         URL: video.url || '',
                         FREE_TRIAL: !!video.isChecked,
                         STATUS: 1
                     };
-                    await fetch(`http://localhost:5007/api/videos/${isExistingVideo ? VIDEO_ID : ''}`,
+                    // Check if video exists
+                    let videoExists = false;
+                    try {
+                        const res = await fetch(`http://localhost:5007/api/videos/${VIDEO_ID}`);
+                        videoExists = res.ok;
+                    } catch { }
+                    await fetch(`http://localhost:5007/api/videos/${videoExists ? VIDEO_ID : ''}`,
                         {
-                            method: isExistingVideo ? 'PUT' : 'POST',
+                            method: videoExists ? 'PUT' : 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(videoBody)
                         }
@@ -476,6 +512,95 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
             setIsLoadingRight(false);
         }
     };
+
+    // For video upload
+    const handleVideoUploadClick = (lectureId: string, videoId: string) => {
+        const key = `${lectureId}-${videoId}`;
+        if (fileInputsRef.current[key]) {
+            fileInputsRef.current[key]!.value = '';
+            fileInputsRef.current[key]!.click();
+        }
+    };
+
+    const handleVideoFileSelect = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+        lectureId: string,
+        videoId: string
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        // Upload video
+        try {
+            const formData = new FormData();
+            formData.append('video', file);
+            const response = await fetch('http://localhost:5010/api/upload/video', {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) throw new Error('Failed to upload video');
+            const result = await response.json();
+            // Assume result.data.url and result.data.duration
+            setLectures(prevLectures =>
+                prevLectures.map(lecture =>
+                    lecture.id === lectureId
+                        ? {
+                            ...lecture,
+                            videos: lecture.videos.map(video =>
+                                video.id === videoId
+                                    ? {
+                                        ...video,
+                                        url: result.data.url,
+                                        duration: result.data.duration || ''
+                                    }
+                                    : video
+                            )
+                        }
+                        : lecture
+                )
+            );
+            // Immediately PUT to backend
+            const lecture = lectures.find(l => l.id === lectureId);
+            const video = lecture?.videos.find(v => v.id === videoId);
+            if (video) {
+                const formattedDuration = formatDuration(result.data.duration?.toString());
+                const videoBody = {
+                    LECTURE_ID: lectureId,
+                    VIDEO_ID: videoId,
+                    ORDER: video.order,
+                    TITLE: video.name,
+                    DURATION: formattedDuration,
+                    URL: result.data.url,
+                    FREE_TRIAL: !!video.isChecked,
+                    STATUS: 1
+                };
+                await fetch(`http://localhost:5007/api/videos/${videoId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(videoBody)
+                });
+            }
+        } catch (err) {
+            setErrorRight('Failed to upload video');
+        }
+    };
+
+    // Helper to format duration in seconds to hh:mm:ss
+    function formatDuration(duration: string | undefined): string {
+        if (!duration) return '';
+        const totalSeconds = Math.round(Number(duration));
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        if (hours > 0) {
+            return `${hours.toString().padStart(2, '0')}:${minutes
+                .toString()
+                .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+            return `${minutes.toString().padStart(2, '0')}:${seconds
+                .toString()
+                .padStart(2, '0')}`;
+        }
+    }
 
     return (
         <div className="max-w-7xl mx-auto p-6 bg-white shadow-md">
@@ -979,9 +1104,19 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                                                             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                             placeholder="Video title"
                                                         />
-                                                        <button className="p-2 text-gray-500 hover:text-gray-600">
+                                                        {video.duration && (
+                                                            <span className="ml-2 text-xs text-gray-500">{formatDuration(video.duration)}</span>
+                                                        )}
+                                                        <button className="p-2 text-gray-500 hover:text-gray-600" onClick={() => handleVideoUploadClick(lecture.id, video.id)}>
                                                             <Upload size={16} />
                                                         </button>
+                                                        <input
+                                                            type="file"
+                                                            accept="video/*"
+                                                            ref={el => { fileInputsRef.current[`${lecture.id}-${video.id}`] = el; }}
+                                                            onChange={e => handleVideoFileSelect(e, lecture.id, video.id)}
+                                                            className="hidden"
+                                                        />
                                                         <input
                                                             type="checkbox"
                                                             checked={video.isChecked}
