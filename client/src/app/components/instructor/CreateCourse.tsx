@@ -80,7 +80,7 @@ const CreateCourse: React.FC = () => {
   };
 
   const updateSubCategory = (id: string, name: string) => {
-    setSubCategories(subCategories.map(sub => 
+    setSubCategories(subCategories.map(sub =>
       sub.id === id ? { ...sub, name } : sub
     ));
   };
@@ -98,49 +98,49 @@ const CreateCourse: React.FC = () => {
   };
 
   const updateOutput = (id: string, name: string) => {
-    setOutputs(outputs.map(output => 
+    setOutputs(outputs.map(output =>
       output.id === id ? { ...output, name } : output
     ));
   };
 
   const addVideo = (lectureId: string) => {
-    setLectures(lectures.map(lecture => 
-      lecture.id === lectureId 
+    setLectures(lectures.map(lecture =>
+      lecture.id === lectureId
         ? {
-            ...lecture,
-            videos: [...lecture.videos, {
-              id: `${lectureId}-${Date.now()}`,
-              name: 'Subcate 1',
-              order: 1,
-              isChecked: false
-            }]
-          }
+          ...lecture,
+          videos: [...lecture.videos, {
+            id: `${lectureId}-${Date.now()}`,
+            name: 'Subcate 1',
+            order: 1,
+            isChecked: false
+          }]
+        }
         : lecture
     ));
   };
 
   const removeVideo = (lectureId: string, videoId: string) => {
-    setLectures(lectures.map(lecture => 
-      lecture.id === lectureId 
+    setLectures(lectures.map(lecture =>
+      lecture.id === lectureId
         ? {
-            ...lecture,
-            videos: lecture.videos.filter(video => video.id !== videoId)
-          }
+          ...lecture,
+          videos: lecture.videos.filter(video => video.id !== videoId)
+        }
         : lecture
     ));
   };
 
   const toggleVideoCheck = (lectureId: string, videoId: string) => {
-    setLectures(lectures.map(lecture => 
-      lecture.id === lectureId 
+    setLectures(lectures.map(lecture =>
+      lecture.id === lectureId
         ? {
-            ...lecture,
-            videos: lecture.videos.map(video => 
-              video.id === videoId 
-                ? { ...video, isChecked: !video.isChecked }
-                : video
-            )
-          }
+          ...lecture,
+          videos: lecture.videos.map(video =>
+            video.id === videoId
+              ? { ...video, isChecked: !video.isChecked }
+              : video
+          )
+        }
         : lecture
     ));
   };
@@ -163,13 +163,13 @@ const CreateCourse: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6 bg-white shadow-md rounded-lg">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-2xl font-semibold text-blue-500 mb-6">Create course</h1>
-        
+
         <div className="grid grid-cols-2 gap-8">
           {/* Left Column - Basic Information */}
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-medium text-gray-900 mb-4">Basic information</h2>
-              
+
               <div className="space-y-4">
                 {/* Title */}
                 <div>
@@ -177,7 +177,7 @@ const CreateCourse: React.FC = () => {
                   <input
                     type="text"
                     value={courseData.title}
-                    onChange={(e) => setCourseData({...courseData, title: e.target.value})}
+                    onChange={(e) => setCourseData({ ...courseData, title: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -188,7 +188,7 @@ const CreateCourse: React.FC = () => {
                   <input
                     type="text"
                     value={courseData.category}
-                    onChange={(e) => setCourseData({...courseData, category: e.target.value})}
+                    onChange={(e) => setCourseData({ ...courseData, category: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -228,7 +228,7 @@ const CreateCourse: React.FC = () => {
                   <label className="block text-sm text-gray-500 mb-2">Description</label>
                   <textarea
                     value={courseData.description}
-                    onChange={(e) => setCourseData({...courseData, description: e.target.value})}
+                    onChange={(e) => setCourseData({ ...courseData, description: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
                     placeholder="Category"
                   />
@@ -270,7 +270,7 @@ const CreateCourse: React.FC = () => {
                   <input
                     type="text"
                     value={courseData.level}
-                    onChange={(e) => setCourseData({...courseData, level: e.target.value})}
+                    onChange={(e) => setCourseData({ ...courseData, level: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -282,7 +282,7 @@ const CreateCourse: React.FC = () => {
                     <input
                       type="text"
                       value={courseData.image}
-                      onChange={(e) => setCourseData({...courseData, image: e.target.value})}
+                      onChange={(e) => setCourseData({ ...courseData, image: e.target.value })}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button className="p-2 text-gray-500 hover:text-gray-600">
@@ -302,7 +302,7 @@ const CreateCourse: React.FC = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-medium text-gray-900 mb-4">Lecture and video</h2>
-              
+
               <div className="space-y-6">
                 {lectures.map((lecture) => (
                   <div key={lecture.id} className="border border-gray-200 rounded-lg p-4 bg-white">
@@ -314,16 +314,18 @@ const CreateCourse: React.FC = () => {
                         <span className="text-sm text-gray-500">Free trial</span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 mb-4">
                       <input
                         type="text"
                         value={lecture.name}
+                        onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, name: e.target.value } : l))}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <input
                         type="number"
                         value={lecture.order}
+                        onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, order: Number(e.target.value) } : l))}
                         className="w-16 px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
                       />
                       <button
@@ -342,11 +344,13 @@ const CreateCourse: React.FC = () => {
                           <input
                             type="text"
                             value={video.name}
+                            onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, videos: l.videos.map(v => v.id === video.id ? { ...v, name: e.target.value } : v) } : l))}
                             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                           <input
                             type="number"
                             value={video.order}
+                            onChange={e => setLectures(lectures.map(l => l.id === lecture.id ? { ...l, videos: l.videos.map(v => v.id === video.id ? { ...v, order: Number(e.target.value) } : v) } : l))}
                             className="w-16 px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
                           />
                           <button
