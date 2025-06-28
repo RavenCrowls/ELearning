@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
       "img.freepik.com",
       "res.cloudinary.com",
       "img.clerk.com",
-      "images.clerk.dev"
+      "images.clerk.dev",
+      "images2.thanhnien.vn"
     ],
   },
   devIndicators: false

@@ -24,9 +24,9 @@ export default function Home() {
         />
 
         <div className='absolute text-5xl text-white pl-50'>
-          <div className='text-2xl leading-[6] '>Knowledge Without Boundaries</div>
-          <div className='leading-[1.5]'>Your Path to be the best in your field</div>
-          <div>Join us now</div>
+          <div className='text-2xl leading-[6] '>Không giới hạn kiến thức</div>
+          <div className='leading-[1.5]'>Làm chủ trong mọi lĩnh vực</div>
+          <div>Hãy tham gia ngay</div>
         </div>
       </div>
       <main className="container mx-auto px-4">
