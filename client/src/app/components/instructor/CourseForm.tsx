@@ -494,7 +494,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                         ORDER: video.order,
                         TITLE: video.name,
                         DURATION: formattedDuration,
-                        URL: video.url || '',
+                        URL: video.url,
                         FREE_TRIAL: !!video.isChecked,
                         STATUS: 1
                     };
