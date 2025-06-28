@@ -487,7 +487,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                     if (!VIDEO_ID || VIDEO_ID === '' || VIDEO_ID === '1-1') {
                         VIDEO_ID = (Date.now() + Math.floor(Math.random() * 1000)).toString();
                     }
-                    const formattedDuration = formatDuration(video.duration?.toString());
+                    const formattedDuration = typeof video.duration === 'number'
+                        ? formatDuration(video.duration)
+                        : video.duration;
                     const videoBody = {
                         LECTURE_ID,
                         VIDEO_ID,
@@ -570,7 +572,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
             const lecture = lectures.find(l => l.id === lectureId);
             const video = lecture?.videos.find(v => v.id === videoId);
             if (video) {
-                const formattedDuration = formatDuration(result.data.duration?.toString());
+                const formattedDuration = typeof video.duration === 'number'
+                    ? formatDuration(video.duration)
+                    : video.duration;
                 const videoBody = {
                     LECTURE_ID: lectureId,
                     VIDEO_ID: videoId,
