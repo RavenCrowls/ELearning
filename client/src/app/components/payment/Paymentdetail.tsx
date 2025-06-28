@@ -51,56 +51,8 @@ export default function Paymentdetail() {
           <input
             type="radio"
             name="paymentMethod"
-            value={"Quét mã Momo"}
-            // checked={selectedPayment === method.id}
-            // onChange={(e) => setSelectedPayment(e.target.value)}
-            className="h-4 w-4 text-blue-600"
-          />
-          <span className="ml-3 flex items-center text-sm font-medium text-gray-700">
-            Quét mã Momo
-            <Image src="/images/momo.png" alt="Momo" className='w-6 h-6 ml-2' width={24} height={24} />
-          </span>
-
-
-        </label>
-
-        <label className='flex items-center p-3  rounded-lg cursor-pointer hover:bg-gray-50 transition-colors'>
-          <input
-            type="radio"
-            name="paymentMethod"
-            value={"Quét mã Momo"}
-            // checked={selectedPayment === method.id}
-            // onChange={(e) => setSelectedPayment(e.target.value)}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-          />
-          <span className="ml-3 flex items-center text-sm font-medium text-gray-700">
-            Quét mã Vietcombank
-            <Image src="/images/vietcombank.png" alt="Vietcombank" className='w-25 h-6 ml-2' width={100} height={24} />
-          </span>
-        </label>
-
-        <label className='flex items-center p-3  rounded-lg cursor-pointer hover:bg-gray-50 transition-colors'>
-          <input
-            type="radio"
-            name="paymentMethod"
-            value={"Quét mã Momo"}
-            // checked={selectedPayment === method.id}
-            // onChange={(e) => setSelectedPayment(e.target.value)}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 "
-          />
-          <span className="ml-3 flex items-center text-sm font-medium text-gray-700">
-            Quét mã ViettelPay
-            <Image src="/images/viettelpay.png" alt="ViettelPay" className='w-6 h-6 ml-2' width={24} height={24} />
-          </span>
-        </label>
-
-        <label className='flex items-center p-3  rounded-lg cursor-pointer hover:bg-gray-50 transition-colors'>
-          <input
-            type="radio"
-            name="paymentMethod"
-            value={"Quét mã Momo"}
-            // checked={selectedPayment === method.id}
-            // onChange={(e) => setSelectedPayment(e.target.value)}
+            value={"Quét mã VNPAY"}
+            defaultChecked
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 "
           />
           <span className="ml-3 flex items-center text-sm font-medium text-gray-700">
