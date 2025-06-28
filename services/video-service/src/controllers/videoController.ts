@@ -102,7 +102,7 @@ class VideoController {
     async getVideosByLectureID(req: Request, res: Response) {
         try {
             const { lectureId } = req.params;
-            const videos = await Video.find({ LECTURE_ID: lectureId, STATUS: true });
+            const videos = await Video.find({ LECTURE_ID: lectureId, STATUS: true }).sort({ ORDER: 1 });
             res.status(200).json(videos);
         } catch (error) {
             res.status(500).json({ message: "Error getting videos by lecture ID", error });

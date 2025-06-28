@@ -91,6 +91,24 @@ class PaymentController {
                 )
             );
 
+            // Update ENROLLMENT_COUNT for each course in the cart
+            await Promise.all(
+                cart.ITEMS.map(async (item: any) => {
+                    try {
+                        // Get current course data to get current enrollment count
+                        const courseRes = await axios.get(`http://localhost:5003/api/courses/${item.COURSE_ID}`);
+                        const currentEnrollmentCount = courseRes.data.ENROLLMENT_COUNT || 0;
+
+                        // Increment enrollment count
+                        await axios.put(`http://localhost:5003/api/courses/${item.COURSE_ID}`, {
+                            ENROLLMENT_COUNT: currentEnrollmentCount + 1
+                        });
+                    } catch (error) {
+                        console.error(`Failed to update enrollment count for course ${item.COURSE_ID}:`, error);
+                    }
+                })
+            );
+
             res.send(`
               <html>
                 <body>
@@ -181,6 +199,20 @@ class PaymentController {
                 STATUS: 1,
                 WATCHED: []
             });
+
+            // Update ENROLLMENT_COUNT for the course
+            try {
+                // Get current course data to get current enrollment count
+                const courseRes = await axios.get(`http://localhost:5003/api/courses/${courseId}`);
+                const currentEnrollmentCount = courseRes.data.ENROLLMENT_COUNT || 0;
+
+                // Increment enrollment count
+                await axios.put(`http://localhost:5003/api/courses/${courseId}`, {
+                    ENROLLMENT_COUNT: currentEnrollmentCount + 1
+                });
+            } catch (error) {
+                console.error(`Failed to update enrollment count for course ${courseId}:`, error);
+            }
 
             res.send(`
               <html>

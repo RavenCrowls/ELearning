@@ -347,7 +347,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
           <div className="flex items-center mb-6">
             <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden mr-3">
               <Image
-                src={instructorData?.avatar || "/avatar.jpg"}
+                src={instructorData?.AVATAR || "/avatar.jpg"}
                 alt={mappedCourse.instructor}
                 width={40}
                 height={40}

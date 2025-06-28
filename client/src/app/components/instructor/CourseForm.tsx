@@ -243,6 +243,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                 }
                 : lecture
         ));
+
+        // Update video count after adding video
+        updateVideoCount();
     };
 
     // Remove a video from a lecture, with backend sync and confirmation
@@ -263,6 +266,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                 ? { ...l, videos: l.videos.filter(v => v.id !== videoId) }
                 : l
         ));
+
+        // Update video count after removing video
+        await updateVideoCount();
     };
 
     // Remove a lecture from the course, with backend sync and confirmation
@@ -306,6 +312,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
     };
 
     const handleSave = async () => {
+        console.log('handleSave');
         setIsLoading(true);
         setError(null);
         setSuccess(null);
@@ -434,6 +441,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
 
     // Handler for saving lectures and videos
     const handleSaveLecturesAndVideos = async () => {
+        console.log('lecture');
         setIsLoadingRight(true);
         setErrorRight(null);
         setSuccessRight(null);
@@ -579,6 +587,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                     body: JSON.stringify(videoBody)
                 });
             }
+
+            // Update video count after uploading video
+            await updateVideoCount();
         } catch (err) {
             setErrorRight('Failed to upload video');
         }
@@ -601,6 +612,29 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                 .padStart(2, '0')}`;
         }
     }
+
+    // Helper function to update NUMBER_OF_VIDEOS field
+    const updateVideoCount = async () => {
+        if (!initialData?.COURSE_ID) return;
+
+        try {
+            // Calculate total number of videos across all lectures
+            const totalVideos = lectures.reduce((total, lecture) => total + lecture.videos.length, 0);
+
+            // Update the course with new video count
+            await fetch(`http://localhost:5003/api/courses/${initialData.COURSE_ID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    NUMBER_OF_VIDEOS: totalVideos
+                })
+            });
+        } catch (err) {
+            console.error('Failed to update video count:', err);
+        }
+    };
 
     return (
         <div className="max-w-7xl mx-auto p-6 bg-white shadow-md">
@@ -1033,7 +1067,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ mode, initialData, onSave, show
                                     </div>
                                 )}
                                 <button
-                                    onClick={handleSaveLecturesAndVideos}
+                                    onClick={handleSave}
                                     disabled={isLoadingRight}
                                     className={`w-full px-6 py-2 text-white rounded-lg transition-colors ${isLoadingRight
                                         ? 'bg-gray-400 cursor-not-allowed'
