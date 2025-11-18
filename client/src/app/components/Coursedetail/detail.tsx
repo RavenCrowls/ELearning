@@ -2,13 +2,12 @@
 
 import { FC } from 'react';
 import Image from 'next/image';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import Overall from './overall';
 import Lesson from './lesson';
 import Instructor from './instructor';
 import Review from './review';
-import { useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+import { useCourseDetails } from '@/app/hooks/useCourseDetails';
 
 // Define types
 interface CourseProps {
@@ -32,10 +31,7 @@ interface CourseDetailsPageProps {
 }
 
 const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
-  // State for fetched course data
-  const [courseData, setCourseData] = useState<any>(null);
-  const [instructorData, setInstructorData] = useState<any>(null);
-  const [categoryData, setCategoryData] = useState<any>(null);
+  const { mappedCourse, instructorData, isAdding, isEnrolled, handleAddToCart, handleDirectPayment } = useCourseDetails(courseId);
 
   // Sample course data
   const course: CourseProps = {
@@ -60,9 +56,6 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
     left: '0px',
     width: '0px'
   });
-  const { user } = useUser();
-  const [isAdding, setIsAdding] = useState(false);
-  const [isEnrolled, setIsEnrolled] = useState(false);
 
   const navItems = [
     { id: 0, label: 'Tổng quan' },
@@ -70,8 +63,6 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
     { id: 2, label: 'Giảng viên' },
     { id: 3, label: 'Đánh giá' }
   ];
-
-  const router = useRouter();
 
   // Format price to Vietnamese Dong
   const formatPrice = (price: number) => {
@@ -106,15 +97,11 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
   // Hàm xử lý khi hover vào tag
   const handleTagHover = (tag: string) => {
     setHoveredTag(tag);
-    console.log(`Hovering over tag: ${tag}`);
-    // Bạn có thể thêm logic xử lý khác ở đây
   };
 
   // Hàm xử lý khi hover ra khỏi tag
   const handleTagLeave = () => {
     setHoveredTag(null);
-    console.log("Not hovering any tag");
-    // Bạn có thể thêm logic xử lý khác ở đây
   };
 
   const getTagColorClass = (tagName: string, index: number) => {
@@ -164,144 +151,15 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
   };
 
   // Update slider position on mount and when active index changes
-  useEffect(() => {
+  React.useEffect(() => {
     updateSliderPosition();
-    // Add window resize listener
     window.addEventListener('resize', updateSliderPosition);
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [activeIndex]);
 
-  // Fetch course data from API
-  useEffect(() => {
-    fetch(`http://localhost:5003/api/courses/${courseId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setCourseData(data);
-        // Fetch instructor and category after course data is loaded
-        if (data?.INSTRUCTOR_ID) {
-          fetch(`http://localhost:5000/api/users/${data.INSTRUCTOR_ID}`)
-            .then((res) => res.json())
-            .then((user) => setInstructorData(user))
-            .catch((err) => console.error('Failed to fetch instructor:', err));
-        }
-        if (data?.CATEGORIES && data.CATEGORIES.length > 0) {
-          fetch(`http://localhost:5004/api/categories/${data.CATEGORIES[0]}`)
-            .then((res) => res.json())
-            .then((cat) => setCategoryData(cat))
-            .catch((err) => console.error('Failed to fetch category:', err));
-        }
-      })
-      .catch((err) => console.error('Failed to fetch course data:', err));
-  }, [courseId]);
-
-  // Check if user is enrolled in the course
-  useEffect(() => {
-    if (!user) return;
-    fetch(`http://localhost:5002/api/enrollments/user/${user.id}`)
-      .then(res => res.ok ? res.json() : [])
-      .then(data => {
-        if (Array.isArray(data)) {
-          setIsEnrolled(data.some((enr: any) => enr.COURSE_ID === courseId));
-        } else {
-          setIsEnrolled(false);
-        }
-      })
-      .catch(() => setIsEnrolled(false));
-  }, [user, courseId]);
-
   // Map API data to UI fields
-  const mappedCourse = courseData ? {
-    title: courseData.TITLE,
-    instructor: instructorData?.NAME || '',
-    date: courseData.CREATED_DATE ? new Date(courseData.CREATED_DATE).toLocaleDateString('vi-VN') : '',
-    rating: courseData.RATING ? parseFloat(courseData.RATING[0]) : 0,
-    totalRatings: courseData.RATING ? parseInt(courseData.RATING[1]) : 0,
-    price: courseData.PRICE,
-    originalPrice: courseData.PRICE, // No original price in API, fallback to price
-    level: courseData.LEVEL,
-    duration: courseData.DURATION,
-    lessons: courseData.NUMBER_OF_VIDEOS,
-    students: courseData.ENROLLMENT_COUNT,
-    tags: categoryData
-      ? [
-        categoryData.NAME,
-        ...((categoryData.SUB_CATEGORIES || [])
-          .filter((sub: any) => (courseData.SUB_CATEGORIES || []).includes(sub.SUB_CATEGORY_ID))
-          .map((sub: any) => sub.NAME))
-      ]
-      : [],
-    imageUrl: courseData.IMAGE_URL
-  } : course;
-
-  const generateCartId = () => {
-    // Example: C + timestamp + random 3 digits
-    return 'C' + Date.now() + Math.floor(Math.random() * 1000);
-  };
-
-  const handleAddToCart = async () => {
-    if (!user) return;
-    setIsAdding(true);
-    try {
-      // 1. Check if user already has any pending carts
-      const cartRes = await fetch(`http://localhost:5008/api/carts/user/${user.id}`);
-      let cartData = null;
-      if (cartRes.ok) {
-        cartData = await cartRes.json();
-      }
-      // Find all user's active carts (pending payment and status true)
-      let activeCarts: any[] = [];
-      if (cartData && Array.isArray(cartData)) {
-        activeCarts = cartData.filter((cart: any) => cart.PAYMENT_STATUS === 'pending' && cart.STATUS === true);
-      }
-      // Pick the latest cart by CART_ID (assuming it encodes timestamp)
-      let activeCart = null;
-      if (activeCarts.length > 0) {
-        activeCart = activeCarts.reduce((latest, cart) => {
-          return cart.CART_ID > latest.CART_ID ? cart : latest;
-        }, activeCarts[0]);
-      }
-      if (activeCart && activeCart.CART_ID) {
-        // Cart exists, update it using CART_ID
-        const updatedItems = [
-          ...(activeCart.ITEMS || []),
-          {
-            COURSE_ID: courseId,
-            TITLE: mappedCourse.title,
-            PRICE: mappedCourse.price
-          }
-        ];
-        await fetch(`http://localhost:5008/api/carts/${activeCart.CART_ID}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ITEMS: updatedItems, TOTAL_PRICE: (activeCart.TOTAL_PRICE || 0) + mappedCourse.price })
-        });
-      } else {
-        // No active cart, create a new one
-        await fetch('http://localhost:5008/api/carts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            CART_ID: generateCartId(),
-            USER_ID: user.id,
-            ITEMS: [{ COURSE_ID: courseId, TITLE: mappedCourse.title, PRICE: mappedCourse.price }],
-            TOTAL_PRICE: mappedCourse.price,
-            STATUS: true,
-            PAYMENT_STATUS: 'pending'
-          })
-        });
-      }
-      // Optionally show a success message here
-    } catch (err) {
-      console.error('Failed to add to cart:', err);
-    } finally {
-      setIsAdding(false);
-    }
-  };
-
-  const handleDirectPayment = () => {
-    if (isEnrolled) return;
-    router.push(`/direct-payment?courseId=${courseId}`);
-  };
+  const fallbackCourse = course;
+  const displayCourse = mappedCourse || fallbackCourse;
 
   return (
     <div className="max-w-7xl mx-auto p-4">
@@ -311,8 +169,8 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
           {/* Main course image */}
           <div className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden mb-4">
             <Image
-              src={mappedCourse.imageUrl || "/course1.jpg"}
-              alt={mappedCourse.title}
+              src={displayCourse.imageUrl || "/course1.jpg"}
+              alt={displayCourse.title}
               layout="fill"
               objectFit="cover"
               className="rounded-lg"
@@ -321,7 +179,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
 
           {/* Tags and rating */}
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            {mappedCourse.tags.map((tag, index) => (
+            {displayCourse.tags.map((tag, index) => (
               <span
                 key={tag}
                 className={`px-4 py-1 ${getTagColorClass(tag, index)} rounded-full text-sm font-medium transition-colors duration-200 cursor-pointer`}
@@ -332,30 +190,30 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
               </span>
             ))}
             <div className="flex items-center ml-2">
-              <span className="mr-1 font-semibold">{mappedCourse.rating}</span>
+              <span className="mr-1 font-semibold">{displayCourse.rating}</span>
               <div className="flex">
-                {renderStars(mappedCourse.rating)}
+                {renderStars(displayCourse.rating)}
               </div>
-              <span className="ml-1 text-gray-500">({mappedCourse.totalRatings})</span>
+              <span className="ml-1 text-gray-500">({displayCourse.totalRatings})</span>
             </div>
           </div>
 
           {/* Course title */}
-          <h1 className="text-2xl font-bold mb-4">{mappedCourse.title}</h1>
+          <h1 className="text-2xl font-bold mb-4">{displayCourse.title}</h1>
 
           {/* Instructor and date */}
           <div className="flex items-center mb-6">
             <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden mr-3">
               <Image
                 src={instructorData?.AVATAR || "/avatar.jpg"}
-                alt={mappedCourse.instructor}
+                alt={displayCourse.instructor}
                 width={40}
                 height={40}
               />
             </div>
             <div>
-              <p className="font-medium">{mappedCourse.instructor}</p>
-              <p className="text-gray-500 text-sm">{mappedCourse.date}</p>
+              <p className="font-medium">{displayCourse.instructor}</p>
+              <p className="text-gray-500 text-sm">{displayCourse.date}</p>
             </div>
           </div>
 
@@ -399,7 +257,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
           {/* Course preview image */}
           <div className="mb-4 relative rounded-lg overflow-hidden h-48">
             <Image
-              src={mappedCourse.imageUrl || "/course1.jpg"}
+              src={displayCourse.imageUrl || "/course1.jpg"}
               alt="Course preview"
               layout="fill"
               objectFit="cover"
@@ -412,10 +270,10 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
             <div className="bg-blue-100 p-4 rounded-lg mb-4">
               <h3 className="text-sm text-blue-800 mb-1">Giá của khóa học:</h3>
               <div className="flex items-baseline">
-                <span className="text-2xl font-bold text-blue-600">{formatPrice(mappedCourse.price)}</span>
-                {mappedCourse.originalPrice > mappedCourse.price && (
+                <span className="text-2xl font-bold text-blue-600">{formatPrice(displayCourse.price)}</span>
+                {displayCourse.originalPrice > displayCourse.price && (
                   <span className="ml-2 text-gray-500 line-through text-sm">
-                    {formatPrice(mappedCourse.originalPrice)}
+                    {formatPrice(displayCourse.originalPrice)}
                   </span>
                 )}
               </div>
@@ -432,7 +290,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
                   </svg>
                   <span>Trình độ:</span>
                 </div>
-                <span className="text-right">{mappedCourse.level}</span>
+                <span className="text-right">{displayCourse.level}</span>
               </div>
 
               <div className="flex justify-between items-center">
@@ -442,7 +300,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
                   </svg>
                   <span>Thời lượng:</span>
                 </div>
-                <span className="text-right">{mappedCourse.duration} giờ</span>
+                <span className="text-right">{displayCourse.duration} giờ</span>
               </div>
 
               <div className="flex justify-between items-center">
@@ -452,7 +310,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
                   </svg>
                   <span>Bài giảng:</span>
                 </div>
-                <span className="text-right">{mappedCourse.lessons}</span>
+                <span className="text-right">{displayCourse.lessons}</span>
               </div>
 
               <div className="flex justify-between items-center">
@@ -462,7 +320,7 @@ const CourseDetailsPage: FC<CourseDetailsPageProps> = ({ courseId }) => {
                   </svg>
                   <span>Số học viên:</span>
                 </div>
-                <span className="text-right">{mappedCourse.students?.toLocaleString()}</span>
+                <span className="text-right">{displayCourse.students?.toLocaleString()}</span>
               </div>
             </div>
 

@@ -26,3 +26,9 @@ export async function getUserById(userId: string, token?: string): Promise<UserD
     }
     return res.json();
 }
+
+export async function listUsers() {
+    const res = await fetch(`${USER_API_BASE}/api/users/`);
+    if (!res.ok) return [];
+    return res.json();
+}
