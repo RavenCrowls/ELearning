@@ -1,94 +1,15 @@
 'use client'
 
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
-import { useUser } from '@clerk/nextjs';
-
-interface CartItem {
-    id: number;
-    title: string;
-    price: number;
-    image: string;
-    quantity: number;
-}
+import React from 'react';
+import { useCart, CartItem } from '../../hooks/useCart';
 
 interface ShoppingCartProps {
     items?: CartItem[];
 }
 
 export default function ShoppingCart({ items = [] }: ShoppingCartProps) {
-    const { user } = useUser();
-    const [cartItems, setCartItems] = useState<CartItem[]>(items.length > 0 ? items : []);
-
-    useEffect(() => {
-        if (!user) return;
-        const fetchCart = async () => {
-            try {
-                const res = await fetch(`http://localhost:5008/api/carts/user/${user.id}`);
-                if (!res.ok) throw new Error('Failed to fetch cart');
-                const data = await res.json();
-                if (data && Array.isArray(data.ITEMS)) {
-                    // Fetch course details for each item to get IMAGE_URL
-                    const itemsWithImages = await Promise.all(
-                        data.ITEMS.map(async (item: any) => {
-                            let imageUrl = '/course1.jpg';
-                            try {
-                                const courseRes = await fetch(`http://localhost:5003/api/courses/${item.COURSE_ID}`);
-                                if (courseRes.ok) {
-                                    const courseData = await courseRes.json();
-                                    imageUrl = courseData.IMAGE_URL || imageUrl;
-                                }
-                            } catch (e) { /* fallback to default image */ }
-                            return {
-                                id: Number(item.COURSE_ID),
-                                title: item.TITLE,
-                                price: item.PRICE,
-                                image: imageUrl,
-                                quantity: 1,
-                            };
-                        })
-                    );
-                    setCartItems(itemsWithImages);
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchCart();
-    }, [user]);
-
-    const removeItem = async (id: number) => {
-        if (!user) return;
-        const confirmDelete = window.confirm('Bạn có muốn xóa sản phẩm này khỏi giỏ hàng?');
-        if (!confirmDelete) return;
-        try {
-            const res = await fetch(`http://localhost:5008/api/carts/user/${user.id}/item/${id}`, {
-                method: 'DELETE',
-            });
-            if (!res.ok) throw new Error('Failed to remove item from cart');
-            setCartItems(cartItems.filter(item => item.id !== id));
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const clearCart = async () => {
-        if (!user) return;
-        const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?');
-        if (!confirmDelete) return;
-        try {
-            const res = await fetch(`http://localhost:5008/api/carts/user/${user.id}`, {
-                method: 'DELETE',
-            });
-            if (!res.ok) throw new Error('Failed to clear cart');
-            setCartItems([]);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const totalAmount = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const totalItems = cartItems.length;
+    const { cartItems, totalAmount, totalItems, removeItem, clear } = useCart(items);
 
     const formatPrice = (price: number) => {
         return price.toLocaleString('vi-VN') + ' đ';
@@ -141,7 +62,11 @@ export default function ShoppingCart({ items = [] }: ShoppingCartProps) {
                                         {/* Remove Button */}
                                         <div className="col-span-1 text-center">
                                             <button
-                                                onClick={() => removeItem(item.id)}
+                                                onClick={() => {
+                                                    const confirmDelete = window.confirm('Bạn có muốn xóa sản phẩm này khỏi giỏ hàng?');
+                                                    if (!confirmDelete) return;
+                                                    removeItem(item.id);
+                                                }}
                                                 className="text-gray-400 hover:text-red-500 transition-colors text-xl font-bold w-8 h-8 flex items-center justify-center hover:bg-red-50 rounded cursor-pointer"
                                                 aria-label="Xóa sản phẩm"
                                             >
@@ -156,7 +81,11 @@ export default function ShoppingCart({ items = [] }: ShoppingCartProps) {
                             {cartItems.length > 0 && (
                                 <div className="mt-8 text-end">
                                     <button
-                                        onClick={clearCart}
+                                        onClick={() => {
+                                            const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?');
+                                            if (!confirmDelete) return;
+                                            clear();
+                                        }}
                                         className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg transition-colors font-medium cursor-pointer"
                                     >
                                         Xóa giỏ hàng
