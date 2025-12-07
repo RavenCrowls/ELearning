@@ -1,61 +1,10 @@
 'use client';
 import Image from 'next/image';
-import { useState, useRef, useEffect } from 'react';
+import { useStudyTag } from '@/app/hooks/useStudyTag';
 import Link from 'next/link';
-import { useUser } from '@clerk/nextjs';
 
 export default function NavLinkWithPopup() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [courses, setCourses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const popupRef = useRef<HTMLDivElement>(null);
-  const { user } = useUser();
-
-  // Fetch enrollments and courses when popup opens
-  useEffect(() => {
-    const fetchCourses = async () => {
-      if (!user?.id) return;
-      setLoading(true);
-      try {
-        const enrollRes = await fetch(`http://localhost:5002/api/enrollments/user/${user.id}`);
-        const enrollments = await enrollRes.json();
-        if (!Array.isArray(enrollments) || enrollments.length === 0) {
-          setCourses([]);
-          setLoading(false);
-          return;
-        }
-        const coursePromises = enrollments.map(async (enroll: any) => {
-          const courseRes = await fetch(`http://localhost:5003/api/courses/${enroll.COURSE_ID}`);
-          const course = await courseRes.json();
-          return {
-            id: course.COURSE_ID,
-            title: course.TITLE,
-            progress: enroll.PROGRESS,
-            image: course.IMAGE_URL || '/course1.jpg',
-          };
-        });
-        const coursesWithProgress = await Promise.all(coursePromises);
-        setCourses(coursesWithProgress);
-      } catch (err) {
-        setCourses([]);
-      }
-      setLoading(false);
-    };
-    if (isOpen) {
-      fetchCourses();
-    }
-  }, [isOpen, user?.id]);
-
-  // Open popup when clicking the link
-  const handleOpenPopup = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setIsOpen(true);
-  };
-
-  // Close popup
-  const closePopup = () => {
-    setIsOpen(false);
-  };
+  const { isOpen, courses, loading, popupRef, handleOpenPopup, closePopup } = useStudyTag();
 
   // Handle navigation to learning process
   const navigateToLearning = () => {
@@ -64,40 +13,6 @@ export default function NavLinkWithPopup() {
     // For demo purposes, we'll just close the popup
     closePopup();
   };
-
-  // Close popup when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (popupRef.current && event.target && !popupRef.current.contains(event.target as Node)) {
-        closePopup();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
-
-  // Close popup on Escape key
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        closePopup();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen]);
 
   return (
     <div className="relative inline-block">

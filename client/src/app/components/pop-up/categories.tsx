@@ -1,112 +1,21 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCourseCategoriesMenu } from '@/app/hooks/useCourseCategoriesMenu';
 
 export default function CourseCategories() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null); // string now
-  const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null); // string now
-  const popupRef = useRef<HTMLDivElement>(null);
-  const [categories, setCategories] = useState<{ leftColumn: { id: string; title: string; hasSubmenu: boolean }[] }>({ leftColumn: [] });
-  const [submenuData, setSubmenuData] = useState<{ [key: string]: { id: string; title: string; hasSubmenu: boolean }[] }>({});
-  const router = useRouter();
-
-  // Fetch categories from API
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const res = await fetch('http://localhost:5004/api/categories');
-        const data = await res.json();
-        // Transform API data to menu structure
-        const leftColumn = data.map((cat: any) => ({
-          id: cat.CATEGORY_ID,
-          title: cat.NAME,
-          hasSubmenu: cat.SUB_CATEGORIES && cat.SUB_CATEGORIES.length > 0
-        }));
-        const submenu: { [key: string]: { id: string; title: string; hasSubmenu: boolean }[] } = {};
-        data.forEach((cat: any) => {
-          if (cat.SUB_CATEGORIES && cat.SUB_CATEGORIES.length > 0) {
-            submenu[cat.CATEGORY_ID] = cat.SUB_CATEGORIES.map((sub: any) => ({
-              id: sub.SUB_CATEGORY_ID,
-              title: sub.NAME,
-              hasSubmenu: false
-            }));
-          }
-        });
-        setCategories({ leftColumn });
-        setSubmenuData(submenu);
-      } catch (err) {
-        // fallback or error handling
-        setCategories({ leftColumn: [] });
-        setSubmenuData({});
-      }
-    }
-    fetchCategories();
-  }, []);
-
-  // Mở popup
-  const handleOpenPopup = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setIsOpen(true);
-  };
-
-  // Đóng popup
-  const closePopup = () => {
-    setIsOpen(false);
-    setHoveredItem(null);
-    setActiveSubmenu(null);
-  };
-
-  // Xử lý hover vào item cột đầu
-  type CategoryItem = { id: string; title: string; hasSubmenu: boolean; };
-  const handleLeftColumnHover = (item: CategoryItem) => {
-    setHoveredItem(item.id);
-    if (item.hasSubmenu && submenuData[item.id]) {
-      setActiveSubmenu(item.id);
-    } else if (item.hasSubmenu) {
-      // Nếu có submenu nhưng chưa có data, hiển thị placeholder
-      setActiveSubmenu(item.id);
-    } else {
-      setActiveSubmenu(null);
-    }
-  };
-
-  // Xử lý click item
-  const handleItemClick = (item: { id: string; title: string; hasSubmenu?: boolean; parentId?: string }) => {
-    if (item.hasSubmenu === false && item.parentId) {
-      // Subcategory click: pass both parent and subcategory id
-      router.push(`/coursefilter?category=${item.parentId}&subcategory=${item.id}`);
-      closePopup();
-      return;
-    }
-    // Always allow clicking main category (even if it has submenu)
-    router.push(`/coursefilter?category=${item.id}`);
-    closePopup();
-  };
-
-  // Tính toán width động
-  const getPopupWidth = () => {
-    if (activeSubmenu) return '600px';
-    return '300px';
-  };
-
-  // Đóng khi click bên ngoài
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (popupRef.current && event.target && !popupRef.current.contains(event.target as Node)) {
-        closePopup();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
+  const {
+    isOpen,
+    hoveredItem,
+    activeSubmenu,
+    popupRef,
+    leftColumn,
+    submenuData,
+    handleOpenPopup,
+    closePopup,
+    handleLeftColumnHover,
+    handleItemClick,
+    getPopupWidth,
+  } = useCourseCategoriesMenu();
 
   return (
     <div className="relative inline-block">
@@ -134,7 +43,7 @@ export default function CourseCategories() {
               {/* Left Column - Always visible */}
               <div className="w-80 border-r border-gray-200">
                 <div className="p-4 max-h-96 overflow-y-auto">
-                  {categories.leftColumn.map((item) => (
+                  {leftColumn.map((item) => (
                     <div
                       key={item.id}
                       onClick={() => handleItemClick(item)}

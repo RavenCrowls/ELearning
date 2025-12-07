@@ -1,96 +1,9 @@
 "use client"
-import { useUser } from '@clerk/nextjs';
-import React, { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation';
-
-interface CourseData {
-    courseId: string;
-    title: string;
-    price: number;
-    imageUrl: string;
-}
+import React from 'react'
+import { useDirectCoursePayment } from '@/app/hooks/useDirectCoursePayment';
 
 const DirectCoursePayment = () => {
-    const { user } = useUser();
-    const searchParams = useSearchParams();
-    const [courseData, setCourseData] = useState<CourseData | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingCourse, setIsLoadingCourse] = useState(true);
-
-    useEffect(() => {
-        const fetchCourseData = async () => {
-            const courseId = searchParams.get('courseId');
-            if (!courseId) {
-                alert('Không tìm thấy thông tin khóa học');
-                return;
-            }
-
-            try {
-                const res = await fetch(`http://localhost:5003/api/courses/${courseId}`);
-                if (!res.ok) throw new Error('Failed to fetch course');
-                const data = await res.json();
-
-                setCourseData({
-                    courseId: data.COURSE_ID,
-                    title: data.TITLE,
-                    price: data.PRICE,
-                    imageUrl: data.IMAGE_URL || "/course1.jpg"
-                });
-            } catch (err) {
-                console.error(err);
-                alert('Không thể tải thông tin khóa học');
-            } finally {
-                setIsLoadingCourse(false);
-            }
-        };
-
-        fetchCourseData();
-    }, [searchParams]);
-
-    const formatPrice = (price: number) => {
-        return price.toLocaleString('vi-VN') + ' đ';
-    };
-
-    const handlePayment = async () => {
-        if (!courseData || !user) {
-            alert('Thiếu thông tin khóa học hoặc người dùng!');
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const response = await fetch('http://localhost:5009/api/payment/create-qr-direct-payment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    courseId: courseData.courseId,
-                    userId: user.id,
-                    price: courseData.price,
-                    courseTitle: courseData.title
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to create payment');
-            }
-
-            const data = await response.json();
-
-            // Open the payment link in a new tab
-            if (data.paymentUrl) {
-                window.open(data.paymentUrl, '_blank');
-            } else {
-                alert('Không thể tạo link thanh toán');
-            }
-        } catch (error) {
-            console.error('Payment error:', error);
-            alert('Có lỗi xảy ra khi tạo thanh toán');
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const { courseData, isLoading, isLoadingCourse, formatPrice, handlePayment } = useDirectCoursePayment();
 
     if (isLoadingCourse) {
         return (
