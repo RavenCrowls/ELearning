@@ -1,55 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import NavLinkWithPopup from "@/app/components/pop-up/study-tag";
 import CourseCategories from "../pop-up/categories";
 import { LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useClerk, useUser, useAuth } from "@clerk/nextjs";
+import { useHeaderStudent } from "@/app/hooks/useHeaderStudent";
 
 export default function HeaderStudent() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("/avatar.jpg");
-  const router = useRouter();
-  const clerk = useClerk();
-  const { user } = useUser();
-  const { getToken } = useAuth();
-
-  // Fetch user info from your API and set avatar
-  useEffect(() => {
-    async function fetchUser() {
-      if (user && user.id) {
-        const token = await getToken();
-        fetch(`http://localhost:5000/api/users/${user.id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data && data.AVATAR) {
-              setAvatarUrl(data.AVATAR);
-            }
-          })
-          .catch(() => {
-            setAvatarUrl("/avatar.jpg");
-          });
-      }
-    }
-    fetchUser();
-  }, [user, getToken]);
-
-  const handleLogout = () => {
-    clerk.signOut();
-  };
-
-  const handleSearch = () => {
-    if (searchQuery.trim() !== "") {
-      router.push(`/coursefilter?search=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
+  const { searchQuery, setSearchQuery, avatarUrl, handleLogout, handleSearch, router } = useHeaderStudent();
 
   return (
     <header className="bg-white shadow-sm py-4 sticky top-0 z-10 transition-all duration-300">

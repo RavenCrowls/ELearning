@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React from 'react';
 import CourseForm from './CourseForm';
+import { useEditCourse } from '@/app/hooks/useEditCourse';
 
 interface CourseData {
   _id: string;
@@ -26,38 +26,7 @@ interface CourseData {
 }
 
 const EditCourse: React.FC = () => {
-  const searchParams = useSearchParams();
-  const courseId = searchParams.get('id');
-  const [courseData, setCourseData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch course data
-  useEffect(() => {
-    const fetchCourseData = async () => {
-      if (!courseId) {
-        setError('No course ID provided');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://localhost:5003/api/courses/${courseId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch course data');
-        }
-
-        const data: CourseData = await response.json();
-        setCourseData(data);
-        setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        setLoading(false);
-      }
-    };
-
-    fetchCourseData();
-  }, [courseId]);
+  const { courseData, loading, error } = useEditCourse();
 
   const handleSave = (data: any) => {
     // Handle course update logic here
