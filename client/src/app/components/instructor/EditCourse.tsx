@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import CourseForm from './CourseForm';
+import CourseForm from './coursecreate/CourseForm';
 import { useEditCourse } from '@/app/hooks/useEditCourse';
 
 interface CourseData {

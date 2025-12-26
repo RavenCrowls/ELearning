@@ -1,5 +1,5 @@
 import React from 'react';
-import CreateCourse from '@/app/components/instructor/CreateCourse';
+import CreateCourse from '@/app/components/instructor/coursecreate/CreateCourse';
 
 export default function CreateCoursePage()  {
 

@@ -20,8 +20,10 @@ const CreateCourse: React.FC = () => {
     <CourseForm
       mode="create"
       onSave={handleSave}
-      showLecturesColumn={false}
+      onCancel={() => router.push("/course-instructor")}
+      showLecturesColumn={true}
       instructorId={instructorId}
+      variant="embedded"
     />
   );
 };
