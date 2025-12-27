@@ -19,23 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-type VideoItem = {
-  id: string;
-  name: string;
-  order: number;
-  isChecked: boolean;
-  duration?: string;
-
-  /** ✅ URL preview (server url hoặc blob url) */
-  url?: string;
-};
-
-type Lecture = {
-  id: string;
-  name: string;
-  order: number;
-  videos: VideoItem[];
-};
+import type { Lecture } from "@/app/components/course/types";
 
 function cn(...cls: Array<string | false | undefined>) {
   return cls.filter(Boolean).join(" ");

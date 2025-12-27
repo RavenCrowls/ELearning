@@ -28,6 +28,7 @@ export default function CourseCreateScreen() {
           instructorId={instructorId}
           showLecturesColumn={true}
           variant="embedded"
+          twoStep={true}
         />
       </div>
     </div>
