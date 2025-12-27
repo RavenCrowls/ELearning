@@ -85,6 +85,13 @@ app.use("/api/payments", clerkAuth, authLimiter, paymentServiceProxy);
 
 // File upload routes with upload rate limiting
 app.use("/api/upload", clerkAuth, uploadLimiter, fileUploadServiceProxy);
+app.use("/api/roles", clerkAuth, roleServiceProxy);
+
+// Payment routes with strict rate limiting
+app.use("/api/payments", clerkAuth, authLimiter, paymentServiceProxy);
+
+// File upload routes with upload rate limiting
+app.use("/api/upload", clerkAuth, uploadLimiter, fileUploadServiceProxy);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

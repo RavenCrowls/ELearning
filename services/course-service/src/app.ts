@@ -1,6 +1,10 @@
 import express, { Application } from "express";
 import mongoose from "mongoose";
 import { courseRouter } from "./routes/courseRoutes";
+import { lectureRouter } from "./routes/lectureRoutes";
+import { videoRouter } from "./routes/videoRoutes";
+import { enrollmentRouter } from "./routes/enrollmentRoutes";
+import { publishmentRouter } from "./routes/publishmentRoutes";
 import dotenv from "dotenv";
 import cors from "cors";
 
@@ -25,6 +29,10 @@ mongoose
 
 // Routes
 app.use("/api/courses", courseRouter);
+app.use("/api/lectures", lectureRouter);
+app.use("/api/videos", videoRouter);
+app.use("/api/enrollments", enrollmentRouter);
+app.use("/api/publishments", publishmentRouter);
 
 if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () => {

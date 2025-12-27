@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import mongoose from "mongoose";
 import { userRouter } from "./routes/userRoutes";
+import { roleRouter } from "./routes/roleRoutes";
 import dotenv from "dotenv";
 import cors from "cors";
 import { requireAuth } from "./middleware/clerkMiddleware";
@@ -25,6 +26,7 @@ mongoose
 
 // Protect all user routes with Clerk authentication
 app.use("/api/users", userRouter);
+app.use("/api/roles", roleRouter);
 app.use("/api", clerkWebhookRouter);
 
 if (process.env.NODE_ENV !== "test") {

@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import mongoose from "mongoose";
 import { cartRouter } from "./routes/cartRoutes";
+import { paymentRouter } from "./routes/paymentRoutes";
 import dotenv from "dotenv";
 import cors from "cors";
 
@@ -23,6 +24,7 @@ mongoose
 
 // Routes
 app.use("/api/carts", cartRouter);
+app.use("/api/payments", paymentRouter);
 
 if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () => {
