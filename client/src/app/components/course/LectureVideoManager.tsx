@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { GripVertical, Plus, Upload, X } from "lucide-react";
 import {
   DndContext,
@@ -25,6 +25,8 @@ type VideoItem = {
   order: number;
   isChecked: boolean;
   duration?: string;
+
+  /** ✅ URL preview (server url hoặc blob url) */
   url?: string;
 };
 
@@ -83,7 +85,6 @@ function SortableCard({
       )}
     >
       {renderHandle?.({ attributes, listeners })}
-      {/* nếu không dùng handle thì fallback drag toàn khối */}
       {!renderHandle ? (
         <div {...attributes} {...listeners}>
           {children}
@@ -128,7 +129,9 @@ export default function LectureVideoManager({
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
   );
 
-  const [selected, setSelected] = useState<{ lectureId: string; videoId: string } | null>(null);
+  const [selected, setSelected] = useState<{ lectureId: string; videoId: string } | null>(
+    null
+  );
 
   const selectedVideo = useMemo(() => {
     if (!selected) return null;
@@ -138,6 +141,79 @@ export default function LectureVideoManager({
   }, [selected, lectures]);
 
   const lectureIds = useMemo(() => lectures.map((l) => lecKey(l.id)), [lectures]);
+
+  /** ✅ giữ lectures mới nhất để cleanup blob đúng */
+  const latestLecturesRef = useRef<Lecture[]>(lectures);
+  useEffect(() => {
+    latestLecturesRef.current = lectures;
+  }, [lectures]);
+
+  /** ✅ helper: set preview url (blob) + revoke url cũ nếu là blob */
+  function setVideoPreviewUrl(
+    lectureId: string,
+    videoId: string,
+    nextUrl: string,
+    nextName?: string
+  ) {
+    setLectures((prev) => {
+      const oldUrl =
+        prev.find((l) => l.id === lectureId)?.videos.find((v) => v.id === videoId)?.url;
+
+      if (oldUrl?.startsWith("blob:")) {
+        try {
+          URL.revokeObjectURL(oldUrl);
+        } catch {}
+      }
+
+      return prev.map((l) => {
+        if (l.id !== lectureId) return l;
+        return {
+          ...l,
+          videos: l.videos.map((v) => {
+            if (v.id !== videoId) return v;
+            return {
+              ...v,
+              url: nextUrl,
+              name: nextName ?? v.name,
+            };
+          }),
+        };
+      });
+    });
+  }
+
+  /** ✅ intercept file select: preview ngay cả khi chưa upload */
+  function onFileSelect(
+    e: React.ChangeEvent<HTMLInputElement>,
+    lectureId: string,
+    videoId: string
+  ) {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 1) auto chọn video để preview bật lên
+      setSelected({ lectureId, videoId });
+
+      // 2) tạo blob url để preview ngay
+      const blobUrl = URL.createObjectURL(file);
+      setVideoPreviewUrl(lectureId, videoId, blobUrl, file.name);
+    }
+
+    // 3) gọi handler ngoài (upload server, set duration, set url server,...)
+    handleVideoFileSelect(e, lectureId, videoId);
+  }
+
+  /** ✅ cleanup khi unmount: revoke tất cả blob url (dựa trên lectures mới nhất) */
+  useEffect(() => {
+    return () => {
+      try {
+        for (const lec of latestLecturesRef.current) {
+          for (const v of lec.videos) {
+            if (v.url?.startsWith("blob:")) URL.revokeObjectURL(v.url);
+          }
+        }
+      } catch {}
+    };
+  }, []);
 
   function moveVideoAcrossLectures(
     fromLectureId: string,
@@ -157,7 +233,6 @@ export default function LectureVideoManager({
       const [moved] = fromL.videos.splice(fromIndex, 1);
       toL.videos.splice(Math.max(0, toIndex), 0, moved);
 
-      // cập nhật order
       fromL.videos = fromL.videos.map((v, i) => ({ ...v, order: i + 1 }));
       toL.videos = toL.videos.map((v, i) => ({ ...v, order: i + 1 }));
 
@@ -177,7 +252,6 @@ export default function LectureVideoManager({
 
     if (activeVid.lectureId === overVid.lectureId) return;
 
-    // kéo video sang lecture khác, chèn vào vị trí của video đang hover
     const targetLecture = lectures.find((l) => l.id === overVid.lectureId);
     if (!targetLecture) return;
     const toIndex = targetLecture.videos.findIndex((v) => v.id === overVid.videoId);
@@ -214,7 +288,7 @@ export default function LectureVideoManager({
     const overVid = parseVideoKey(oId);
     if (!activeVid || !overVid) return;
 
-    if (activeVid.lectureId !== overVid.lectureId) return; // cross-lecture đã xử lý ở onDragOver
+    if (activeVid.lectureId !== overVid.lectureId) return;
 
     const lec = lectures.find((l) => l.id === activeVid.lectureId);
     if (!lec) return;
@@ -227,6 +301,7 @@ export default function LectureVideoManager({
       const copy = structuredClone(prev) as Lecture[];
       const target = copy.find((l) => l.id === activeVid.lectureId);
       if (!target) return prev;
+
       target.videos = arrayMove(target.videos, oldIndex, newIndex).map((v, i) => ({
         ...v,
         order: i + 1,
@@ -236,9 +311,9 @@ export default function LectureVideoManager({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      {/* LEFT: manager */}
-      <div className="lg:col-span-2 space-y-4">
+    <div className="flex flex-col gap-4">
+      {/* MANAGER */}
+      <div className="w-full min-w-0">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold text-slate-900">Lecture & Video</h2>
@@ -307,7 +382,9 @@ export default function LectureVideoManager({
                               value={lecture.name}
                               onChange={(e) =>
                                 setLectures((prev) =>
-                                  prev.map((l) => (l.id === lecture.id ? { ...l, name: e.target.value } : l))
+                                  prev.map((l) =>
+                                    l.id === lecture.id ? { ...l, name: e.target.value } : l
+                                  )
                                 )
                               }
                               className="w-full max-w-[420px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -331,6 +408,8 @@ export default function LectureVideoManager({
                         <div className="space-y-2">
                           {lecture.videos.map((video) => {
                             const videoSortableId = vidKey(lecture.id, video.id);
+                            const isSelected =
+                              selected?.lectureId === lecture.id && selected?.videoId === video.id;
 
                             return (
                               <SortableCard
@@ -365,13 +444,29 @@ export default function LectureVideoManager({
                                         ref={(el) => {
                                           fileInputsRef.current[`${lecture.id}-${video.id}`] = el;
                                         }}
-                                        onChange={(e) => handleVideoFileSelect(e, lecture.id, video.id)}
+                                        onChange={(e) => onFileSelect(e, lecture.id, video.id)}
                                         className="hidden"
                                       />
 
                                       <button
                                         type="button"
-                                        onClick={() => removeVideo(lecture.id, video.id)}
+                                        onClick={() => {
+                                          // revoke blob nếu có trước khi remove
+                                          if (video.url?.startsWith("blob:")) {
+                                            try {
+                                              URL.revokeObjectURL(video.url);
+                                            } catch {}
+                                          }
+
+                                          // reset selected nếu đang chọn video này
+                                          setSelected((cur) => {
+                                            if (!cur) return cur;
+                                            if (cur.lectureId === lecture.id && cur.videoId === video.id) return null;
+                                            return cur;
+                                          });
+
+                                          removeVideo(lecture.id, video.id);
+                                        }}
                                         className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-red-600 hover:bg-red-50"
                                         title="Remove video"
                                       >
@@ -386,9 +481,7 @@ export default function LectureVideoManager({
                                   onClick={() => setSelected({ lectureId: lecture.id, videoId: video.id })}
                                   className={cn(
                                     "mt-2 w-full rounded-xl p-2 text-left transition",
-                                    selected?.videoId === video.id && selected?.lectureId === lecture.id
-                                      ? "ring-2 ring-blue-500/30"
-                                      : "hover:bg-white"
+                                    isSelected ? "ring-2 ring-blue-500/30" : "hover:bg-white"
                                   )}
                                 >
                                   <div className="flex items-center justify-between gap-2">
@@ -439,17 +532,23 @@ export default function LectureVideoManager({
         )}
       </div>
 
-      {/* RIGHT: preview */}
-      <div className="lg:col-span-1">
-        <div className="sticky top-24 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      {/* ✅ PREVIEW (nằm dưới lecture) */}
+      <div className="w-full">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="text-sm font-semibold text-slate-900">Preview</div>
           <p className="mt-1 text-xs text-slate-500">Chọn 1 video để xem trước.</p>
 
           <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
             {selectedVideo?.vid?.url ? (
-              <video controls src={selectedVideo.vid.url} className="h-48 w-full object-cover" />
+              <div className="aspect-video w-full bg-black">
+                <video
+                  controls
+                  src={selectedVideo.vid.url}
+                  className="h-full w-full object-contain"
+                />
+              </div>
             ) : (
-              <div className="flex h-48 items-center justify-center text-sm text-slate-500">
+              <div className="flex h-56 items-center justify-center text-sm text-slate-500">
                 Chưa có URL video để preview
               </div>
             )}
@@ -460,7 +559,9 @@ export default function LectureVideoManager({
               <div className="text-sm font-semibold text-slate-900">
                 {selectedVideo.vid.name || "Untitled video"}
               </div>
-              <div className="text-xs text-slate-600">Lecture: {selectedVideo.lec.name || "(no name)"}</div>
+              <div className="text-xs text-slate-600">
+                Lecture: {selectedVideo.lec.name || "(no name)"}
+              </div>
             </div>
           )}
         </div>
