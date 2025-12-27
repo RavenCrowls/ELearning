@@ -86,6 +86,17 @@ export const roleServiceProxy = createServiceProxy(serviceConfig.role.url, {
   "^/api/roles": "/api/roles",
 });
 
+// Comment service routes
+export const commentServiceProxy = createServiceProxy(
+  serviceConfig.comment.url,
+  { "^/api/comments": "/api/comments" }
+);
+
+// Rating service routes
+export const ratingServiceProxy = createServiceProxy(serviceConfig.rating.url, {
+  "^/api/ratings": "/api/ratings",
+});
+
 // File upload service routes
 export const fileUploadServiceProxy = createServiceProxy(
   serviceConfig.fileUpload.url,

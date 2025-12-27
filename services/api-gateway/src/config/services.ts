@@ -27,6 +27,14 @@ export const serviceConfig = {
     url: process.env.COURSE_SERVICE_URL || "http://localhost:5003",
     path: "/api/publishments",
   },
+  comment: {
+    url: process.env.COURSE_SERVICE_URL || "http://localhost:5003",
+    path: "/api/comments",
+  },
+  rating: {
+    url: process.env.COURSE_SERVICE_URL || "http://localhost:5003",
+    path: "/api/ratings",
+  },
   category: {
     url: process.env.CATEGORY_SERVICE_URL || "http://localhost:5004",
     path: "/api/categories",

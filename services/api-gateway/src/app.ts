@@ -24,6 +24,8 @@ import {
   paymentServiceProxy,
   publishmentServiceProxy,
   roleServiceProxy,
+  commentServiceProxy,
+  ratingServiceProxy,
   fileUploadServiceProxy,
 } from "./routes/proxyRoutes";
 
@@ -79,13 +81,8 @@ app.use("/api/lectures", clerkAuth, lectureServiceProxy);
 app.use("/api/videos", clerkAuth, videoServiceProxy);
 app.use("/api/publishments", clerkAuth, publishmentServiceProxy);
 app.use("/api/roles", clerkAuth, roleServiceProxy);
-
-// Payment routes with strict rate limiting
-app.use("/api/payments", clerkAuth, authLimiter, paymentServiceProxy);
-
-// File upload routes with upload rate limiting
-app.use("/api/upload", clerkAuth, uploadLimiter, fileUploadServiceProxy);
-app.use("/api/roles", clerkAuth, roleServiceProxy);
+app.use("/api/comments", clerkAuth, commentServiceProxy);
+app.use("/api/ratings", clerkAuth, ratingServiceProxy);
 
 // Payment routes with strict rate limiting
 app.use("/api/payments", clerkAuth, authLimiter, paymentServiceProxy);

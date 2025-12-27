@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface ICourse extends Document {
   COURSE_ID: string;
@@ -18,6 +18,8 @@ export interface ICourse extends Document {
   APPROVAL_STATUS: string;
   STATUS: boolean;
   IMAGE_URL: string;
+  AVERAGE_RATING?: number;
+  TOTAL_RATINGS?: number;
 }
 
 const courseSchema: Schema = new Schema(
@@ -98,10 +100,18 @@ const courseSchema: Schema = new Schema(
       type: String,
       required: false,
     },
+    AVERAGE_RATING: {
+      type: Number,
+      default: 0,
+    },
+    TOTAL_RATINGS: {
+      type: Number,
+      default: 0,
+    },
   },
   { versionKey: false }
 );
 
-const Course = mongoose.model<ICourse>('Course', courseSchema);
+const Course = mongoose.model<ICourse>("Course", courseSchema);
 
 export default Course;

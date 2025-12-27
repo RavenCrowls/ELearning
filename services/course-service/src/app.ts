@@ -5,6 +5,8 @@ import { lectureRouter } from "./routes/lectureRoutes";
 import { videoRouter } from "./routes/videoRoutes";
 import { enrollmentRouter } from "./routes/enrollmentRoutes";
 import { publishmentRouter } from "./routes/publishmentRoutes";
+import { commentRouter } from "./routes/commentRoutes";
+import { ratingRouter } from "./routes/ratingRoutes";
 import dotenv from "dotenv";
 import cors from "cors";
 
@@ -33,6 +35,8 @@ app.use("/api/lectures", lectureRouter);
 app.use("/api/videos", videoRouter);
 app.use("/api/enrollments", enrollmentRouter);
 app.use("/api/publishments", publishmentRouter);
+app.use("/api/comments", commentRouter);
+app.use("/api/ratings", ratingRouter);
 
 if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () => {
