@@ -28,6 +28,7 @@ function cn(...cls: Array<string | false | undefined>) {
 // helpers
 const lecKey = (lectureId: string) => `lec:${lectureId}`;
 const vidKey = (lectureId: string, videoId: string) => `vid:${lectureId}:${videoId}`;
+const pvKey = (lectureId: string, videoId: string) => `${lectureId}-${videoId}`;
 
 function parseLectureKey(id: string) {
   return id.startsWith("lec:") ? id.slice(4) : null;
@@ -117,6 +118,22 @@ export default function LectureVideoManager({
     null
   );
 
+  /**
+   * ✅ Local preview map (blob URLs)
+   * - key: `${lectureId}-${videoId}`
+   * - value: blob url
+   *
+   * Mục tiêu: preview luôn chạy ngay khi chọn file, không bị handler upload bên ngoài ghi đè `video.url`.
+   */
+  const [localPreviewMap, setLocalPreviewMap] = useState<Record<string, string>>({});
+
+  // giữ lectures mới nhất cho cleanup
+  const latestLecturesRef = useRef<Lecture[]>(lectures);
+  useEffect(() => {
+    latestLecturesRef.current = lectures;
+  }, [lectures]);
+
+  // chọn video hiện tại
   const selectedVideo = useMemo(() => {
     if (!selected) return null;
     const lec = lectures.find((l) => l.id === selected.lectureId);
@@ -124,45 +141,73 @@ export default function LectureVideoManager({
     return { lec, vid };
   }, [selected, lectures]);
 
+  // src preview: ưu tiên blob local -> fallback server url
+  const selectedSrc = useMemo(() => {
+    if (!selectedVideo?.vid || !selected) return "";
+    const key = pvKey(selected.lectureId, selected.videoId);
+    return localPreviewMap[key] || selectedVideo.vid.url || "";
+  }, [selectedVideo, selected, localPreviewMap]);
+
   const lectureIds = useMemo(() => lectures.map((l) => lecKey(l.id)), [lectures]);
 
-  /** ✅ giữ lectures mới nhất để cleanup blob đúng */
-  const latestLecturesRef = useRef<Lecture[]>(lectures);
+  /**
+   * ✅ Cleanup localPreviewMap cho các video đã bị xóa khỏi lectures
+   * để tránh leak blob URL.
+   */
   useEffect(() => {
-    latestLecturesRef.current = lectures;
-  }, [lectures]);
+    const validKeys = new Set<string>();
+    for (const lec of lectures) {
+      for (const v of lec.videos) validKeys.add(pvKey(lec.id, v.id));
+    }
 
-  /** ✅ helper: set preview url (blob) + revoke url cũ nếu là blob */
-  function setVideoPreviewUrl(
-    lectureId: string,
-    videoId: string,
-    nextUrl: string,
-    nextName?: string
-  ) {
-    setLectures((prev) => {
-      const oldUrl =
-        prev.find((l) => l.id === lectureId)?.videos.find((v) => v.id === videoId)?.url;
+    setLocalPreviewMap((prev) => {
+      let changed = false;
+      const next: Record<string, string> = { ...prev };
 
-      if (oldUrl?.startsWith("blob:")) {
-        try {
-          URL.revokeObjectURL(oldUrl);
-        } catch {}
+      for (const k of Object.keys(next)) {
+        if (!validKeys.has(k)) {
+          if (next[k]?.startsWith("blob:")) {
+            try {
+              URL.revokeObjectURL(next[k]);
+            } catch {}
+          }
+          delete next[k];
+          changed = true;
+        }
       }
 
-      return prev.map((l) => {
-        if (l.id !== lectureId) return l;
-        return {
-          ...l,
-          videos: l.videos.map((v) => {
-            if (v.id !== videoId) return v;
-            return {
-              ...v,
-              url: nextUrl,
-              name: nextName ?? v.name,
-            };
-          }),
-        };
-      });
+      return changed ? next : prev;
+    });
+  }, [lectures]);
+
+  /** ✅ helper: set blob preview url + revoke url cũ nếu có */
+  function setLocalPreview(lectureId: string, videoId: string, nextUrl: string) {
+    const key = pvKey(lectureId, videoId);
+
+    setLocalPreviewMap((prev) => {
+      const old = prev[key];
+      if (old?.startsWith("blob:")) {
+        try {
+          URL.revokeObjectURL(old);
+        } catch {}
+      }
+      return { ...prev, [key]: nextUrl };
+    });
+  }
+
+  /** ✅ helper: clear preview url (revoke nếu là blob) */
+  function clearLocalPreview(lectureId: string, videoId: string) {
+    const key = pvKey(lectureId, videoId);
+    setLocalPreviewMap((prev) => {
+      const old = prev[key];
+      if (old?.startsWith("blob:")) {
+        try {
+          URL.revokeObjectURL(old);
+        } catch {}
+      }
+      if (!(key in prev)) return prev;
+      const { [key]: _removed, ...rest } = prev;
+      return rest;
     });
   }
 
@@ -174,21 +219,44 @@ export default function LectureVideoManager({
   ) {
     const file = e.target.files?.[0];
     if (file) {
-      // 1) auto chọn video để preview bật lên
+      // auto chọn video để preview bật lên
       setSelected({ lectureId, videoId });
 
-      // 2) tạo blob url để preview ngay
+      // tạo blob url để preview ngay
       const blobUrl = URL.createObjectURL(file);
-      setVideoPreviewUrl(lectureId, videoId, blobUrl, file.name);
+      setLocalPreview(lectureId, videoId, blobUrl);
+
+      // optional: cập nhật name cho UI list (không ảnh hưởng preview)
+      setLectures((prev) =>
+        prev.map((l) =>
+          l.id !== lectureId
+            ? l
+            : {
+                ...l,
+                videos: l.videos.map((v) =>
+                  v.id !== videoId ? v : { ...v, name: file.name }
+                ),
+              }
+        )
+      );
     }
 
-    // 3) gọi handler ngoài (upload server, set duration, set url server,...)
+    // gọi handler ngoài (upload server, set duration, set url server,...)
     handleVideoFileSelect(e, lectureId, videoId);
   }
 
-  /** ✅ cleanup khi unmount: revoke tất cả blob url (dựa trên lectures mới nhất) */
+  /** ✅ cleanup khi unmount: revoke tất cả blob url */
   useEffect(() => {
     return () => {
+      try {
+        // revoke local preview blobs
+        for (const k of Object.keys(localPreviewMap)) {
+          const u = localPreviewMap[k];
+          if (u?.startsWith("blob:")) URL.revokeObjectURL(u);
+        }
+      } catch {}
+
+      // (giữ lại đoạn cleanup cũ nếu bạn có set blob vào video.url ở nơi khác)
       try {
         for (const lec of latestLecturesRef.current) {
           for (const v of lec.videos) {
@@ -197,6 +265,7 @@ export default function LectureVideoManager({
         }
       } catch {}
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function moveVideoAcrossLectures(
@@ -221,6 +290,26 @@ export default function LectureVideoManager({
       toL.videos = toL.videos.map((v, i) => ({ ...v, order: i + 1 }));
 
       return copy;
+    });
+
+    // ✅ nếu đang có local preview của video đó, key không đổi vì lectureId thay đổi
+    // => cần move map key sang lecture mới
+    const oldKey = pvKey(fromLectureId, fromVideoId);
+    const newKey = pvKey(toLectureId, fromVideoId);
+    setLocalPreviewMap((prev) => {
+      if (!prev[oldKey]) return prev;
+      const url = prev[oldKey];
+      const { [oldKey]: _removed, ...rest } = prev;
+      return { ...rest, [newKey]: url };
+    });
+
+    // nếu đang selected video này thì cập nhật selected
+    setSelected((cur) => {
+      if (!cur) return cur;
+      if (cur.lectureId === fromLectureId && cur.videoId === fromVideoId) {
+        return { lectureId: toLectureId, videoId: fromVideoId };
+      }
+      return cur;
     });
   }
 
@@ -378,7 +467,19 @@ export default function LectureVideoManager({
 
                           <button
                             type="button"
-                            onClick={() => removeLecture(lecture.id)}
+                            onClick={() => {
+                              // ✅ clear previews của lecture này (nếu có)
+                              for (const v of lecture.videos) clearLocalPreview(lecture.id, v.id);
+
+                              // reset selected nếu đang chọn video thuộc lecture này
+                              setSelected((cur) => {
+                                if (!cur) return cur;
+                                if (cur.lectureId === lecture.id) return null;
+                                return cur;
+                              });
+
+                              removeLecture(lecture.id);
+                            }}
                             className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-red-600 hover:bg-red-50"
                             title="Remove lecture"
                           >
@@ -435,12 +536,8 @@ export default function LectureVideoManager({
                                       <button
                                         type="button"
                                         onClick={() => {
-                                          // revoke blob nếu có trước khi remove
-                                          if (video.url?.startsWith("blob:")) {
-                                            try {
-                                              URL.revokeObjectURL(video.url);
-                                            } catch {}
-                                          }
+                                          // ✅ revoke local blob preview (nếu có)
+                                          clearLocalPreview(lecture.id, video.id);
 
                                           // reset selected nếu đang chọn video này
                                           setSelected((cur) => {
@@ -523,11 +620,18 @@ export default function LectureVideoManager({
           <p className="mt-1 text-xs text-slate-500">Chọn 1 video để xem trước.</p>
 
           <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-            {selectedVideo?.vid?.url ? (
+            {selectedSrc ? (
               <div className="aspect-video w-full bg-black">
                 <video
+                  key={selectedSrc} // ✅ ép reload khi src đổi
                   controls
-                  src={selectedVideo.vid.url}
+                  preload="metadata"
+                  src={selectedSrc}
+                  onError={() => {
+                    // debug nhanh nếu server url fail / blob fail
+                    // eslint-disable-next-line no-console
+                    console.log("VIDEO PREVIEW ERROR:", selectedSrc);
+                  }}
                   className="h-full w-full object-contain"
                 />
               </div>

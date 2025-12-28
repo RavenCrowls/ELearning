@@ -259,12 +259,6 @@ export default function CourseForm({
     onCancel?.();
   };
 
-  // layout wrapper
-  const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    if (variant === "embedded") return <>{children}</>;
-    return <div className="min-h-screen bg-slate-50">{children}</div>;
-  };
-
   // grid
   const gridCols = showLecturesColumn ? "lg:grid-cols-2" : "lg:grid-cols-1";
   const gridClass = twoStep ? "grid grid-cols-1 gap-6" : `grid grid-cols-1 gap-6 ${gridCols}`;
@@ -272,156 +266,157 @@ export default function CourseForm({
   const loading = showLecturesColumn ? isLoading : !!isLoadingRight;
   const hasErrors = Object.keys(errors).length > 0;
 
-  return (
-    <Wrapper>
-      <div className={variant === "embedded" ? "" : "mx-auto w-full max-w-7xl px-4 py-6 md:px-6 md:py-10"}>
-        {variant === "standalone" && (
-          <div className="mb-6 flex flex-col gap-2 md:mb-8 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
-                {mode === "create" ? "Create course" : "Edit course"}
-              </h1>
-            </div>
-            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-              {mode === "create" ? "New course" : "Update"}
-            </span>
+  // ✅ FIX: không dùng Wrapper component khai báo trong function (tránh remount -> mất focus)
+  const content = (
+    <div className={variant === "embedded" ? "" : "mx-auto w-full max-w-7xl px-4 py-6 md:px-6 md:py-10"}>
+      {variant === "standalone" && (
+        <div className="mb-6 flex flex-col gap-2 md:mb-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
+              {mode === "create" ? "Create course" : "Edit course"}
+            </h1>
+          </div>
+          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+            {mode === "create" ? "New course" : "Update"}
+          </span>
+        </div>
+      )}
+
+      {/* Progress */}
+      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-sm font-semibold text-slate-900">Progress</div>
+          <div className="text-xs text-slate-600">
+            {completion.done}/{completion.total} • {completion.percent}%
+          </div>
+        </div>
+        <div className="mt-3 h-2 w-full rounded-full bg-slate-100">
+          <div className="h-2 rounded-full bg-blue-600 transition-all" style={{ width: `${completion.percent}%` }} />
+        </div>
+        {isDirty && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-amber-700">
+            <AlertTriangle size={14} />
+            Bạn có thay đổi chưa lưu.
           </div>
         )}
-
-        {/* Progress */}
-        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <div className="text-sm font-semibold text-slate-900">Progress</div>
-            <div className="text-xs text-slate-600">
-              {completion.done}/{completion.total} • {completion.percent}%
-            </div>
-          </div>
-          <div className="mt-3 h-2 w-full rounded-full bg-slate-100">
-            <div className="h-2 rounded-full bg-blue-600 transition-all" style={{ width: `${completion.percent}%` }} />
-          </div>
-          {isDirty && (
-            <div className="mt-2 flex items-center gap-2 text-xs text-amber-700">
-              <AlertTriangle size={14} />
-              Bạn có thay đổi chưa lưu.
-            </div>
-          )}
-        </div>
-
-        {/* ✅ Step tabs */}
-        {twoStep && (
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setStep("basic")}
-              className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                step === "basic"
-                  ? "bg-blue-600 text-white"
-                  : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              1) Thông tin khóa học
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                // ✅ click step 2 => validate trước
-                if (!showLecturesColumn) return;
-                goNext();
-              }}
-              disabled={!showLecturesColumn}
-              className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                !showLecturesColumn
-                  ? "cursor-not-allowed bg-slate-100 text-slate-400"
-                  : step === "lectures"
-                  ? "bg-blue-600 text-white"
-                  : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              2) Lectures & Preview
-            </button>
-          </div>
-        )}
-
-        <div className={gridClass}>
-          {/* STEP 1 (hoặc non-step) */}
-          {(!twoStep || step === "basic") && (
-            <div className="space-y-6">
-              <BasicInfoSection
-                courseData={courseData}
-                setCourseData={setCourseData}
-                categories={categories}
-                subCategories={subCategories}
-                subCategoryOptions={subCategoryOptions}
-                addSubCategory={addSubCategory}
-                removeSubCategory={removeSubCategory}
-                updateSubCategory={updateSubCategory}
-                errors={errors}
-                setErrors={setErrors}
-                titleRef={titleRef}
-                categoryRef={categoryRef}
-                subCatRef={subCatRef}
-                descRef={descRef}
-              />
-
-              <DetailsSection
-                courseData={courseData}
-                setCourseData={setCourseData}
-                outputs={outputs}
-                addOutput={addOutput}
-                removeOutput={removeOutput}
-                updateOutput={updateOutput}
-                errors={errors}
-                setErrors={setErrors}
-                levelRef={levelRef}
-                priceRef={priceRef}
-                durationRef={durationRef}
-                imageRef={imageRef}
-                imageOk={imageOk}
-                setImageOk={setImageOk}
-                isUploading={isUploading}
-                triggerFileInput={triggerFileInput}
-                fileInputRef={fileInputRef}
-                handleFileSelect={handleFileSelect}
-                error={error}
-                success={success}
-              />
-            </div>
-          )}
-
-          {/* STEP 2 (hoặc non-step) */}
-          {showLecturesColumn && (!twoStep || step === "lectures") && (
-            <div className="space-y-6">
-              <LectureVideoManager
-                lectures={lectures}
-                setLectures={setLectures}
-                addNewLecture={addNewLecture}
-                removeLecture={removeLecture}
-                addVideo={addVideo}
-                removeVideo={removeVideo}
-                toggleVideoCheck={toggleVideoCheck}
-                handleVideoUploadClick={handleVideoUploadClick}
-                handleVideoFileSelect={handleVideoFileSelect}
-                fileInputsRef={fileInputsRef}
-                formatDuration={formatDuration}
-              />
-            </div>
-          )}
-        </div>
-
-        <CourseFormActionBar
-          percent={completion.percent}
-          hasErrors={hasErrors}
-          twoStep={twoStep}
-          step={twoStep ? step : "lectures"}
-          onCancel={handleCancel}
-          onBack={goBack}
-          onNext={goNext}
-          onSave={handleSaveWithValidate}
-          loading={loading}
-          saveLabel={mode === "create" ? "Create course" : "Save changes"}
-        />
       </div>
-    </Wrapper>
+
+      {/* ✅ Step tabs */}
+      {twoStep && (
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setStep("basic")}
+            className={`rounded-full px-4 py-2 text-sm font-semibold ${
+              step === "basic"
+                ? "bg-blue-600 text-white"
+                : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            1) Thông tin khóa học
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              // ✅ click step 2 => validate trước
+              if (!showLecturesColumn) return;
+              goNext();
+            }}
+            disabled={!showLecturesColumn}
+            className={`rounded-full px-4 py-2 text-sm font-semibold ${
+              !showLecturesColumn
+                ? "cursor-not-allowed bg-slate-100 text-slate-400"
+                : step === "lectures"
+                ? "bg-blue-600 text-white"
+                : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            2) Lectures & Preview
+          </button>
+        </div>
+      )}
+
+      <div className={gridClass}>
+        {/* STEP 1 (hoặc non-step) */}
+        {(!twoStep || step === "basic") && (
+          <div className="space-y-6">
+            <BasicInfoSection
+              courseData={courseData}
+              setCourseData={setCourseData}
+              categories={categories}
+              subCategories={subCategories}
+              subCategoryOptions={subCategoryOptions}
+              addSubCategory={addSubCategory}
+              removeSubCategory={removeSubCategory}
+              updateSubCategory={updateSubCategory}
+              errors={errors}
+              setErrors={setErrors}
+              titleRef={titleRef}
+              categoryRef={categoryRef}
+              subCatRef={subCatRef}
+              descRef={descRef}
+            />
+
+            <DetailsSection
+              courseData={courseData}
+              setCourseData={setCourseData}
+              outputs={outputs}
+              addOutput={addOutput}
+              removeOutput={removeOutput}
+              updateOutput={updateOutput}
+              errors={errors}
+              setErrors={setErrors}
+              levelRef={levelRef}
+              priceRef={priceRef}
+              durationRef={durationRef}
+              imageRef={imageRef}
+              imageOk={imageOk}
+              setImageOk={setImageOk}
+              isUploading={isUploading}
+              triggerFileInput={triggerFileInput}
+              fileInputRef={fileInputRef}
+              handleFileSelect={handleFileSelect}
+              error={error}
+              success={success}
+            />
+          </div>
+        )}
+
+        {/* STEP 2 (hoặc non-step) */}
+        {showLecturesColumn && (!twoStep || step === "lectures") && (
+          <div className="space-y-6">
+            <LectureVideoManager
+              lectures={lectures}
+              setLectures={setLectures}
+              addNewLecture={addNewLecture}
+              removeLecture={removeLecture}
+              addVideo={addVideo}
+              removeVideo={removeVideo}
+              toggleVideoCheck={toggleVideoCheck}
+              handleVideoUploadClick={handleVideoUploadClick}
+              handleVideoFileSelect={handleVideoFileSelect}
+              fileInputsRef={fileInputsRef}
+              formatDuration={formatDuration}
+            />
+          </div>
+        )}
+      </div>
+
+      <CourseFormActionBar
+        percent={completion.percent}
+        hasErrors={hasErrors}
+        twoStep={twoStep}
+        step={twoStep ? step : "lectures"}
+        onCancel={handleCancel}
+        onBack={goBack}
+        onNext={goNext}
+        onSave={handleSaveWithValidate}
+        loading={loading}
+        saveLabel={mode === "create" ? "Create course" : "Save changes"}
+      />
+    </div>
   );
+
+  return variant === "embedded" ? content : <div className="min-h-screen bg-slate-50">{content}</div>;
 }
