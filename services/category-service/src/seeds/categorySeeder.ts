@@ -1,4 +1,8 @@
 import Category from "../models/Category";
+import {
+  generateCategoryId,
+  generateSubCategoryId,
+} from "../utils/idGenerator";
 
 export const seedCategories = async () => {
   try {
@@ -10,21 +14,21 @@ export const seedCategories = async () => {
 
     const categories = [
       {
-        CATEGORY_ID: "CAT001",
+        CATEGORY_ID: generateCategoryId(),
         NAME: "Web Development",
         SUB_CATEGORIES: [
           {
-            SUB_CATEGORY_ID: "SC001",
+            SUB_CATEGORY_ID: generateSubCategoryId(),
             NAME: "Frontend Development",
             STATUS: true,
           },
           {
-            SUB_CATEGORY_ID: "SC002",
+            SUB_CATEGORY_ID: generateSubCategoryId(),
             NAME: "Backend Development",
             STATUS: true,
           },
           {
-            SUB_CATEGORY_ID: "SC003",
+            SUB_CATEGORY_ID: generateSubCategoryId(),
             NAME: "Full Stack Development",
             STATUS: true,
           },
@@ -32,46 +36,90 @@ export const seedCategories = async () => {
         STATUS: true,
       },
       {
-        CATEGORY_ID: "CAT002",
+        CATEGORY_ID: generateCategoryId(),
         NAME: "Mobile Development",
         SUB_CATEGORIES: [
-          { SUB_CATEGORY_ID: "SC004", NAME: "iOS Development", STATUS: true },
           {
-            SUB_CATEGORY_ID: "SC005",
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "iOS Development",
+            STATUS: true,
+          },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
             NAME: "Android Development",
             STATUS: true,
           },
-          { SUB_CATEGORY_ID: "SC006", NAME: "React Native", STATUS: true },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "React Native",
+            STATUS: true,
+          },
         ],
         STATUS: true,
       },
       {
-        CATEGORY_ID: "CAT003",
+        CATEGORY_ID: generateCategoryId(),
         NAME: "Data Science",
         SUB_CATEGORIES: [
-          { SUB_CATEGORY_ID: "SC007", NAME: "Machine Learning", STATUS: true },
-          { SUB_CATEGORY_ID: "SC008", NAME: "Data Analysis", STATUS: true },
-          { SUB_CATEGORY_ID: "SC009", NAME: "Deep Learning", STATUS: true },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "Machine Learning",
+            STATUS: true,
+          },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "Data Analysis",
+            STATUS: true,
+          },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "Deep Learning",
+            STATUS: true,
+          },
         ],
         STATUS: true,
       },
       {
-        CATEGORY_ID: "CAT004",
+        CATEGORY_ID: generateCategoryId(),
         NAME: "Design",
         SUB_CATEGORIES: [
-          { SUB_CATEGORY_ID: "SC010", NAME: "UI/UX Design", STATUS: true },
-          { SUB_CATEGORY_ID: "SC011", NAME: "Graphic Design", STATUS: true },
-          { SUB_CATEGORY_ID: "SC012", NAME: "Web Design", STATUS: true },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "UI/UX Design",
+            STATUS: true,
+          },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "Graphic Design",
+            STATUS: true,
+          },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "Web Design",
+            STATUS: true,
+          },
         ],
         STATUS: true,
       },
       {
-        CATEGORY_ID: "CAT005",
+        CATEGORY_ID: generateCategoryId(),
         NAME: "Business",
         SUB_CATEGORIES: [
-          { SUB_CATEGORY_ID: "SC013", NAME: "Marketing", STATUS: true },
-          { SUB_CATEGORY_ID: "SC014", NAME: "Management", STATUS: true },
-          { SUB_CATEGORY_ID: "SC015", NAME: "Entrepreneurship", STATUS: true },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "Marketing",
+            STATUS: true,
+          },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "Management",
+            STATUS: true,
+          },
+          {
+            SUB_CATEGORY_ID: generateSubCategoryId(),
+            NAME: "Entrepreneurship",
+            STATUS: true,
+          },
         ],
         STATUS: true,
       },

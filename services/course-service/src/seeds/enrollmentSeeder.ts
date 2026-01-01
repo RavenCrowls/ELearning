@@ -1,4 +1,5 @@
 import Enrollment from "../models/Enrollment";
+import { generateEnrollmentId } from "../utils/idGenerator";
 
 export const seedEnrollments = async () => {
   try {
@@ -10,7 +11,7 @@ export const seedEnrollments = async () => {
 
     const enrollments = [
       {
-        ENROLLMENT_ID: "ENR001",
+        ENROLLMENT_ID: generateEnrollmentId(),
         COURSE_ID: "COURSE001",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         PROGRESS: 45,
@@ -18,7 +19,7 @@ export const seedEnrollments = async () => {
         WATCHED: ["VID001", "VID002", "VID004"],
       },
       {
-        ENROLLMENT_ID: "ENR002",
+        ENROLLMENT_ID: generateEnrollmentId(),
         COURSE_ID: "COURSE002",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         PROGRESS: 20,
@@ -26,7 +27,7 @@ export const seedEnrollments = async () => {
         WATCHED: ["VID007"],
       },
       {
-        ENROLLMENT_ID: "ENR003",
+        ENROLLMENT_ID: generateEnrollmentId(),
         COURSE_ID: "COURSE003",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
         PROGRESS: 80,
@@ -34,7 +35,7 @@ export const seedEnrollments = async () => {
         WATCHED: ["VID010", "VID011", "VID012"],
       },
       {
-        ENROLLMENT_ID: "ENR004",
+        ENROLLMENT_ID: generateEnrollmentId(),
         COURSE_ID: "COURSE001",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
         PROGRESS: 100,
@@ -42,7 +43,7 @@ export const seedEnrollments = async () => {
         WATCHED: ["VID001", "VID002", "VID003", "VID004", "VID005", "VID006"],
       },
       {
-        ENROLLMENT_ID: "ENR005",
+        ENROLLMENT_ID: generateEnrollmentId(),
         COURSE_ID: "COURSE004",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         PROGRESS: 35,

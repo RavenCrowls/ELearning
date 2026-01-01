@@ -1,4 +1,5 @@
 import Comment from "../models/Comment";
+import { generateCommentId } from "../utils/idGenerator";
 
 export const seedComments = async () => {
   try {
@@ -8,10 +9,19 @@ export const seedComments = async () => {
       return;
     }
 
+    // Generate IDs for parent comments first so they can be referenced
+    const parentCommentIds = {
+      cmt1: generateCommentId(),
+      cmt2: generateCommentId(),
+      cmt3: generateCommentId(),
+      cmt4: generateCommentId(),
+      cmt5: generateCommentId(),
+    };
+
     const comments = [
       // Parent comments
       {
-        COMMENT_ID: "CMT001",
+        COMMENT_ID: parentCommentIds.cmt1,
         VIDEO_ID: "VID001",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         CONTENT: "Great introduction! Very clear explanation.",
@@ -21,7 +31,7 @@ export const seedComments = async () => {
         STATUS: true,
       },
       {
-        COMMENT_ID: "CMT002",
+        COMMENT_ID: parentCommentIds.cmt2,
         VIDEO_ID: "VID001",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
         CONTENT: "This is exactly what I was looking for!",
@@ -31,7 +41,7 @@ export const seedComments = async () => {
         STATUS: true,
       },
       {
-        COMMENT_ID: "CMT003",
+        COMMENT_ID: parentCommentIds.cmt3,
         VIDEO_ID: "VID004",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         CONTENT: "HTML is easier than I thought!",
@@ -41,7 +51,7 @@ export const seedComments = async () => {
         STATUS: true,
       },
       {
-        COMMENT_ID: "CMT004",
+        COMMENT_ID: parentCommentIds.cmt4,
         VIDEO_ID: "VID007",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
         CONTENT: "Swift syntax is clean and modern.",
@@ -51,7 +61,7 @@ export const seedComments = async () => {
         STATUS: true,
       },
       {
-        COMMENT_ID: "CMT005",
+        COMMENT_ID: parentCommentIds.cmt5,
         VIDEO_ID: "VID010",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         CONTENT: "Python setup was straightforward.",
@@ -63,31 +73,31 @@ export const seedComments = async () => {
 
       // Replies to first comment
       {
-        COMMENT_ID: "CMT006",
+        COMMENT_ID: generateCommentId(),
         VIDEO_ID: "VID001",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcF",
         CONTENT: "Thanks! Glad you found it helpful.",
-        PARENT_COMMENT_ID: "CMT001",
+        PARENT_COMMENT_ID: parentCommentIds.cmt1,
         CREATED_AT: new Date("2024-06-15T11:00:00"),
         UPDATED_AT: new Date("2024-06-15T11:00:00"),
         STATUS: true,
       },
       {
-        COMMENT_ID: "CMT007",
+        COMMENT_ID: generateCommentId(),
         VIDEO_ID: "VID001",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
         CONTENT: "I agree! Very well structured.",
-        PARENT_COMMENT_ID: "CMT001",
+        PARENT_COMMENT_ID: parentCommentIds.cmt1,
         CREATED_AT: new Date("2024-06-15T12:30:00"),
         UPDATED_AT: new Date("2024-06-15T12:30:00"),
         STATUS: true,
       },
       {
-        COMMENT_ID: "CMT008",
+        COMMENT_ID: generateCommentId(),
         VIDEO_ID: "VID001",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         CONTENT: "Looking forward to the next video!",
-        PARENT_COMMENT_ID: "CMT001",
+        PARENT_COMMENT_ID: parentCommentIds.cmt1,
         CREATED_AT: new Date("2024-06-15T13:45:00"),
         UPDATED_AT: new Date("2024-06-15T13:45:00"),
         STATUS: true,
@@ -95,31 +105,31 @@ export const seedComments = async () => {
 
       // Replies to third comment
       {
-        COMMENT_ID: "CMT009",
+        COMMENT_ID: generateCommentId(),
         VIDEO_ID: "VID004",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcF",
         CONTENT: "Great to hear! Keep practicing.",
-        PARENT_COMMENT_ID: "CMT003",
+        PARENT_COMMENT_ID: parentCommentIds.cmt3,
         CREATED_AT: new Date("2024-06-17T10:00:00"),
         UPDATED_AT: new Date("2024-06-17T10:00:00"),
         STATUS: true,
       },
       {
-        COMMENT_ID: "CMT010",
+        COMMENT_ID: generateCommentId(),
         VIDEO_ID: "VID004",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
         CONTENT: "Wait until you get to CSS animations!",
-        PARENT_COMMENT_ID: "CMT003",
+        PARENT_COMMENT_ID: parentCommentIds.cmt3,
         CREATED_AT: new Date("2024-06-17T11:20:00"),
         UPDATED_AT: new Date("2024-06-17T11:20:00"),
         STATUS: true,
       },
       {
-        COMMENT_ID: "CMT011",
+        COMMENT_ID: generateCommentId(),
         VIDEO_ID: "VID004",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         CONTENT: "Thanks for the encouragement!",
-        PARENT_COMMENT_ID: "CMT003",
+        PARENT_COMMENT_ID: parentCommentIds.cmt3,
         CREATED_AT: new Date("2024-06-17T12:00:00"),
         UPDATED_AT: new Date("2024-06-17T12:00:00"),
         STATUS: true,

@@ -1,4 +1,5 @@
 import Rating from "../models/Rating";
+import { generateRatingId } from "../utils/idGenerator";
 
 export const seedRatings = async () => {
   try {
@@ -10,7 +11,7 @@ export const seedRatings = async () => {
 
     const ratings = [
       {
-        RATING_ID: "RAT001",
+        RATING_ID: generateRatingId(),
         COURSE_ID: "COURSE001",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         RATING: 5,
@@ -21,7 +22,7 @@ export const seedRatings = async () => {
         STATUS: true,
       },
       {
-        RATING_ID: "RAT002",
+        RATING_ID: generateRatingId(),
         COURSE_ID: "COURSE001",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
         RATING: 4,
@@ -32,7 +33,7 @@ export const seedRatings = async () => {
         STATUS: true,
       },
       {
-        RATING_ID: "RAT003",
+        RATING_ID: generateRatingId(),
         COURSE_ID: "COURSE002",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         RATING: 5,
@@ -43,7 +44,7 @@ export const seedRatings = async () => {
         STATUS: true,
       },
       {
-        RATING_ID: "RAT004",
+        RATING_ID: generateRatingId(),
         COURSE_ID: "COURSE003",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
         RATING: 5,
@@ -54,7 +55,7 @@ export const seedRatings = async () => {
         STATUS: true,
       },
       {
-        RATING_ID: "RAT005",
+        RATING_ID: generateRatingId(),
         COURSE_ID: "COURSE004",
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         RATING: 4,

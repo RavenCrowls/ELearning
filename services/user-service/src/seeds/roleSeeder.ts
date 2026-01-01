@@ -1,4 +1,5 @@
 import Role from "../models/Role";
+import { generateRoleId } from "../utils/idGenerator";
 
 export const seedRoles = async () => {
   try {
@@ -10,27 +11,27 @@ export const seedRoles = async () => {
 
     const roles = [
       {
-        ROLE_ID: "R001",
+        ROLE_ID: generateRoleId(),
         NAME: "Admin",
         STATUS: true,
       },
       {
-        ROLE_ID: "R002",
+        ROLE_ID: generateRoleId(),
         NAME: "Instructor",
         STATUS: true,
       },
       {
-        ROLE_ID: "R003",
+        ROLE_ID: generateRoleId(),
         NAME: "Student",
         STATUS: true,
       },
       {
-        ROLE_ID: "R004",
+        ROLE_ID: generateRoleId(),
         NAME: "Moderator",
         STATUS: true,
       },
       {
-        ROLE_ID: "R005",
+        ROLE_ID: generateRoleId(),
         NAME: "Guest",
         STATUS: true,
       },

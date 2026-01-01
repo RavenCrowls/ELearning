@@ -1,4 +1,5 @@
 import Course from "../models/Course";
+import { generateCourseId } from "../utils/idGenerator";
 
 export const seedCourses = async () => {
   try {
@@ -10,7 +11,7 @@ export const seedCourses = async () => {
 
     const courses = [
       {
-        COURSE_ID: "COURSE001",
+        COURSE_ID: generateCourseId(),
         TITLE: "Complete Web Development Bootcamp",
         INSTRUCTOR_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcF",
         CREATED_DATE: new Date("2024-01-15"),
@@ -41,7 +42,7 @@ export const seedCourses = async () => {
         TOTAL_RATINGS: 245,
       },
       {
-        COURSE_ID: "COURSE002",
+        COURSE_ID: generateCourseId(),
         TITLE: "iOS Development with Swift",
         INSTRUCTOR_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcF",
         CREATED_DATE: new Date("2024-02-10"),
@@ -64,7 +65,7 @@ export const seedCourses = async () => {
         TOTAL_RATINGS: 180,
       },
       {
-        COURSE_ID: "COURSE003",
+        COURSE_ID: generateCourseId(),
         TITLE: "Data Science with Python",
         INSTRUCTOR_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcG",
         CREATED_DATE: new Date("2024-03-05"),
@@ -90,7 +91,7 @@ export const seedCourses = async () => {
         TOTAL_RATINGS: 320,
       },
       {
-        COURSE_ID: "COURSE004",
+        COURSE_ID: generateCourseId(),
         TITLE: "UI/UX Design Masterclass",
         INSTRUCTOR_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcG",
         CREATED_DATE: new Date("2024-04-20"),
@@ -116,7 +117,7 @@ export const seedCourses = async () => {
         TOTAL_RATINGS: 195,
       },
       {
-        COURSE_ID: "COURSE005",
+        COURSE_ID: generateCourseId(),
         TITLE: "Digital Marketing Fundamentals",
         INSTRUCTOR_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcF",
         CREATED_DATE: new Date("2024-05-12"),

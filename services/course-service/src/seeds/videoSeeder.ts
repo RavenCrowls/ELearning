@@ -1,4 +1,5 @@
 import Video from "../models/Video";
+import { generateVideoId } from "../utils/idGenerator";
 
 export const seedVideos = async () => {
   try {
@@ -11,7 +12,7 @@ export const seedVideos = async () => {
     const videos = [
       // Lecture 1 videos
       {
-        VIDEO_ID: "VID001",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC001",
         TITLE: "Welcome to the Course",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -20,7 +21,7 @@ export const seedVideos = async () => {
         STATUS: true,
       },
       {
-        VIDEO_ID: "VID002",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC001",
         TITLE: "Course Overview",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -29,7 +30,7 @@ export const seedVideos = async () => {
         STATUS: true,
       },
       {
-        VIDEO_ID: "VID003",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC001",
         TITLE: "Setting Up Your Environment",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -40,7 +41,7 @@ export const seedVideos = async () => {
 
       // Lecture 2 videos
       {
-        VIDEO_ID: "VID004",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC002",
         TITLE: "HTML Basics",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -49,7 +50,7 @@ export const seedVideos = async () => {
         STATUS: true,
       },
       {
-        VIDEO_ID: "VID005",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC002",
         TITLE: "CSS Fundamentals",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -58,7 +59,7 @@ export const seedVideos = async () => {
         STATUS: true,
       },
       {
-        VIDEO_ID: "VID006",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC002",
         TITLE: "Building Your First Webpage",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -69,7 +70,7 @@ export const seedVideos = async () => {
 
       // Lecture 3 videos
       {
-        VIDEO_ID: "VID007",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC003",
         TITLE: "Introduction to Swift",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -78,7 +79,7 @@ export const seedVideos = async () => {
         STATUS: true,
       },
       {
-        VIDEO_ID: "VID008",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC003",
         TITLE: "Variables and Data Types",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -87,7 +88,7 @@ export const seedVideos = async () => {
         STATUS: true,
       },
       {
-        VIDEO_ID: "VID009",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC003",
         TITLE: "Control Flow",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -98,7 +99,7 @@ export const seedVideos = async () => {
 
       // Lecture 4 videos
       {
-        VIDEO_ID: "VID010",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC004",
         TITLE: "Python Setup",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -107,7 +108,7 @@ export const seedVideos = async () => {
         STATUS: true,
       },
       {
-        VIDEO_ID: "VID011",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC004",
         TITLE: "NumPy Basics",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -116,7 +117,7 @@ export const seedVideos = async () => {
         STATUS: true,
       },
       {
-        VIDEO_ID: "VID012",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC004",
         TITLE: "Pandas Introduction",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -127,7 +128,7 @@ export const seedVideos = async () => {
 
       // Lecture 5 videos
       {
-        VIDEO_ID: "VID013",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC005",
         TITLE: "Design Thinking Process",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -136,7 +137,7 @@ export const seedVideos = async () => {
         STATUS: true,
       },
       {
-        VIDEO_ID: "VID014",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC005",
         TITLE: "Color Theory",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
@@ -145,7 +146,7 @@ export const seedVideos = async () => {
         STATUS: true,
       },
       {
-        VIDEO_ID: "VID015",
+        VIDEO_ID: generateVideoId(),
         LECTURE_ID: "LEC005",
         TITLE: "Typography Essentials",
         URL: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",

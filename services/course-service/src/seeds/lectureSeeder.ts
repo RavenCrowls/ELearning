@@ -1,4 +1,5 @@
 import Lecture from "../models/Lecture";
+import { generateLectureId } from "../utils/idGenerator";
 
 export const seedLectures = async () => {
   try {
@@ -10,35 +11,35 @@ export const seedLectures = async () => {
 
     const lectures = [
       {
-        LECTURE_ID: "LEC001",
+        LECTURE_ID: generateLectureId(),
         COURSE_ID: "COURSE001",
         TITLE: "Introduction to Web Development",
         ORDER: 1,
         STATUS: true,
       },
       {
-        LECTURE_ID: "LEC002",
+        LECTURE_ID: generateLectureId(),
         COURSE_ID: "COURSE001",
         TITLE: "HTML & CSS Fundamentals",
         ORDER: 2,
         STATUS: true,
       },
       {
-        LECTURE_ID: "LEC003",
+        LECTURE_ID: generateLectureId(),
         COURSE_ID: "COURSE002",
         TITLE: "Swift Basics",
         ORDER: 1,
         STATUS: true,
       },
       {
-        LECTURE_ID: "LEC004",
+        LECTURE_ID: generateLectureId(),
         COURSE_ID: "COURSE003",
         TITLE: "Python for Data Science",
         ORDER: 1,
         STATUS: true,
       },
       {
-        LECTURE_ID: "LEC005",
+        LECTURE_ID: generateLectureId(),
         COURSE_ID: "COURSE004",
         TITLE: "Design Principles",
         ORDER: 1,

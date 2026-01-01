@@ -1,4 +1,5 @@
 import Publishment from "../models/Publishment";
+import { generatePublishmentId } from "../utils/idGenerator";
 
 export const seedPublishments = async () => {
   try {
@@ -10,31 +11,31 @@ export const seedPublishments = async () => {
 
     const publishments = [
       {
-        PUBLISHMENT_ID: "PUB001",
+        PUBLISHMENT_ID: generatePublishmentId(),
         COURSE_ID: "COURSE001",
         PUBLISHED_DATE: new Date("2024-02-01"),
         STATUS: true,
       },
       {
-        PUBLISHMENT_ID: "PUB002",
+        PUBLISHMENT_ID: generatePublishmentId(),
         COURSE_ID: "COURSE002",
         PUBLISHED_DATE: new Date("2024-03-15"),
         STATUS: true,
       },
       {
-        PUBLISHMENT_ID: "PUB003",
+        PUBLISHMENT_ID: generatePublishmentId(),
         COURSE_ID: "COURSE003",
         PUBLISHED_DATE: new Date("2024-04-01"),
         STATUS: true,
       },
       {
-        PUBLISHMENT_ID: "PUB004",
+        PUBLISHMENT_ID: generatePublishmentId(),
         COURSE_ID: "COURSE004",
         PUBLISHED_DATE: new Date("2024-05-10"),
         STATUS: true,
       },
       {
-        PUBLISHMENT_ID: "PUB005",
+        PUBLISHMENT_ID: generatePublishmentId(),
         COURSE_ID: "COURSE005",
         PUBLISHED_DATE: new Date("2024-06-01"),
         STATUS: true,

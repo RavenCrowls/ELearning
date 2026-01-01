@@ -1,4 +1,5 @@
 import Cart from "../models/Cart";
+import { generateCartId } from "../utils/idGenerator";
 
 export const seedCarts = async () => {
   try {
@@ -10,7 +11,7 @@ export const seedCarts = async () => {
 
     const carts = [
       {
-        CART_ID: "CART001",
+        CART_ID: generateCartId(),
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         ITEMS: [
           {
@@ -40,7 +41,7 @@ export const seedCarts = async () => {
         STATUS: true,
       },
       {
-        CART_ID: "CART002",
+        CART_ID: generateCartId(),
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
         ITEMS: [
           {
@@ -56,7 +57,7 @@ export const seedCarts = async () => {
         STATUS: true,
       },
       {
-        CART_ID: "CART003",
+        CART_ID: generateCartId(),
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         ITEMS: [
           {
@@ -79,7 +80,7 @@ export const seedCarts = async () => {
         STATUS: true,
       },
       {
-        CART_ID: "CART004",
+        CART_ID: generateCartId(),
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
         ITEMS: [
           {
@@ -109,7 +110,7 @@ export const seedCarts = async () => {
         STATUS: true,
       },
       {
-        CART_ID: "CART005",
+        CART_ID: generateCartId(),
         USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
         ITEMS: [
           {
