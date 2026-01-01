@@ -8,6 +8,7 @@ import {
   dateFormat,
 } from "vnpay";
 import axios from "axios";
+import { generateEnrollmentId } from "../utils/idGenerator";
 
 class PaymentController {
   async createQRPayment(req: Request, res: Response) {
@@ -80,10 +81,6 @@ class PaymentController {
       await axios.put(`http://localhost:5008/api/carts/${cartID}`, {
         PAYMENT_STATUS: "paid",
       });
-
-      function generateEnrollmentId() {
-        return "E" + Date.now() + Math.floor(Math.random() * 10000);
-      }
 
       await Promise.all(
         cart.ITEMS.map((item: any) =>
@@ -204,10 +201,6 @@ class PaymentController {
                     </body>
                   </html>
                 `);
-      }
-
-      function generateEnrollmentId() {
-        return "E" + Date.now() + Math.floor(Math.random() * 10000);
       }
 
       await axios.post("http://localhost:5003/api/enrollments/", {

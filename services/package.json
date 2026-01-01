@@ -14,12 +14,19 @@
         "dev": "concurrently \"npm run dev --workspace=api-gateway\" \"npm run dev --workspace=user-service\" \"npm run dev --workspace=course-service\" \"npm run dev --workspace=category-service\" \"npm run dev --workspace=cart-service\" \"npm run dev --workspace=file-upload-service\"",
         "dev:gateway": "npm run dev --workspace=api-gateway",
         "dev:services": "concurrently \"npm run dev --workspace=user-service\" \"npm run dev --workspace=course-service\" \"npm run dev --workspace=category-service\" \"npm run dev --workspace=cart-service\" \"npm run dev --workspace=file-upload-service\"",
-        "build": "npm run build --workspace=api-gateway && npm run build --workspace=user-service && npm run build --workspace=course-service && npm run build --workspace=category-service && npm run build --workspace=cart-service && npm run build --workspace=file-upload-service"
+        "build": "npm run build --workspace=api-gateway && npm run build --workspace=user-service && npm run build --workspace=course-service && npm run build --workspace=category-service && npm run build --workspace=cart-service && npm run build --workspace=file-upload-service",
+        "seed": "ts-node seedAll.ts",
+        "seed:user": "npm run seed --workspace=user-service",
+        "seed:category": "npm run seed --workspace=category-service",
+        "seed:course": "npm run seed --workspace=course-service",
+        "seed:cart": "npm run seed --workspace=cart-service"
     },
     "devDependencies": {
         "@types/cors": "^2.8.18",
         "@types/jest": "^29.5.14",
         "@types/node": "^22.14.0",
-        "concurrently": "^9.1.2"
+        "concurrently": "^9.1.2",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.2"
     }
 }
