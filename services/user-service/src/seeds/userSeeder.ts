@@ -1,5 +1,6 @@
 import User from "../models/User";
 import Role from "../models/Role";
+import { generateUserId } from "../utils/idGenerator";
 
 export const seedUsers = async () => {
   try {
@@ -11,16 +12,15 @@ export const seedUsers = async () => {
 
     // Fetch existing role IDs
     const adminRole = await Role.findOne({ NAME: "Admin" });
-    const instructorRole = await Role.findOne({ NAME: "Instructor" });
-    const studentRole = await Role.findOne({ NAME: "Student" });
+    const userRole = await Role.findOne({ NAME: "User" });
 
-    if (!adminRole || !instructorRole || !studentRole) {
+    if (!adminRole || !userRole) {
       throw new Error("Roles must be seeded before users");
     }
 
     const users = [
       {
-        USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcE",
+        USER_ID: generateUserId(),
         EMAIL: "admin@example.com",
         NAME: "Admin User",
         USERNAME: "admin",
@@ -35,13 +35,13 @@ export const seedUsers = async () => {
         STATUS: true,
       },
       {
-        USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcF",
+        USER_ID: generateUserId(),
         EMAIL: "instructor1@example.com",
         NAME: "John Smith",
         USERNAME: "johnsmith",
         PASSWORD: "hashedpassword123",
         PHONE: "1234567891",
-        ROLE_ID: instructorRole.ROLE_ID,
+        ROLE_ID: userRole.ROLE_ID,
         AVATAR: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
         ADDRESS: "456 Instructor Ave",
         BIRTH_DATE: new Date("1985-05-15"),
@@ -50,13 +50,13 @@ export const seedUsers = async () => {
         STATUS: true,
       },
       {
-        USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcG",
+        USER_ID: generateUserId(),
         EMAIL: "instructor2@example.com",
         NAME: "Sarah Johnson",
         USERNAME: "sarahj",
         PASSWORD: "hashedpassword123",
         PHONE: "1234567892",
-        ROLE_ID: instructorRole.ROLE_ID,
+        ROLE_ID: userRole.ROLE_ID,
         AVATAR: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
         ADDRESS: "789 Teacher Blvd",
         BIRTH_DATE: new Date("1988-08-20"),
@@ -65,13 +65,13 @@ export const seedUsers = async () => {
         STATUS: true,
       },
       {
-        USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcH",
+        USER_ID: generateUserId(),
         EMAIL: "student1@example.com",
         NAME: "Michael Brown",
         USERNAME: "michaelb",
         PASSWORD: "hashedpassword123",
         PHONE: "1234567893",
-        ROLE_ID: studentRole.ROLE_ID,
+        ROLE_ID: userRole.ROLE_ID,
         AVATAR: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
         ADDRESS: "321 Student Lane",
         BIRTH_DATE: new Date("2000-03-10"),
@@ -80,13 +80,13 @@ export const seedUsers = async () => {
         STATUS: true,
       },
       {
-        USER_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcI",
+        USER_ID: generateUserId(),
         EMAIL: "student2@example.com",
         NAME: "Emily Davis",
         USERNAME: "emilyd",
         PASSWORD: "hashedpassword123",
         PHONE: "1234567894",
-        ROLE_ID: studentRole.ROLE_ID,
+        ROLE_ID: userRole.ROLE_ID,
         AVATAR: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily",
         ADDRESS: "654 Learner Road",
         BIRTH_DATE: new Date("1999-11-25"),

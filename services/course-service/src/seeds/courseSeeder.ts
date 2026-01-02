@@ -37,7 +37,7 @@ export const seedCourses = async () => {
         APPROVAL_STATUS: "Approved",
         STATUS: true,
         IMAGE_URL:
-          "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
+          "https://img.freepik.com/premium-photo/friends-people-group-teamwork-diversity_53876-58685.jpg?ga=GA1.1.64842012.1748338142&semt=ais_items_boosted&w=740",
         AVERAGE_RATING: 4.8,
         TOTAL_RATINGS: 245,
       },
@@ -60,7 +60,7 @@ export const seedCourses = async () => {
         APPROVAL_STATUS: "Approved",
         STATUS: true,
         IMAGE_URL:
-          "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c",
+          "https://res.cloudinary.com/djf63iwha/image/upload/v1751039713/elearning-courses/xr37lim9inunghf6dk86.jpg",
         AVERAGE_RATING: 4.6,
         TOTAL_RATINGS: 180,
       },
@@ -86,7 +86,8 @@ export const seedCourses = async () => {
         ENROLLMENT_COUNT: 1580,
         APPROVAL_STATUS: "Approved",
         STATUS: true,
-        IMAGE_URL: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+        IMAGE_URL:
+          "https://img.freepik.com/premium-photo/friends-people-group-teamwork-diversity_53876-58685.jpg?ga=GA1.1.64842012.1748338142&semt=ais_items_boosted&w=740",
         AVERAGE_RATING: 4.9,
         TOTAL_RATINGS: 320,
       },
@@ -112,7 +113,8 @@ export const seedCourses = async () => {
         ENROLLMENT_COUNT: 950,
         APPROVAL_STATUS: "Approved",
         STATUS: true,
-        IMAGE_URL: "https://images.unsplash.com/photo-1561070791-2526d30994b5",
+        IMAGE_URL:
+          "https://res.cloudinary.com/djf63iwha/image/upload/v1751160620/elearning-courses/y35rh0dgtfsnk9fbpgad.jpg",
         AVERAGE_RATING: 4.7,
         TOTAL_RATINGS: 195,
       },
@@ -139,7 +141,7 @@ export const seedCourses = async () => {
         APPROVAL_STATUS: "Approved",
         STATUS: true,
         IMAGE_URL:
-          "https://images.unsplash.com/photo-1460925895917-afdab827c52f",
+          "https://res.cloudinary.com/djf63iwha/image/upload/v1751041659/elearning-courses/f55yld4x2urkjbzsrejd.jpg",
         AVERAGE_RATING: 4.5,
         TOTAL_RATINGS: 150,
       },

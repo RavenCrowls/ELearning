@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import path from "path";
 import { seedCategories } from "./categorySeeder";
 
-dotenv.config({ path: "../../../.env" });
+dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
 
 const runSeeders = async () => {
   try {

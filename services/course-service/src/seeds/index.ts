@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import path from "path";
 import { seedCourses } from "./courseSeeder";
 import { seedLectures } from "./lectureSeeder";
 import { seedVideos } from "./videoSeeder";
@@ -8,7 +9,7 @@ import { seedPublishments } from "./publishmentSeeder";
 import { seedComments } from "./commentSeeder";
 import { seedRatings } from "./ratingSeeder";
 
-dotenv.config({ path: "../../../.env" });
+dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
 
 const runSeeders = async () => {
   try {

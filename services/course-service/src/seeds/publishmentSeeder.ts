@@ -13,30 +13,35 @@ export const seedPublishments = async () => {
       {
         PUBLISHMENT_ID: generatePublishmentId(),
         COURSE_ID: "COURSE001",
+        USER_ID: "USER1767346014055917", // John Smith
         PUBLISHED_DATE: new Date("2024-02-01"),
         STATUS: true,
       },
       {
         PUBLISHMENT_ID: generatePublishmentId(),
         COURSE_ID: "COURSE002",
+        USER_ID: "USER1767346014055575", // Sarah Johnson
         PUBLISHED_DATE: new Date("2024-03-15"),
         STATUS: true,
       },
       {
         PUBLISHMENT_ID: generatePublishmentId(),
         COURSE_ID: "COURSE003",
+        USER_ID: "USER1767346014055917", // John Smith
         PUBLISHED_DATE: new Date("2024-04-01"),
         STATUS: true,
       },
       {
         PUBLISHMENT_ID: generatePublishmentId(),
         COURSE_ID: "COURSE004",
+        USER_ID: "USER1767346014055575", // Sarah Johnson
         PUBLISHED_DATE: new Date("2024-05-10"),
         STATUS: true,
       },
       {
         PUBLISHMENT_ID: generatePublishmentId(),
         COURSE_ID: "COURSE005",
+        USER_ID: "USER1767346014055917", // John Smith
         PUBLISHED_DATE: new Date("2024-06-01"),
         STATUS: true,
       },
