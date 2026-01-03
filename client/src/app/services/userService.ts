@@ -23,12 +23,6 @@ export async function getUserById(
   userId: string,
   token?: string
 ): Promise<UserData> {
-  console.log("getUserById called with:", {
-    userId,
-    hasToken: !!token,
-    tokenPreview: token?.substring(0, 20),
-  });
-
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
@@ -39,12 +33,8 @@ export async function getUserById(
 
   const res = await fetch(`${USER_API}/${userId}`, { headers });
 
-  console.log("getUserById response:", { status: res.status, ok: res.ok });
-
   if (!res.ok) {
-    const errorText = await res.text();
-    console.error("getUserById error:", errorText);
-    throw new Error(`Failed to fetch user data: ${res.status} ${errorText}`);
+    throw new Error(`Failed to fetch user data: ${res.status}`);
   }
 
   return res.json();

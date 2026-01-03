@@ -43,8 +43,29 @@ class UserController {
 
   async getAllUsers(req: Request, res: Response) {
     try {
-      const userList = await User.find({ STATUS: 1 });
-      res.status(200).json(userList);
+      // Add pagination and field selection
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const skip = (page - 1) * limit;
+
+      const [userList, total] = await Promise.all([
+        User.find({ STATUS: 1 })
+          .select("-PASSWORD -__v") // Never return passwords
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        User.countDocuments({ STATUS: 1 }),
+      ]);
+
+      res.status(200).json({
+        users: userList,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      });
     } catch (error) {
       res.status(500).json({ message: "Error getting users", error });
     }
@@ -53,7 +74,9 @@ class UserController {
   async getUser(req: Request, res: Response) {
     try {
       const { userId } = req.params;
-      const user = await User.findOne({ USER_ID: userId, STATUS: 1 });
+      const user = await User.findOne({ USER_ID: userId, STATUS: 1 })
+        .select("-PASSWORD -__v") // Never return password
+        .lean();
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }

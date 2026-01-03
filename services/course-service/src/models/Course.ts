@@ -112,6 +112,13 @@ const courseSchema: Schema = new Schema(
   { versionKey: false }
 );
 
+// Add indexes for better query performance
+courseSchema.index({ STATUS: 1 });
+courseSchema.index({ ENROLLMENT_COUNT: -1, STATUS: 1 });
+courseSchema.index({ CREATED_DATE: -1, STATUS: 1 });
+courseSchema.index({ INSTRUCTOR_ID: 1, STATUS: 1 });
+courseSchema.index({ TITLE: "text" }); // For text search
+
 const Course = mongoose.model<ICourse>("Course", courseSchema);
 
 export default Course;

@@ -30,23 +30,28 @@ export function useStudentCourseLists() {
     let isMounted = true;
     setLoading(true);
 
-    fetchEnrollmentsByUser(user.id)
-      .then((data) => {
+    // Get auth token and fetch enrollments
+    const fetchData = async () => {
+      try {
+        const token = await getToken();
+        const data = await fetchEnrollmentsByUser(user.id, token || undefined);
         if (isMounted) {
           setEnrolledCourses(Array.isArray(data) ? data : []);
         }
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error("Error fetching enrollments:", error);
         if (isMounted) setEnrolledCourses([]);
-      })
-      .finally(() => {
+      } finally {
         if (isMounted) setLoading(false);
-      });
+      }
+    };
+
+    fetchData();
 
     return () => {
       isMounted = false;
     };
-  }, [user?.id]); // Only run when user ID changes
+  }, [user?.id, getToken]); // Run when user ID or getToken changes
 
   // Fetch enrolled course details when enrollments change
   useEffect(() => {
@@ -109,7 +114,13 @@ export function useStudentCourseLists() {
         const token = await getToken();
         const results = await Promise.all(
           instructorIds.map((id) =>
-            getUserById(id, token || undefined).catch(() => null)
+            getUserById(id, token || undefined).catch((err) => {
+              // Silently handle missing instructors - they might not be created yet
+              console.debug(
+                `Instructor ${id} not found, will show without name`
+              );
+              return null;
+            })
           )
         );
 
@@ -123,17 +134,19 @@ export function useStudentCourseLists() {
           return newMap;
         });
       } catch (error) {
-        console.error("Error fetching instructors:", error);
+        // Don't log error, just silently fail - this is expected for missing instructors
+        console.debug("Some instructors could not be loaded");
       }
     },
     [getToken]
   );
 
   function mapCourseData(course: any, progress?: number) {
-    let instructorName = "";
+    let instructorName = "Unknown Instructor";
     if (course?.INSTRUCTOR_ID) {
       const instructor = instructors.get(course.INSTRUCTOR_ID);
-      instructorName = instructor?.NAME || instructor?.name || "";
+      instructorName =
+        instructor?.NAME || instructor?.name || "Unknown Instructor";
     }
 
     let tagNames: string[] = [];

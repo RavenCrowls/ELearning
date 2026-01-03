@@ -91,7 +91,10 @@ class EnrollmentController {
   async getEnrollmentsByUserID(req: Request, res: Response) {
     try {
       const { userId } = req.params;
-      const enrollments = await Enrollment.find({ USER_ID: userId, STATUS: 1 });
+      const enrollments = await Enrollment.find({ USER_ID: userId, STATUS: 1 })
+        .select("-__v")
+        .lean(); // Better performance for read-only data
+
       if (!enrollments || enrollments.length === 0) {
         return res
           .status(404)

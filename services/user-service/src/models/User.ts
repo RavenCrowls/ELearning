@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
   USER_ID: string;
@@ -16,60 +16,68 @@ export interface IUser extends Document {
   STATUS: boolean;
 }
 
-const userSchema: Schema = new Schema({
-  USER_ID: {
-    type: String,
-    unique: true,
+const userSchema: Schema = new Schema(
+  {
+    USER_ID: {
+      type: String,
+      unique: true,
+    },
+    ROLE_ID: {
+      type: String,
+      required: true,
+    },
+    NAME: {
+      type: String,
+      required: true,
+    },
+    ADDRESS: {
+      type: String,
+      default: null,
+    },
+    PHONE: {
+      type: String,
+      default: null,
+    },
+    BIRTH_DATE: {
+      type: Date,
+      default: null,
+    },
+    EMAIL: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    USERNAME: {
+      type: String,
+    },
+    PASSWORD: {
+      type: String,
+    },
+    AVATAR: {
+      type: String,
+      default: null,
+    },
+    BIO: {
+      type: String,
+      default: null,
+    },
+    JOIN_DATE: {
+      type: Date,
+      default: Date.now,
+    },
+    STATUS: {
+      type: Boolean,
+      default: true,
+    },
   },
-  ROLE_ID: {
-    type: String,
-    required: true,
-  },
-  NAME: {
-    type: String,
-    required: true,
-  },
-  ADDRESS: {
-    type: String,
-    default: null,
-  },
-  PHONE: {
-    type: String,
-    default: null,
-  },
-  BIRTH_DATE: {
-    type: Date,
-    default: null,
-  },
-  EMAIL: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  USERNAME: {
-    type: String,
-  },
-  PASSWORD: {
-    type: String,
-  },
-  AVATAR: {
-    type: String,
-    default: null,
-  },
-  BIO: {
-    type: String,
-    default: null,
-  },
-  JOIN_DATE: {
-    type: Date,
-    default: Date.now,
-  },
-  STATUS: {
-    type: Boolean,
-    default: true,
-  },
-}, { versionKey: false });
+  { versionKey: false }
+);
 
-const User = mongoose.model<IUser>('User', userSchema);
+// Add indexes for better query performance
+userSchema.index({ USER_ID: 1, STATUS: 1 });
+userSchema.index({ EMAIL: 1 });
+userSchema.index({ USERNAME: 1 });
+
+const User = mongoose.model<IUser>("User", userSchema);
 
 export default User;

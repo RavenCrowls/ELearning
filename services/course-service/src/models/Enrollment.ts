@@ -40,6 +40,11 @@ const enrollmentSchema: Schema = new Schema(
   { versionKey: false }
 );
 
+// Add indexes for better query performance
+enrollmentSchema.index({ USER_ID: 1, STATUS: 1 }); // For user enrollments
+enrollmentSchema.index({ COURSE_ID: 1, STATUS: 1 }); // For course enrollments
+enrollmentSchema.index({ USER_ID: 1, COURSE_ID: 1 }, { unique: true }); // Prevent duplicate enrollments
+
 const Enrollment = mongoose.model<IEnrollment>("Enrollment", enrollmentSchema);
 
 export default Enrollment;
