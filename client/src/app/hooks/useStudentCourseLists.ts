@@ -1,94 +1,189 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
-import { fetchEnrollmentsByUser } from '@/app/services/enrollmentService';
-import { fetchCourse, fetchNewestCourses, fetchPopularCourses } from '@/app/services/courseService';
-import { listUsers } from '@/app/services/userService';
-import { fetchAllCategories } from '@/app/services/categoryService';
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import { fetchEnrollmentsByUser } from "@/app/services/enrollmentService";
+import { fetchCourse } from "@/app/services/courseService";
+import { getUserById } from "@/app/services/userService";
+import { useAuth } from "@clerk/nextjs";
+import { useDataCache } from "@/app/contexts/DataCacheContext";
 
 export function useStudentCourseLists() {
-    const router = useRouter();
-    const { user } = useUser();
-    const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
-    const [enrolledCourseDetails, setEnrolledCourseDetails] = useState<any[]>([]);
-    const [popularCourses, setPopularCourses] = useState<any[]>([]);
-    const [newestCourses, setNewestCourses] = useState<any[]>([]);
-    const [users, setUsers] = useState<any[]>([]);
-    const [categories, setCategories] = useState<any[]>([]);
+  const router = useRouter();
+  const { user } = useUser();
+  const { getToken } = useAuth();
+  const { categories, popularCourses, newestCourses } = useDataCache();
+  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
+  const [enrolledCourseDetails, setEnrolledCourseDetails] = useState<any[]>([]);
+  const [instructors, setInstructors] = useState<Map<string, any>>(new Map());
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (!user) return;
-        fetchEnrollmentsByUser(user.id)
-            .then(data => setEnrolledCourses(Array.isArray(data) ? data : []))
-            .catch(() => setEnrolledCourses([]));
-        listUsers().then(setUsers).catch(() => setUsers([]));
-        fetchAllCategories().then(setCategories).catch(() => setCategories([]));
-        fetchPopularCourses().then(setPopularCourses).catch(() => setPopularCourses([]));
-        fetchNewestCourses().then(setNewestCourses).catch(() => setNewestCourses([]));
-    }, [user]);
+  // Fetch user-specific data when user changes
+  useEffect(() => {
+    if (!user) {
+      setEnrolledCourses([]);
+      setLoading(false);
+      return;
+    }
 
-    useEffect(() => {
-        if (!enrolledCourses || enrolledCourses.length === 0) {
-            setEnrolledCourseDetails([]);
-            return;
+    let isMounted = true;
+    setLoading(true);
+
+    fetchEnrollmentsByUser(user.id)
+      .then((data) => {
+        if (isMounted) {
+          setEnrolledCourses(Array.isArray(data) ? data : []);
         }
-        let isMounted = true;
-        Promise.all(
-            enrolledCourses.map((enroll: any) =>
-                fetchCourse(Number(enroll.COURSE_ID)).catch(() => null)
-            )
-        ).then((details) => {
-            if (isMounted) {
-                setEnrolledCourseDetails(Array.isArray(details) ? details.filter(Boolean) : []);
-            }
+      })
+      .catch(() => {
+        if (isMounted) setEnrolledCourses([]);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id]); // Only run when user ID changes
+
+  // Fetch enrolled course details when enrollments change
+  useEffect(() => {
+    if (!enrolledCourses || enrolledCourses.length === 0) {
+      setEnrolledCourseDetails([]);
+      return;
+    }
+
+    let isMounted = true;
+
+    Promise.all(
+      enrolledCourses.map((enroll: any) =>
+        fetchCourse(Number(enroll.COURSE_ID)).catch(() => null)
+      )
+    ).then((details) => {
+      if (isMounted) {
+        const validDetails = details.filter(Boolean);
+        setEnrolledCourseDetails(validDetails);
+
+        // Fetch only unique instructors we don't have yet
+        const instructorIds = new Set<string>();
+        validDetails.forEach((course: any) => {
+          if (course?.INSTRUCTOR_ID && !instructors.has(course.INSTRUCTOR_ID)) {
+            instructorIds.add(course.INSTRUCTOR_ID);
+          }
         });
-        return () => { isMounted = false; };
-    }, [enrolledCourses]);
 
-    function mapCourseData(course: any, progress?: number) {
-        let instructorName = '';
-        if (course?.INSTRUCTOR_ID && Array.isArray(users)) {
-            const u = users.find((usr: any) => usr.USER_ID === course.INSTRUCTOR_ID || usr.id === course.INSTRUCTOR_ID);
-            instructorName = u && (u.NAME || u.name) ? (u.NAME || u.name) : '';
+        // Fetch instructors in parallel
+        if (instructorIds.size > 0) {
+          fetchInstructors(Array.from(instructorIds));
         }
-        let tagNames: string[] = [];
-        if (Array.isArray(categories)) {
-            if (Array.isArray(course?.CATEGORIES)) {
-                course.CATEGORIES.forEach((catId: string) => {
-                    const cat = categories.find((c: any) => c.CATEGORY_ID === catId);
-                    if (cat?.NAME) {
-                        tagNames.push(cat.NAME);
-                        if (Array.isArray(cat.SUB_CATEGORIES) && Array.isArray(course.SUB_CATEGORIES)) {
-                            course.SUB_CATEGORIES.forEach((subId: string) => {
-                                const sub = cat.SUB_CATEGORIES.find((s: any) => s.SUB_CATEGORY_ID === subId);
-                                if (sub?.NAME) tagNames.push(sub.NAME);
-                            });
-                        }
-                    }
-                });
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [enrolledCourses]);
+
+  // Fetch instructors for popular and newest courses
+  useEffect(() => {
+    const allCourses = [...popularCourses, ...newestCourses];
+    const instructorIds = new Set<string>();
+
+    allCourses.forEach((course: any) => {
+      if (course?.INSTRUCTOR_ID && !instructors.has(course.INSTRUCTOR_ID)) {
+        instructorIds.add(course.INSTRUCTOR_ID);
+      }
+    });
+
+    if (instructorIds.size > 0) {
+      fetchInstructors(Array.from(instructorIds));
+    }
+  }, [popularCourses, newestCourses]);
+
+  // Helper to fetch multiple instructors
+  const fetchInstructors = useCallback(
+    async (instructorIds: string[]) => {
+      try {
+        const token = await getToken();
+        const results = await Promise.all(
+          instructorIds.map((id) =>
+            getUserById(id, token || undefined).catch(() => null)
+          )
+        );
+
+        setInstructors((prev) => {
+          const newMap = new Map(prev);
+          results.forEach((instructor, index) => {
+            if (instructor) {
+              newMap.set(instructorIds[index], instructor);
             }
+          });
+          return newMap;
+        });
+      } catch (error) {
+        console.error("Error fetching instructors:", error);
+      }
+    },
+    [getToken]
+  );
+
+  function mapCourseData(course: any, progress?: number) {
+    let instructorName = "";
+    if (course?.INSTRUCTOR_ID) {
+      const instructor = instructors.get(course.INSTRUCTOR_ID);
+      instructorName = instructor?.NAME || instructor?.name || "";
+    }
+
+    let tagNames: string[] = [];
+    if (Array.isArray(categories) && Array.isArray(course?.CATEGORIES)) {
+      course.CATEGORIES.forEach((catId: string) => {
+        const cat = categories.find((c: any) => c.CATEGORY_ID === catId);
+        if (cat?.NAME) {
+          tagNames.push(cat.NAME);
+          if (
+            Array.isArray(cat.SUB_CATEGORIES) &&
+            Array.isArray(course.SUB_CATEGORIES)
+          ) {
+            course.SUB_CATEGORIES.forEach((subId: string) => {
+              const sub = cat.SUB_CATEGORIES.find(
+                (s: any) => s.SUB_CATEGORY_ID === subId
+              );
+              if (sub?.NAME) tagNames.push(sub.NAME);
+            });
+          }
         }
-        return {
-            id: course?.COURSE_ID || course?.id || '',
-            title: course?.TITLE || course?.title || '',
-            image: course?.IMAGE_URL || course?.image || '',
-            progress: progress ?? course?.progress ?? 0,
-            price: course?.PRICE !== undefined ? `${course.PRICE.toLocaleString()} ₫` : (course?.price || ''),
-            rating: course?.RATING ? parseFloat(course.RATING[0]) : (course?.rating || 0),
-            reviewCount: course?.RATING ? parseInt(course.RATING[1]) : (course?.reviewCount || 0),
-            instructor: instructorName || course?.instructor || '',
-            tags: tagNames.length > 0 ? tagNames : (course?.tags || []),
-        };
+      });
     }
 
     return {
-        router,
-        enrolledCourses,
-        enrolledCourseDetails,
-        popularCourses,
-        newestCourses,
-        mapCourseData,
+      id: course?.COURSE_ID || course?.id || "",
+      title: course?.TITLE || course?.title || "",
+      image: course?.IMAGE_URL || course?.image || "",
+      progress: progress ?? course?.progress ?? 0,
+      price:
+        course?.PRICE !== undefined
+          ? `${course.PRICE.toLocaleString()} ₫`
+          : course?.price || "",
+      rating: course?.RATING
+        ? parseFloat(course.RATING[0])
+        : course?.rating || 0,
+      reviewCount: course?.RATING
+        ? parseInt(course.RATING[1])
+        : course?.reviewCount || 0,
+      instructor: instructorName || course?.instructor || "",
+      tags: tagNames.length > 0 ? tagNames : course?.tags || [],
     };
+  }
+
+  return {
+    router,
+    enrolledCourses,
+    enrolledCourseDetails,
+    popularCourses,
+    newestCourses,
+    mapCourseData,
+    loading,
+  };
 }

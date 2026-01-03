@@ -23,12 +23,30 @@ export async function getUserById(
   userId: string,
   token?: string
 ): Promise<UserData> {
-  const res = await fetch(`${USER_API}/${userId}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  console.log("getUserById called with:", {
+    userId,
+    hasToken: !!token,
+    tokenPreview: token?.substring(0, 20),
   });
-  if (!res.ok) {
-    throw new Error("Failed to fetch user data");
+
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
+
+  const res = await fetch(`${USER_API}/${userId}`, { headers });
+
+  console.log("getUserById response:", { status: res.status, ok: res.ok });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("getUserById error:", errorText);
+    throw new Error(`Failed to fetch user data: ${res.status} ${errorText}`);
+  }
+
   return res.json();
 }
 
