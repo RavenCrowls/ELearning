@@ -1,5 +1,10 @@
 import { execSync } from "child_process";
 import path from "path";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+// Load environment variables from root .env file
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const runCommand = (command: string, cwd: string) => {
   try {
@@ -11,9 +16,41 @@ const runCommand = (command: string, cwd: string) => {
   }
 };
 
+const clearDatabase = async () => {
+  try {
+    const MONGO_URI = process.env.MONGO_URI;
+    if (!MONGO_URI) {
+      throw new Error("MONGO_URI not found in environment variables");
+    }
+
+    console.log("\nConnecting to MongoDB to clear existing data...");
+    await mongoose.connect(MONGO_URI);
+
+    const db = mongoose.connection.db;
+    if (!db) throw new Error("Database connection failed");
+
+    const collections = await db.listCollections().toArray();
+    console.log(`Found ${collections.length} collections to drop`);
+
+    for (const collection of collections) {
+      await db.dropCollection(collection.name);
+      console.log(`Dropped collection: ${collection.name}`);
+    }
+
+    await mongoose.disconnect();
+    console.log("Database cleared successfully!\n");
+  } catch (error) {
+    console.error("Error clearing database:", error);
+    throw error;
+  }
+};
+
 const seedAll = async () => {
   console.log("\nStarting Database Seeding Process...\n");
   console.log("═".repeat(60));
+
+  // Clear existing data first
+  await clearDatabase();
 
   const servicesPath = __dirname;
   const services = [

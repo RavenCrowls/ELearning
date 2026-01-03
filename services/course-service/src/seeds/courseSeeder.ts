@@ -11,16 +11,12 @@ export const seedCourses = async () => {
 
     const courses = [
       {
-        COURSE_ID: generateCourseId(),
+        COURSE_ID: "COURSE001",
         TITLE: "Complete Web Development Bootcamp",
-        INSTRUCTOR_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcF",
+        INSTRUCTOR_ID: "USER002",
         CREATED_DATE: new Date("2024-01-15"),
         CATEGORIES: ["CAT001"],
-        SUB_CATEGORIES: [
-          "Frontend Development",
-          "Backend Development",
-          "Full Stack Development",
-        ],
+        SUB_CATEGORIES: ["SUBCAT001", "SUBCAT002", "SUBCAT003"],
         RATING: ["4.8", "245"],
         DESCRIPTION:
           "Learn web development from scratch. HTML, CSS, JavaScript, React, Node.js, and more!",
@@ -42,12 +38,12 @@ export const seedCourses = async () => {
         TOTAL_RATINGS: 245,
       },
       {
-        COURSE_ID: generateCourseId(),
+        COURSE_ID: "COURSE002",
         TITLE: "iOS Development with Swift",
-        INSTRUCTOR_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcF",
+        INSTRUCTOR_ID: "USER002",
         CREATED_DATE: new Date("2024-02-10"),
         CATEGORIES: ["CAT002"],
-        SUB_CATEGORIES: ["iOS Development"],
+        SUB_CATEGORIES: ["SUBCAT004"],
         RATING: ["4.6", "180"],
         DESCRIPTION:
           "Master iOS app development using Swift and SwiftUI. Build real-world applications.",
@@ -65,12 +61,12 @@ export const seedCourses = async () => {
         TOTAL_RATINGS: 180,
       },
       {
-        COURSE_ID: generateCourseId(),
+        COURSE_ID: "COURSE003",
         TITLE: "Data Science with Python",
-        INSTRUCTOR_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcG",
+        INSTRUCTOR_ID: "USER003",
         CREATED_DATE: new Date("2024-03-05"),
         CATEGORIES: ["CAT003"],
-        SUB_CATEGORIES: ["Machine Learning", "Data Analysis"],
+        SUB_CATEGORIES: ["SUBCAT007", "SUBCAT008"],
         RATING: ["4.9", "320"],
         DESCRIPTION:
           "Complete data science course covering Python, pandas, numpy, scikit-learn, and machine learning.",
@@ -92,12 +88,12 @@ export const seedCourses = async () => {
         TOTAL_RATINGS: 320,
       },
       {
-        COURSE_ID: generateCourseId(),
+        COURSE_ID: "COURSE004",
         TITLE: "UI/UX Design Masterclass",
-        INSTRUCTOR_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcG",
+        INSTRUCTOR_ID: "USER003",
         CREATED_DATE: new Date("2024-04-20"),
         CATEGORIES: ["CAT004"],
-        SUB_CATEGORIES: ["UI/UX Design", "Web Design"],
+        SUB_CATEGORIES: ["SUBCAT010", "SUBCAT012"],
         RATING: ["4.7", "195"],
         DESCRIPTION:
           "Learn modern UI/UX design principles, Figma, user research, and prototyping.",
@@ -119,12 +115,12 @@ export const seedCourses = async () => {
         TOTAL_RATINGS: 195,
       },
       {
-        COURSE_ID: generateCourseId(),
+        COURSE_ID: "COURSE005",
         TITLE: "Digital Marketing Fundamentals",
-        INSTRUCTOR_ID: "user_2oUjQZfVMq8kLx1NpY3RtW4bHcF",
+        INSTRUCTOR_ID: "USER002",
         CREATED_DATE: new Date("2024-05-12"),
         CATEGORIES: ["CAT005"],
-        SUB_CATEGORIES: ["Marketing"],
+        SUB_CATEGORIES: ["SUBCAT013"],
         RATING: ["4.5", "150"],
         DESCRIPTION:
           "Master digital marketing strategies including SEO, social media, email marketing, and analytics.",

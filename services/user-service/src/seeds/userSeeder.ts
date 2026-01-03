@@ -20,7 +20,7 @@ export const seedUsers = async () => {
 
     const users = [
       {
-        USER_ID: generateUserId(),
+        USER_ID: "USER001",
         EMAIL: "admin@example.com",
         NAME: "Admin User",
         USERNAME: "admin",
@@ -35,7 +35,7 @@ export const seedUsers = async () => {
         STATUS: true,
       },
       {
-        USER_ID: generateUserId(),
+        USER_ID: "USER002",
         EMAIL: "instructor1@example.com",
         NAME: "John Smith",
         USERNAME: "johnsmith",
@@ -50,7 +50,7 @@ export const seedUsers = async () => {
         STATUS: true,
       },
       {
-        USER_ID: generateUserId(),
+        USER_ID: "USER003",
         EMAIL: "instructor2@example.com",
         NAME: "Sarah Johnson",
         USERNAME: "sarahj",
@@ -65,7 +65,7 @@ export const seedUsers = async () => {
         STATUS: true,
       },
       {
-        USER_ID: generateUserId(),
+        USER_ID: "USER004",
         EMAIL: "student1@example.com",
         NAME: "Michael Brown",
         USERNAME: "michaelb",
@@ -80,7 +80,7 @@ export const seedUsers = async () => {
         STATUS: true,
       },
       {
-        USER_ID: generateUserId(),
+        USER_ID: "USER005",
         EMAIL: "student2@example.com",
         NAME: "Emily Davis",
         USERNAME: "emilyd",
